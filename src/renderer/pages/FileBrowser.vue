@@ -3,19 +3,25 @@
     <v-text-field v-model="search" label="Opponent Name" />
     <v-card>
       <v-card-title>Slippi Files</v-card-title>
-      <v-list>
-        <v-list-item
-          v-for="{ FileName, names, Stage, oppName } in filteredItems"
-          :key="FileName"
-        >
-          <v-list-item-title>
-            {{ names[0] }} vs {{ names[1] }}
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            {{ Stage }}
-          </v-list-item-subtitle>
-        </v-list-item>
-      </v-list>
+      <v-virtual-scroll
+        item-height="50"
+        height="300"
+        :items="[...filteredItems]"
+      >
+        <template #default="{ item }">
+          <v-list-item :key="item.FileName">
+            <v-list-item-content>
+              <v-list-item-title>
+                <!-- {{ names[0] }} vs {{ names[1] }} -->
+                {{ item.FileName }}
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ item.Stage }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+      </v-virtual-scroll>
     </v-card>
     <v-snackbar v-model="snackbarS" type="error"
       >Couldn't load Files</v-snackbar
@@ -25,6 +31,7 @@
 
 <script>
 // TODO: Alert user when bad file is parsed.
+// TODO: #3 Load a segment of files when scrollbar hits a threshold
 const electron = require("electron");
 const Store = require("electron-store");
 const store = new Store();
@@ -55,7 +62,7 @@ export default {
       electron.ipcRenderer.invoke("GetFileArray").then(
         (result) => {
           this.File_list = result;
-          console.log(result[0].names);
+          console.log(this.filteredItems);
         },
         (result) => {
           this.snackbarS = true;
