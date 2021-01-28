@@ -20,8 +20,8 @@
         ref="Rep_Dir"
         v-model="Replay_Directory"
         label="Replay Directory"
-        append-icon="mdi-folder"
-        @click:append="opendir"
+        prepend-icon="mdi-folder"
+        @click:prepend="opendir"
       >
       </v-text-field>
       <v-btn
@@ -110,8 +110,7 @@ export default {
     },
     opendir() {
       electron.ipcRenderer.invoke("OpenDialog").then((result) => {
-        console.log(typeof result);
-        this.Replay_Directory = result;
+        this.Replay_Directory ||= result;
       });
     },
   },

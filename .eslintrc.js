@@ -1,25 +1,19 @@
+/** @type import("eslint").Linter.Config */
 module.exports = {
   root: true,
   env: {
     browser: true,
     node: true,
-  },
-  globals: {
-    __resources: true,
+    es2021: true,
   },
   parserOptions: {
+    ecmaVersion: 12,
     sourceType: "module",
-    parser: "babel-eslint",
   },
   plugins: ["prettier"],
   extends: ["@nuxtjs", "prettier", "prettier/vue"],
-  // add your custom rules here
   rules: {
-    // StandardJS — The Rules
-    "max-len": ["error", { code: 120 }],
-    "no-console": "off",
     // "arrow-parens": ["error", "as-needed"],
-    curly: ["error", "multi-line"],
     "import/no-extraneous-dependencies": "off",
     "require-await": 0,
 
@@ -33,6 +27,7 @@ module.exports = {
 
     "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
 
+    "no-undef": "off",
     "vue/max-attributes-per-line": "off",
     "vue/singleline-html-element-content-newline": 0,
   },
