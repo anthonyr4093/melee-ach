@@ -1,0 +1,86 @@
+<template>
+  <div>
+    <v-navigation-drawer v-model="show" width="33%" fixed app>
+      <v-list nav>
+        <div>
+          <v-hover v-slot:default="{ hover }">
+            <div>
+              <v-list-item
+                v-for="{ title, route, icon } in items"
+                :key="title"
+                :to="route"
+                router
+                exact
+              >
+                <v-list-item-icon class="my-auto">
+                  <v-icon>{{ icon + (hover ? "" : "-outline") }}</v-icon>
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                  <v-list-item-title>{{ title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </div>
+          </v-hover>
+        </div>
+      </v-list>
+    </v-navigation-drawer>
+  </div>
+</template>
+
+<script>
+// import os from "os";
+// import path from "path";
+
+// import SlippiGame from "@slippi/slippi-js";
+
+export default {
+  props: {
+    showMenu: {
+      type: Boolean,
+    },
+  },
+  data() {
+    return {
+      items: [
+        {
+          route: "achievements",
+          title: "Achievements",
+          icon: "mdi-trophy-variant",
+        },
+        {
+          route: "settings",
+          title: "Settings",
+          icon: "mdi-trophy-variant",
+        },
+        { route: "FileBrowser", title: "Slippi Files", icon: "mdi-folder" },
+        // { route: "catagory", title: "Catagory", icon: "mdi-trophy-variant" },
+
+        // { route: "schedule", title: "Schedule", icon: "mdi-calendar" }, // ? -clock
+        // { route: "grades", title: "Grades", icon: "mdi-clipboard-check" },
+      ],
+    };
+  },
+  computed: {
+    show: {
+      get() {
+        return this.showMenu;
+      },
+      set(value) {
+        this.$emit("update:showMenu", value);
+      },
+    },
+  },
+  // mounted() {
+  //   switch (os.platform()) {
+  //     case "win32":
+  //       console.log(
+  //         fs.readdirSync(`${os.homedir()}\\Documents\\Slippi`),
+  //         "utf8"
+  //       );
+
+  //       break;
+  //   }
+  // },
+};
+</script>
