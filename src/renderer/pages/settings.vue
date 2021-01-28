@@ -14,34 +14,29 @@
       </v-card>
     </v-dialog>
     <v-form>
-      <v-text-field
-        ref="Username"
-        v-model="Username"
-        label="Username"
-        style="margin: 3px"
-      >
+      <v-text-field ref="Username" v-model="Username" label="Username">
       </v-text-field>
       <v-text-field
         ref="Rep_Dir"
         v-model="Replay_Directory"
-        style="margin: 3px"
         label="Replay Directory"
         append-icon="mdi-folder"
         @click:append="opendir"
       >
       </v-text-field>
-      <v-col>
-        <v-btn
-          :loading="loading"
-          :color="btncolor"
-          style="margin: 3px"
-          @click="submit"
-        >
-          <v-icon left>{{ Sicon }}</v-icon>
-          {{ btntext }}</v-btn
-        >
-        <v-btn @click="dialog = true"> clear data </v-btn>
-      </v-col>
+      <v-btn
+        :loading="loading"
+        :color="btncolor"
+        class="mt-3 mr-2"
+        @click="submit"
+      >
+        <v-icon left>{{ Sicon }}</v-icon>
+        {{ btntext }}</v-btn
+      >
+      <v-btn class="mt-3" @click="dialog = true">
+        <v-icon left>{{ nuke_icon }}</v-icon>
+        clear data
+      </v-btn>
     </v-form>
   </div>
 </template>
@@ -50,6 +45,7 @@
 import Vue from "vue";
 import Vuelidate from "vuelidate";
 Vue.use(Vuelidate);
+const Path = require("path");
 const electron = require("electron");
 const Store = require("electron-store");
 const store = new Store();
@@ -60,6 +56,8 @@ const achstore = new Store(Achstoredata);
 export default {
   data() {
     return {
+      file: "",
+      nuke_icon: "mdi-trash-can-outline",
       dialog: false,
       Sicon: "mdi-content-save-outline",
       Username: store.get("username", null),
@@ -81,20 +79,21 @@ export default {
     WipeData() {
       store.clear();
       datastore.clear();
-      datastore.clear();
+      achstore.clear();
       this.dialog = false;
       console.log("Data Wiped Clean!");
+      this.nuke_icon = "mdi-nuke";
+      setTimeout(() => {
+        this.nuke_icon = "mdi-trash-can-outline";
+      }, 3000);
     },
     submit() {
       this.loading = true;
 
-      const userdata = {
-        username: this.Username,
-        Replay_Directory: this.Replay_Directory,
-      };
+      const { path } = this.file;
 
       electron.ipcRenderer
-        .invoke("IsSettingsValid?", userdata)
+        .invoke("IsSettingsValid?", Path.resolve(path, ".../"))
         .then((result) => {
           if (result === true) {
             this.loading = false;
