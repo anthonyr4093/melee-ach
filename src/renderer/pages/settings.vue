@@ -88,9 +88,13 @@ export default {
     },
     submit() {
       this.loading = true;
+      const userdata = {
+        username: this.Username,
+        Replay_Directory: this.Replay_Directory,
+      };
 
       electron.ipcRenderer
-        .invoke("IsSettingsValid?", this.Replay_Directory)
+        .invoke("IsSettingsValid?", userdata)
         .then((result) => {
           if (result === true) {
             this.loading = false;

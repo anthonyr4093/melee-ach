@@ -46,16 +46,12 @@ const Achstoredata = { name: "Ach" };
 const datastore = new Store(datastoredata);
 const achstore = new Store(Achstoredata);
 
-achstore.set("dummy", null);
-
-datastore.set("dummy", null);
-
 const replayDir = () =>
   (store.get("Replay_Directory") as string).replace(/\\\\/g, "\\");
 
 electron.ipcMain.handle("IsSettingsValid?", function (event, args) {
   //console.log("Checking...");
-  const rep = args.Replay_Directory[0].toString().replace(/\\\\/g, "\\");
+  const rep = args.Replay_Directory.toString().replace(/\\\\/g, "\\");
   // console.log(typeof rep);
   if (fs.existsSync(rep)) {
     // console.log("Settings Are Valid");
@@ -197,9 +193,9 @@ function AchievementUnlock(
     //console.log("Checking Ach: " + AchName + " Against: " + int);
 
     if (int > ChumpCheck[i]) {
-      const key = `${AchName} ${i + 1}`;
+      const key = `${AchName}${i + 1}`;
 
-      achievements[key].unlocked = true;
+      //achievements[key].unlocked = true;
       achstore.set(key, true);
 
       continue;
@@ -258,7 +254,7 @@ function CheckMoveKill(gamefile: string, AttackID: number, Uname: string) {
           ]?.post.lastAttackLanded as number) === AttackID
         )
           count += 1;
-        }
+      }
     }
   }
   return count;
@@ -291,13 +287,11 @@ function CheckActionID(gamefile: string, ActionID: number, Uname: string) {
         ActionID
       )
         continue;
-      } else {
-        console.log("Set Last Frame Check to false");
-
-        LastFrameCheck = false;
-        continue;
-      }
+    } else {
+      LastFrameCheck = false;
+      continue;
     }
+  }
 
   return count;
 }
@@ -337,12 +331,7 @@ function ItemIDCheck(gamefile: string, itemid: number, Uname: string) {
  * @param AttackID The move that should be checked.
  * @param ActionStateID This is the action state id of the move
  */
-function CheckLastHit(
-  gamefile: string,
-  AttackID: number,
-  ActionStateID: number,
-  Uname: string
-) {
+function CheckLastHit(gamefile: string, AttackID: number, Uname: string) {
   let LastFrameCheck = false;
   let count = 0;
   const rep = replayDir();
@@ -360,23 +349,15 @@ function CheckLastHit(
         // console.log("Shine Frame: " + i);}
         continue;
       } else if (
-        frames[i].players[name(gamefile, Uname)]?.post.actionStateId ==
-        ActionStateID
+        frames[i].players[name(gamefile, Uname)]?.post.lastAttackLanded ==
+        AttackID
       )
         continue;
       else {
+        console.log();
+
         LastFrameCheck = false;
         continue;
-      } else {
-        if (
-          frames[i].players[name(gamefile, Uname)].post.actionStateId ==
-          ActionStateID
-        ) {
-          continue;
-        } else {
-          LastFrameCheck = false;
-          continue;
-        }
       }
     }
   }
@@ -471,7 +452,7 @@ function marioParse(gamefile, uname) {
 function FalconParse(gamefile, uname) {
   let Knee = 0;
   Knee += CheckMoveKill(gamefile, 14, uname);
-  return { kn: Knee, fp: CheckLastHit(gamefile, 18, 347, uname) };
+  return { kn: Knee, fp: CheckLastHit(gamefile, 18, uname) };
 }
 
 function SamusParse(gamefile, uname) {
@@ -491,7 +472,7 @@ function MarthParse(gamefile, uname) {
 function JigglypuffParse(gamefile, uname) {
   let JiggBackair = 0;
   let JiggRest = 0;
-  JiggBackair += CheckLastHit(gamefile, 15, 67, uname);
+  JiggBackair += CheckLastHit(gamefile, 15, uname);
   JiggRest += CheckMoveKill(gamefile, 21, uname);
   return { bair: JiggBackair, Rest: JiggRest };
 }
@@ -526,7 +507,7 @@ function GannonParse(gamefile, uname) {
   let GanSpike = 0;
   let GanPunch = 0;
   GanSpike += CheckMoveKill(gamefile, 17, uname);
-  GanPunch += CheckLastHit(gamefile, 18, 347, uname);
+  GanPunch += CheckLastHit(gamefile, 18, uname);
   return { GS: GanSpike, GP: GanPunch };
 }
 function PikachuParse(gamefile, uname) {
@@ -571,7 +552,6 @@ function PeachParse(gamefile, Uname) {
             frames[n].frame[i].turnipFace === 7
           )
             PeachStich += 1;
-          }
         }
       }
     }
@@ -581,15 +561,15 @@ function PeachParse(gamefile, Uname) {
 function YoshiParse(gamefile, uname) {
   let YoshiNair = 0;
   let YoshiDownSmash = 0;
-  YoshiNair += CheckLastHit(gamefile, 13, 65, uname);
+  YoshiNair += CheckLastHit(gamefile, 13, uname);
   YoshiDownSmash += CheckMoveKill(gamefile, 12, uname);
   return { YN: YoshiNair, YDS: YoshiDownSmash };
 }
 function BowserParse(gamefile, uname) {
   let BowserNair = 0;
   let BowserUpB = 0;
-  BowserNair += CheckLastHit(gamefile, 13, 65, uname);
-  BowserUpB += CheckLastHit(gamefile, 20, 359, uname);
+  BowserNair += CheckLastHit(gamefile, 13, uname);
+  BowserUpB += CheckLastHit(gamefile, 20, uname);
   return { BN: BowserNair, BUB: BowserUpB };
 }
 function YoungLinkParse(gamefile, uname) {
@@ -604,7 +584,7 @@ function KirbyParse(gamefile, uname) {
   let KirbyNair = 0;
   KirbyCide +=
     CheckMoveKill(gamefile, 53, uname) + CheckMoveKill(gamefile, 54, uname);
-  KirbyNair += CheckLastHit(gamefile, 13, 65, uname);
+  KirbyNair += CheckLastHit(gamefile, 13, uname);
   return { KC: KirbyCide, KN: KirbyNair };
 }
 function ZeldaParse(gamefile, uname) {
@@ -633,8 +613,7 @@ function NessParse(gamefile, uname) {
   let NessDair = 0;
   NessDair += CheckMoveKill(gamefile, 17, uname);
   NessUpb +=
-    CheckLastHit(gamefile, 20, 360, uname) +
-    CheckLastHit(gamefile, 20, 364, uname);
+    CheckLastHit(gamefile, 20, uname) + CheckLastHit(gamefile, 20, uname);
   return { NUB: NessUpb, ND: NessDair };
 }
 function PichuParse(gamefile, uname) {
@@ -665,64 +644,7 @@ function IceClimbersParse(gamefile, uname) {
   ICFS += CheckMoveKill(gamefile, 10, uname);
   return { DS: ICDS, FS: ICFS };
 }
-// TODO: Load Values From JSON. This is going to be a pain
-/*
-let FoxShine_Total = 0;
-let SS_Total = 0;
-let fireball_Total = 0;
-let MarSpike_Total = 0;
-let FalcKnee_Total = 0;
-let FalcPunch_Total = 0;
-let DonkeyP_Total = 0;
-let CargoThrow_Total = 0;
-let LuigiWD_Total = 0;
-let Misfire_Total = 0;
-let Marth_Spike_Total = 0;
-let Marth_Grab_Total = 0;
-let JigglyBackair_Total = 0;
-let JigglyRest_Total = 0;
-let Samus_cs_Total = 0;
-let Samus_ms_Total = 0;
-let FalcoDair_Total = 0;
-let FalcoLaser_Total = 0;
-let GannonPunch_Total = 0;
-let GannonSpike_Total = 0;
-let Tailspike_Total = 0;
-let TJolt_Total = 0;
-let ShiekNair_Total = 0;
-let ShiekNeedles_Total = 0;
-let LinkNair_Total = 0;
-let LinkBomb_Total = 0;
-let PeachFair_Total = 0;
-let PeachStitch_Total = 0;
-let YoshiNair_Total = 0;
-let YoshiDownSmash_Total = 0;
-let BowserNair_Total = 0;
-let BowserUpB_Total = 0;
-let YinkArrow_Total = 0;
-let YinkDownSmash_Total = 0;
-let KirbyCide_Total = 0;
-let KirbyNair_Total = 0;
-let ZeldaFair_Total = 0;
-let ZeldaFire_Total = 0;
-let GNWK_Total = 0;
-let GNWN_Total = 0;
-let MewtwoShadowBall_Total = 0;
-let MewtwoFair_Total = 0;
-let NessDair_Total = 0;
-let NessUbB_Total = 0;
-let PichuBair_Total = 0;
-let PichuTjolt_Total = 0;
-let DoctorMarioPill_Total = 0;
-let DoctorMarioFair_Total = 0;
-let RoyFsmash_Total = 0;
-let RoyB_Total = 0;
-let IceClimbersFS_Total = 0;
-let IceClimbersDS_Total = 0;
-let stock_count = 0;
-let Damage_total = 0;
-let Game_Total = 0;
-*/
+
 function AddToStore(storename: string, addint: number) {
   datastore.set(storename, datastore.get(storename, 0) + addint);
 }
@@ -1095,214 +1017,17 @@ function Thisisstupid(ClassBaseName, ArrrValues, ArrName) {
   }
   return ArrName;
 }
-/*
-let FalconArray = [
-  FalconPunch1,
-  FalconPunch2,
-  FalconPunch3,
-  Knee1,
-  Knee2,
-  Knee3,
-];
-let DonkeyKongArray = [
-  DonkeyP1,
-  DonkeyP2,
-  DonkeyP3,
-  CargoThrow1,
-  CargoThrow2,
-  CargoThrow3,
-];
-let FoxArray = [shine1, shine2, shine3, ShineSpike1, ShineSpike2, ShineSpike3];
-let GNWArray = [GNWKey1, GNWKey2, GNWKey3, GNWNair1, GNWNair2, GNWNair3];
-let KirbyArray = [
-  KirbyNair1,
-  KirbyNair2,
-  KirbyNair3,
-  Kirbycide1,
-  Kirbycide2,
-  Kirbycide3,
-];
-let BowserArray = [
-  BowserNair1,
-  BowserNair2,
-  BowserNair3,
-  BowserUpB1,
-  BowserUpB2,
-  BowserUpB3,
-];
-let LinkArray = [
-  LinkBomb1,
-  LinkBomb2,
-  LinkBomb3,
-  LinkNair1,
-  LinkNair2,
-  LinkNair3,
-];
-let LuigiArray = [
-  LuigiSlippery1,
-  LuigiSlippery2,
-  LuigiSlippery3,
-  Misfire1,
-  Misfire2,
-  Misfire3,
-];
-let MarioArray = [MarioSpike1, MarioSpike2, MarioSpike3, Fire1, Fire2, Fire3];
-let MarthArray = [
-  MarthGrab1,
-  MarthGrab2,
-  MarthGrab3,
-  MarthSpike1,
-  MarthSpike2,
-  MarthSpike3,
-];
-let MewtwoAArray = [
-  MewtwoFair1,
-  MewtwoFair2,
-  MewtwoFair3,
-  MewtwoSB1,
-  MewtwoSB2,
-  MewtwoSB3,
-];
-let NessArray = [NessDair1, NessDair2, NessDair3, NessUpb1, NessUpb2, NessUpb3];
-let PeachArray = [
-  PeachFair1,
-  PeachFair2,
-  PeachFair3,
-  PeachStich1,
-  PeachStich2,
-  PeachStich3,
-];
-let PikachuArray = [
-  TailSpike1,
-  TailSpike2,
-  TailSpike3,
-  Thunderjolt1,
-  Thunderjolt2,
-  Thunderjolt3,
-];
-let IceClimbersArray = [
-  IceClimbersFS1,
-  IceClimbersFS2,
-  IceClimbersFS3,
-  IceClimbersDS1,
-  IceClimbersDS2,
-  IceClimbersDS3,
-];
-let JigglypuffArray = [
-  JigBackaiir1,
-  JigBackaiir2,
-  JigBackaiir3,
-  RestKill1,
-  RestKill2,
-  RestKill3,
-];
-let SamusArray = [
-  Missile1,
-  Missile2,
-  Missile3,
-  Chargeshot1,
-  Chargeshot2,
-  Chargeshot3,
-];
-let YoshiArray = [
-  YoshiNair1,
-  YoshiNair2,
-  YoshiNair3,
-  YoshiDownSmash1,
-  YoshiDownSmash2,
-  YoshiDownSmash3,
-];
-let ZeldaArray = [
-  ZeldaFair1,
-  ZeldaFair2,
-  ZeldaFair3,
-  ZeldaFlame1,
-  ZeldaFlame2,
-  ZeldaFlame3,
-];
-let ShiekArray = [
-  ShiekNair1,
-  ShiekNair2,
-  ShiekNair3,
-  ShiekNeedle1,
-  ShiekNeedle2,
-  ShiekNeedle3,
-];
-let FalcoArray = [
-  FalcoDair1,
-  FalcoDair2,
-  FalcoDair3,
-  FalcoLaser1,
-  FalcoLaser2,
-  FalcoLaser3,
-];
-let YoungLinkArray = [
-  YinkArrow1,
-  YinkArrow2,
-  YinkArrow3,
-  YinkDownSmash1,
-  YinkDownSmash2,
-  YinkDownSmash3,
-];
-let DrMarioArray = [
-  DRMFair1,
-  DRMFair2,
-  DRMFair3,
-  DRMPills1,
-  DRMPills2,
-  DRMPills3,
-];
-let RoyArray = [
-  RoyNeutralB1,
-  RoyNeutralB2,
-  RoyNeutralB3,
-  RoySideSmash1,
-  RoySideSmash2,
-  RoySideSmash3,
-];
-let PichuArray = [
-  PichuTJolt1,
-  PichuTJolt2,
-  PichuTJolt3,
-  PichuBair1,
-  PichuBair2,
-  PichuBair3,
-];
-let GannondorfArray = [
-  GannonP1,
-  GannonP2,
-  GannonP3,
-  GannonS1,
-  GannonS2,
-  GannonS3,
-];
-let GeneralAchArray = [
-  kill1,
-  kill2,
-  kill3,
-  kill4,
-  kill5,
-  kill6,
-  kill7,
-  kill8,
-  kill9,
-  kill10,
-  Game1,
-  Game2,
-  Game3,
-  Game4,
-  Game5,
-  Game6,
-  Game7,
-  Game8,
-  Game9,
-  Game10,
-];
-let MiscAchArray = [AATW, Specialist];
-*/
 
 electron.ipcMain.handle("GetAch", (_event, args) => {
-  return Object.keys(achievementKeys).map((key) => achievements[key]);
+  let keys = achievementKeys[args];
+  let returnindex = [];
+  for (let i = 0; i in keys; i++) {
+    achievementsJson[keys[i]].unlocked = achstore.get(keys[i], false);
+
+    returnindex.push(achievementsJson[keys[i]]);
+  }
+  // return Object.keys(achievementKeys).map((key) => achievements[key]); // ? Dont really know what you were trying to do here'
+  return returnindex;
 });
 
 electron.ipcMain.handle("CheckAch", async (event, args) => {
@@ -1653,7 +1378,7 @@ electron.ipcMain.handle("GetFileArray", (event, args) => {
         const names = [];
         for (let i = 0; i in players; i++) names.push(players[i].names.netplay);
 
-        if (name(slippiFilesToArray[i], store.get("username") === 0))
+        if (name(slippiFilesToArray[i], store.get("username")) === 0)
           opponentname = players[1].names.netplay;
         else opponentname = players[0].names.netplay;
 

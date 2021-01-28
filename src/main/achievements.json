@@ -1,91 +1,240 @@
 {
-  "kill1": { "name": "Monster Hunter", "desc": "You have taken a stock," },
-  "kill2": { "name": "Monster Slayer", "desc": "Take 10 Stocks" },
-  "kill3": { "name": "You're The Monster", "desc": "Take 100 Stocks" },
-  "kill4": { "name": "Cold Blooded Killer", "desc": "Take 1000 Stocks," },
-  "kill5": { "name": "Murderer", "desc": "Take 2500 Stocks" },
-  "kill6": { "name": "True Crime", "desc": "Take 5000 Stocks" },
-  "kill7": { "name": "Un-Lawful", "desc": "Take 10000 Stocks" },
-  "kill8": { "name": "King Slayer", "desc": "Take 25000 Stocks" },
-  "kill9": { "name": "Demi-God Slayer", "desc": "Take 50000 Stocks" },
-  "kill10": { "name": "God Slayer", "desc": "Take 1000000 Stocks" },
-  "Game1": { "name": "Everyone starts somewhere", "desc": "Play 1 Game" },
-  "Game2": { "name": "Rookie Numbers", "desc": "Play 10 Games" },
-  "Game3": { "name": "Slowly Learning", "desc": "Play 50 Games" },
-  "Game4": { "name": "Getting Better", "desc": "Play 100 Games" },
-  "Game5": { "name": "Developing New Strats", "desc": "Play 250 Games" },
-  "Game6": { "name": "Hot Shot", "desc": "Play 500 Games" },
-  "Game7": { "name": "Hard Work", "desc": "Play 1000 Games" },
-  "Game8": { "name": "Serious Time", "desc": "Play 2500 Games" },
-  "Game9": { "name": "Incredible", "desc": "Play 5000 Games" },
-  "Game10": { "name": "Serious Dedication", "desc": "Play 10000 Games" },
-  "AATW": { "name": "All Around The World", "desc": "Play on every stage" },
+  "kill1": {
+    "name": "Monster Hunter",
+    "desc": "You have taken a stock,",
+    "unlocked": false
+  },
+  "kill2": {
+    "name": "Monster Slayer",
+    "desc": "Take 10 Stocks",
+    "unlocked": false
+  },
+  "kill3": {
+    "name": "You're The Monster",
+    "desc": "Take 100 Stocks",
+    "unlocked": false
+  },
+  "kill4": {
+    "name": "Cold Blooded Killer",
+    "desc": "Take 1000 Stocks,",
+    "unlocked": false
+  },
+  "kill5": {
+    "name": "Murderer",
+    "desc": "Take 2500 Stocks",
+    "unlocked": false
+  },
+  "kill6": {
+    "name": "True Crime",
+    "desc": "Take 5000 Stocks",
+    "unlocked": false
+  },
+  "kill7": {
+    "name": "Un-Lawful",
+    "desc": "Take 10000 Stocks",
+    "unlocked": false
+  },
+  "kill8": {
+    "name": "King Slayer",
+    "desc": "Take 25000 Stocks",
+    "unlocked": false
+  },
+  "kill9": {
+    "name": "Demi-God Slayer",
+    "desc": "Take 50000 Stocks",
+    "unlocked": false
+  },
+  "kill10": {
+    "name": "God Slayer",
+    "desc": "Take 1000000 Stocks",
+    "unlocked": false
+  },
+  "Game1": {
+    "name": "Everyone starts somewhere",
+    "desc": "Play 1 Game",
+    "unlocked": false
+  },
+  "Game2": {
+    "name": "Rookie Numbers",
+    "desc": "Play 10 Games",
+    "unlocked": false
+  },
+  "Game3": {
+    "name": "Slowly Learning",
+    "desc": "Play 50 Games",
+    "unlocked": false
+  },
+  "Game4": {
+    "name": "Getting Better",
+    "desc": "Play 100 Games",
+    "unlocked": false
+  },
+  "Game5": {
+    "name": "Developing New Strats",
+    "desc": "Play 250 Games",
+    "unlocked": false
+  },
+  "Game6": { "name": "Hot Shot", "desc": "Play 500 Games", "unlocked": false },
+  "Game7": {
+    "name": "Hard Work",
+    "desc": "Play 1000 Games",
+    "unlocked": false
+  },
+  "Game8": {
+    "name": "Serious Time",
+    "desc": "Play 2500 Games",
+    "unlocked": false
+  },
+  "Game9": {
+    "name": "Incredible",
+    "desc": "Play 5000 Games",
+    "unlocked": false
+  },
+  "Game10": {
+    "name": "Serious Dedication",
+    "desc": "Play 10000 Games",
+    "unlocked": false
+  },
+  "AATW": {
+    "name": "All Around The World",
+    "desc": "Play on every stage",
+    "unlocked": false
+  },
   "Specialist": {
     "name": "Character Specialist",
-    "desc": "Play as every character"
+    "desc": "Play as every character",
+    "unlocked": false
   },
   "Fire1": {
     "name": "Now You're Playing With Super Power!",
-    "desc": "Shoot a Fireball"
+    "desc": "Shoot a Fireball",
+    "unlocked": false
   },
-  "Fire2": { "name": "Fire Mario", "desc": "Shoot 1000 Fireballs" },
-  "Fire3": { "name": "Super Mario", "desc": "Shoot 100000 Fireballs" },
-  "MarioSpike1": { "name": "Nice Spike", "desc": "Kill With Mario Spike Once" },
-  "MarioSpike2": { "name": "Fixing Pipes", "desc": "Spike 10 Times" },
-  "MarioSpike3": { "name": "The Ultimate Mario", "desc": "Spike 100 Time" },
-  "shine1": { "name": "Baby Steps", "desc": "Perform the shine" },
-  "shine2": { "name": "Best Move", "desc": "Shine 1000 Times" },
+  "Fire2": {
+    "name": "Fire Mario",
+    "desc": "Shoot 1000 Fireballs",
+    "unlocked": false
+  },
+  "Fire3": {
+    "name": "Super Mario",
+    "desc": "Shoot 100000 Fireballs",
+    "unlocked": false
+  },
+  "MarioSpike1": {
+    "name": "Nice Spike",
+    "desc": "Kill With Mario Spike Once",
+    "unlocked": false
+  },
+  "MarioSpike2": {
+    "name": "Fixing Pipes",
+    "desc": "Spike 10 Times",
+    "unlocked": false
+  },
+  "MarioSpike3": {
+    "name": "The Ultimate Mario",
+    "desc": "Spike 100 Time",
+    "unlocked": false
+  },
+  "shine1": {
+    "name": "Baby Steps",
+    "desc": "Perform the shine",
+    "unlocked": false
+  },
+  "shine2": {
+    "name": "Best Move",
+    "desc": "Shine 1000 Times",
+    "unlocked": false
+  },
   "shine3": {
     "name": "Shined Blind",
-    "desc": "Perform The Shine 100000 Times"
+    "desc": "Perform The Shine 100000 Times",
+    "unlocked": false
   },
-  "ShineSpike1": { "name": "So that kills huh", "desc": "Kill with the shine" },
+  "ShineSpike1": {
+    "name": "So that kills huh",
+    "desc": "Kill with the shine",
+    "unlocked": false
+  },
   "ShineSpike2": {
     "name": "Professional Gimp",
-    "desc": "Shine Spike 10 Times"
+    "desc": "Shine Spike 10 Times",
+    "unlocked": false
   },
   "ShineSpike3": {
     "name": "Shined Out of Your Mind",
-    "desc": "Shine Spike 100 Times"
+    "desc": "Shine Spike 100 Times",
+    "unlocked": false
   },
-  "Knee1": { "name": "Knee'd lol", "desc": "Kill With A Knee" },
-  "Knee2": { "name": "Justice", "desc": "Kill With 50 Knees" },
-  "Knee3": { "name": "Falcons Glory", "desc": "Kill With Knee 100 Times" },
+  "Knee1": {
+    "name": "Knee'd lol",
+    "desc": "Kill With A Knee",
+    "unlocked": false
+  },
+  "Knee2": {
+    "name": "Justice",
+    "desc": "Kill With 50 Knees",
+    "unlocked": false
+  },
+  "Knee3": {
+    "name": "Falcons Glory",
+    "desc": "Kill With Knee 100 Times",
+    "unlocked": false
+  },
   "FalconPunch1": {
     "name": "Did he just walk up forward, And Falcon Punch?",
-    "desc": "Hit a Falcon Punch"
+    "desc": "Hit a Falcon Punch",
+    "unlocked": false
   },
   "FalconPunch2": {
     "name": "I can't believe that worked",
-    "desc": "Hit Falcon Punch 10 Times"
+    "desc": "Hit Falcon Punch 10 Times",
+    "unlocked": false
   },
   "FalconPunch3": {
     "name": "Theres no way...",
-    "desc": "Hit Falcon Punch 50 Times"
+    "desc": "Hit Falcon Punch 50 Times",
+    "unlocked": false
   },
-  "CargoThrow1": { "name": "Carrier Monkey", "desc": "Kill with Cargo Throw" },
+  "CargoThrow1": {
+    "name": "Carrier Monkey",
+    "desc": "Kill with Cargo Throw",
+    "unlocked": false
+  },
   "CargoThrow2": {
     "name": "Ding-Dong",
-    "desc": "Kill with Cargo Throw 10 Times"
+    "desc": "Kill with Cargo Throw 10 Times",
+    "unlocked": false
   },
   "CargoThrow3": {
     "name": "The Game Was Rigged From The Start...",
-    "desc": "Kill with Cargo Throw 100 Times"
+    "desc": "Kill with Cargo Throw 100 Times",
+    "unlocked": false
   },
-  "DonkeyP1": { "name": "DONK PUNCH", "desc": "Kill with Donkey Punch" },
+  "DonkeyP1": {
+    "name": "DONK PUNCH",
+    "desc": "Kill with Donkey Punch",
+    "unlocked": false
+  },
   "DonkeyP2": {
     "name": "You Ain't No Air Fighter",
-    "desc": "Kill with Donkey Punch 10 Times"
+    "desc": "Kill with Donkey Punch 10 Times",
+    "unlocked": false
   },
   "DonkeyP3": {
     "name": "One Punch Man",
-    "desc": "Kill with Donkey Punch 100 Times"
+    "desc": "Kill with Donkey Punch 100 Times",
+    "unlocked": false
   },
   "RoyNeutralB1": {
     "name": "Probably the only move that kills",
-    "desc": "Kill with Roys Neutral B"
+    "desc": "Kill with Roys Neutral B",
+    "unlocked": false
   },
-  "RoyNeutralB2": { "name": null, "desc": "Kill with Roys Neutral B 10 Times" },
+  "RoyNeutralB2": {
+    "name": null,
+    "desc": "Kill with Roys Neutral B 10 Times",
+    "unlocked": false
+  },
   "RoyNeutralB3": {
     "name": "Dont Test Me...",
     "desc": "Kill with Roys Neutral B 100 Times"
@@ -93,334 +242,631 @@
   "RoySideSmash1": { "name": null, "desc": "Kill With Roys Side Smash" },
   "RoySideSmash2": {
     "name": null,
-    "desc": "Kill With Roys Side Smash 10 Times"
+    "desc": "Kill With Roys Side Smash 10 Times",
+    "unlocked": false
   },
   "RoySideSmash3": {
     "name": null,
-    "desc": "Kill With Roys Side Smash 100 Times"
+    "desc": "Kill With Roys Side Smash 100 Times",
+    "unlocked": false
   },
   "Kirbycide1": {
     "name": "If i Die...",
-    "desc": "Kill With Kirby Back/Forward Throw"
+    "desc": "Kill With Kirby Back/Forward Throw",
+    "unlocked": false
   },
   "Kirbycide2": {
     "name": "You go With Me.",
-    "desc": "Kill With Kirby Back/Forward Throw 10 Times"
+    "desc": "Kill With Kirby Back/Forward Throw 10 Times",
+    "unlocked": false
   },
   "Kirbycide3": {
     "name": "Martyrdom",
-    "desc": "Kill With Kirby Back/Forward Throw 100 Times"
+    "desc": "Kill With Kirby Back/Forward Throw 100 Times",
+    "unlocked": false
   },
   "KirbyNair1": {
     "name": "You spin me right round",
-    "desc": "Hit Kirbys Nair"
+    "desc": "Hit Kirbys Nair",
+    "unlocked": false
   },
   "KirbyNair2": {
     "name": "i feel sorry for kirby mains",
-    "desc": "Hit Kirbys Nair 10 Times"
+    "desc": "Hit Kirbys Nair 10 Times",
+    "unlocked": false
   },
   "KirbyNair3": {
     "name": "Remember to put somthing here",
-    "desc": "Hit Kirbys Nair 100 Times"
+    "desc": "Hit Kirbys Nair 100 Times",
+    "unlocked": false
   },
   "BowserNair1": {
     "name": "What does he even do lol",
-    "desc": "Hit With Bowsers Nair"
+    "desc": "Hit With Bowsers Nair",
+    "unlocked": false
   },
   "BowserNair2": {
     "name": "Can Bowser Reaction Techchase?",
-    "desc": "Hit Bowsers Nair 10 Times"
+    "desc": "Hit Bowsers Nair 10 Times",
+    "unlocked": false
   },
   "BowserNair3": {
     "name": "Is anyone even gonna read this lol?",
-    "desc": "Hit Bowsers Nair 100 Times"
+    "desc": "Hit Bowsers Nair 100 Times",
+    "unlocked": false
   },
-  "BowserUpB1": { "name": "Rolling Fortress", "desc": "Hit Bowsers UpB" },
-  "BowserUpB2": { "name": "Flying Castle", "desc": "Hit Bowsers Upb 10 Times" },
+  "BowserUpB1": {
+    "name": "Rolling Fortress",
+    "desc": "Hit Bowsers UpB",
+    "unlocked": false
+  },
+  "BowserUpB2": {
+    "name": "Flying Castle",
+    "desc": "Hit Bowsers Upb 10 Times",
+    "unlocked": false
+  },
   "BowserUpB3": {
     "name": "Must Be Dizzy",
-    "desc": "Hit Bowsers Up-b 100 Times"
+    "desc": "Hit Bowsers Up-b 100 Times",
+    "unlocked": false
   },
   "LinkNair1": {
     "name": "Jankiest move in the game",
-    "desc": "Kill With Nair once"
+    "desc": "Kill With Nair once",
+    "unlocked": false
   },
-  "LinkNair2": { "name": null, "desc": "Kill with Nair 10 Times" },
-  "LinkNair3": { "name": "", "desc": "Kill with Nair 100 Times" },
-  "LinkBomb1": { "name": null, "desc": "Spawn a bomb" },
-  "LinkBomb2": { "name": null, "desc": "Spawn a bomb 100 Times" },
-  "LinkBomb3": { "name": null, "desc": "Spawn a bomb 10000 Times" },
+  "LinkNair2": {
+    "name": null,
+    "desc": "Kill with Nair 10 Times",
+    "unlocked": false
+  },
+  "LinkNair3": {
+    "name": "",
+    "desc": "Kill with Nair 100 Times",
+    "unlocked": false
+  },
+  "LinkBomb1": { "name": null, "desc": "Spawn a bomb", "unlocked": false },
+  "LinkBomb2": {
+    "name": null,
+    "desc": "Spawn a bomb 100 Times",
+    "unlocked": false
+  },
+  "LinkBomb3": {
+    "name": null,
+    "desc": "Spawn a bomb 10000 Times",
+    "unlocked": false
+  },
   "ShiekNair1": {
     "name": "Why is this called a Sex Kick?",
-    "desc": "Kill With Nair Once"
+    "desc": "Kill With Nair Once",
+    "unlocked": false
   },
   "ShiekNair2": {
     "name": "Free Edgeguards",
-    "desc": "Kill With Nair 10 Times"
+    "desc": "Kill With Nair 10 Times",
+    "unlocked": false
   },
   "ShiekNair3": {
     "name": "Fastfallers Nightmare",
-    "desc": "Kill With Nair 100 Times"
+    "desc": "Kill With Nair 100 Times",
+    "unlocked": false
   },
-  "ShiekNeedle1": { "name": "Little Flys", "desc": "Shoot 50 Needles" },
-  "ShiekNeedle2": { "name": "Dedicated Bees", "desc": "Shoot 500 Needles" },
-  "ShiekNeedle3": { "name": "Angry Wasps", "desc": "Shoot 50000 Needles" },
-  "NessDair1": { "name": "Spiked", "desc": "Kill with Ness Dair" },
-  "NessDair2": { "name": null, "desc": "Kill with Ness Dair 10 Times" },
+  "ShiekNeedle1": {
+    "name": "Little Flys",
+    "desc": "Shoot 50 Needles",
+    "unlocked": false
+  },
+  "ShiekNeedle2": {
+    "name": "Dedicated Bees",
+    "desc": "Shoot 500 Needles",
+    "unlocked": false
+  },
+  "ShiekNeedle3": {
+    "name": "Angry Wasps",
+    "desc": "Shoot 50000 Needles",
+    "unlocked": false
+  },
+  "NessDair1": {
+    "name": "Spiked",
+    "desc": "Kill with Ness Dair",
+    "unlocked": false
+  },
+  "NessDair2": {
+    "name": null,
+    "desc": "Kill with Ness Dair 10 Times",
+    "unlocked": false
+  },
   "NessDair3": {
     "name": "Destroyed by a Child",
-    "desc": "Kill with Ness Dair 100 Times"
+    "desc": "Kill with Ness Dair 100 Times",
+    "unlocked": false
   },
   "NessUpb1": {
     "name": "Shock Jacket",
-    "desc": "Hit Ness's Up-B While Recovering"
+    "desc": "Hit Ness's Up-B While Recovering",
+    "unlocked": false
   },
   "NessUpb2": {
     "name": "Can't Edgeguard Me",
-    "desc": "Hit Ness's Up-B While Recovering 10 Times"
+    "desc": "Hit Ness's Up-B While Recovering 10 Times",
+    "unlocked": false
   },
   "NessUpb3": {
     "name": "Mistake or Yo-Yo Glitch?",
-    "desc": "Hit Ness's Up-B While Recovering 100 Times"
+    "desc": "Hit Ness's Up-B While Recovering 100 Times",
+    "unlocked": false
   },
   "PeachStich1": {
     "name": "Lucky Number 7",
-    "desc": "Pull A Stich Face Turnip"
+    "desc": "Pull A Stich Face Turnip",
+    "unlocked": false
   },
   "PeachStich2": {
     "name": "Slot Machine",
-    "desc": "Pull A Stich Face Turnip 10 Times"
+    "desc": "Pull A Stich Face Turnip 10 Times",
+    "unlocked": false
   },
   "PeachStich3": {
     "name": "Casino Simulator",
-    "desc": "Pull A Stich Face Turnip 100 Times"
+    "desc": "Pull A Stich Face Turnip 100 Times",
+    "unlocked": false
   },
-  "PeachFair1": { "name": "Fierce Fighter", "desc": "Kill With Fair" },
+  "PeachFair1": {
+    "name": "Fierce Fighter",
+    "desc": "Kill With Fair",
+    "unlocked": false
+  },
   "PeachFair2": {
     "name": "Fair and Balanced",
-    "desc": "Kill With Fair 10 Times"
+    "desc": "Kill With Fair 10 Times",
+    "unlocked": false
   },
-  "PeachFair3": { "name": "Vegatable God", "desc": "Kill With Fair 100 Times" },
+  "PeachFair3": {
+    "name": "Vegatable God",
+    "desc": "Kill With Fair 100 Times",
+    "unlocked": false
+  },
   "IceClimbersFS1": {
     "name": "Ice Cold",
-    "desc": "Kill With Ice Climbers Forward Smash"
+    "desc": "Kill With Ice Climbers Forward Smash",
+    "unlocked": false
   },
   "IceClimbersFS2": {
     "name": "Cooled Killers",
-    "desc": "Kill With Ice Climbers Forward Smash 10 Times"
+    "desc": "Kill With Ice Climbers Forward Smash 10 Times",
+    "unlocked": false
   },
   "IceClimbersFS3": {
     "name": "On Fire",
-    "desc": "Kill With Ice Climbers Forward Smash 100 Times"
+    "desc": "Kill With Ice Climbers Forward Smash 100 Times",
+    "unlocked": false
   },
   "IceClimbersDS1": {
     "name": "Icy Vengance",
-    "desc": "Kill With Ice Climbers Down Smash"
+    "desc": "Kill With Ice Climbers Down Smash",
+    "unlocked": false
   },
   "IceClimbersDS2": {
     "name": "Cool Cat",
-    "desc": "Kill With Ice Climbers Down Smash 10 Times"
+    "desc": "Kill With Ice Climbers Down Smash 10 Times",
+    "unlocked": false
   },
   "IceClimbersDS3": {
     "name": "Hot Shot",
-    "desc": "Kill With Ice Climbers Down Smash 100 Times"
+    "desc": "Kill With Ice Climbers Down Smash 100 Times",
+    "unlocked": false
   },
-  "TailSpike1": { "name": "Nice gimp", "desc": "Land a Tail Spike" },
-  "TailSpike2": { "name": "The Cute Killer", "desc": "Land 10 Tail Spikes" },
-  "TailSpike3": { "name": "The Rat", "desc": "Land 100 Tail Spikes" },
-  "Thunderjolt1": { "name": null, "desc": "Spawn Thunder Jolt" },
-  "Thunderjolt2": { "name": null, "desc": "Spawn 10 Thunder Jolt" },
-  "Thunderjolt3": { "name": null, "desc": "Spawn 100 Thunder Jolts" },
-  "Missile1": { "name": "Humble Beginnings", "desc": "Shoot a Missile" },
-  "Missile2": { "name": "Crowd Control", "desc": "Shoot 500 Missiles" },
-  "Missile3": { "name": "Neutral Dictator", "desc": "Shoot 5000 Missiles" },
-  "Chargeshot1": { "name": "Lucky Shot", "desc": "Kill with a Chargeshot" },
+  "TailSpike1": {
+    "name": "Nice gimp",
+    "desc": "Land a Tail Spike",
+    "unlocked": false
+  },
+  "TailSpike2": {
+    "name": "The Cute Killer",
+    "desc": "Land 10 Tail Spikes",
+    "unlocked": false
+  },
+  "TailSpike3": {
+    "name": "The Rat",
+    "desc": "Land 100 Tail Spikes",
+    "unlocked": false
+  },
+  "Thunderjolt1": {
+    "name": null,
+    "desc": "Spawn Thunder Jolt",
+    "unlocked": false
+  },
+  "Thunderjolt2": {
+    "name": null,
+    "desc": "Spawn 10 Thunder Jolt",
+    "unlocked": false
+  },
+  "Thunderjolt3": {
+    "name": null,
+    "desc": "Spawn 100 Thunder Jolts",
+    "unlocked": false
+  },
+  "Missile1": {
+    "name": "Humble Beginnings",
+    "desc": "Shoot a Missile",
+    "unlocked": false
+  },
+  "Missile2": {
+    "name": "Crowd Control",
+    "desc": "Shoot 500 Missiles",
+    "unlocked": false
+  },
+  "Missile3": {
+    "name": "Neutral Dictator",
+    "desc": "Shoot 5000 Missiles",
+    "unlocked": false
+  },
+  "Chargeshot1": {
+    "name": "Lucky Shot",
+    "desc": "Kill with a Chargeshot",
+    "unlocked": false
+  },
   "Chargeshot2": {
     "name": "She Dont Miss",
-    "desc": "Kill With 50 Chargeshots"
+    "desc": "Kill With 50 Chargeshots",
+    "unlocked": false
   },
   "Chargeshot3": {
     "name": "Bounty Hunter",
-    "desc": "Kill With 500 Chargeshots"
+    "desc": "Kill With 500 Chargeshots",
+    "unlocked": false
   },
   "YoshiNair1": {
     "name": "Someone give me a good reason why this is named sex kick",
-    "desc": "Hit Yoshis Nair 10 Times"
+    "desc": "Hit Yoshis Nair 10 Times",
+    "unlocked": false
   },
   "YoshiNair2": {
     "name": "Super Armor Lol",
-    "desc": "Hit Yoshis Nair 100 Times"
+    "desc": "Hit Yoshis Nair 100 Times",
+    "unlocked": false
   },
   "YoshiNair3": {
     "name": "Wait, Wheres Baby Mario?",
-    "desc": "Hit Yoshis Nair 1000 Times"
+    "desc": "Hit Yoshis Nair 1000 Times",
+    "unlocked": false
   },
-  "YoshiDownSmash1": { "name": null, "desc": "Kill With Yoshi's Downsmash" },
+  "YoshiDownSmash1": {
+    "name": null,
+    "desc": "Kill With Yoshi's Downsmash",
+    "unlocked": false
+  },
   "YoshiDownSmash2": {
     "name": null,
-    "desc": "Kill With Yoshi's Downsmash 10 Times"
+    "desc": "Kill With Yoshi's Downsmash 10 Times",
+    "unlocked": false
   },
   "YoshiDownSmash3": {
     "name": null,
-    "desc": "Kill WIth Yoshi's Downsmash 100 Times"
+    "desc": "Kill WIth Yoshi's Downsmash 100 Times",
+    "unlocked": false
   },
-  "JigBackair1": { "name": null, "desc": "Hit Backair" },
-  "JigBackair2": { "name": null, "desc": "Hit 100 Backairs" },
-  "JigBackair3": { "name": null, "desc": "Hit 10000 Backairs" },
-  "RestKill1": { "name": "Sleepy Time", "desc": "Kill with Rest" },
-  "RestKill2": { "name": null, "desc": "Kill with 10 Rests" },
-  "RestKill3": { "name": "Well Rested", "desc": "Kill with 100 Rests" },
-  "MewtwoSB1": { "name": null, "desc": "Shoot a Shadow Ball" },
-  "MewtwoSB2": { "name": null, "desc": "Shoot 10 Shadow Balls" },
-  "MewtwoSB3": { "name": null, "desc": "Shoot 100 Shadow Balls" },
-  "MewtwoFair1": { "name": null, "desc": "Kill With Mewtwo Fair" },
-  "MewtwoFair2": { "name": null, "desc": "Kill With Mewtwo Fair 10 Times" },
-  "MewtwoFair3": { "name": null, "desc": "Kill With Mewtwo Fair 100 Times" },
-  "LuigiSlippery1": { "name": "Slippery Boy", "desc": "Wavedash with Luigi" },
-  "LuigiSlippery2": { "name": "Slimey Hero", "desc": "Wavedash 1000 Times" },
+  "JigBackair1": { "name": null, "desc": "Hit Backair", "unlocked": false },
+  "JigBackair2": {
+    "name": null,
+    "desc": "Hit 100 Backairs",
+    "unlocked": false
+  },
+  "JigBackair3": {
+    "name": null,
+    "desc": "Hit 10000 Backairs",
+    "unlocked": false
+  },
+  "RestKill1": {
+    "name": "Sleepy Time",
+    "desc": "Kill with Rest",
+    "unlocked": false
+  },
+  "RestKill2": {
+    "name": null,
+    "desc": "Kill with 10 Rests",
+    "unlocked": false
+  },
+  "RestKill3": {
+    "name": "Well Rested",
+    "desc": "Kill with 100 Rests",
+    "unlocked": false
+  },
+  "MewtwoSB1": {
+    "name": null,
+    "desc": "Shoot a Shadow Ball",
+    "unlocked": false
+  },
+  "MewtwoSB2": {
+    "name": null,
+    "desc": "Shoot 10 Shadow Balls",
+    "unlocked": false
+  },
+  "MewtwoSB3": {
+    "name": null,
+    "desc": "Shoot 100 Shadow Balls",
+    "unlocked": false
+  },
+  "MewtwoFair1": {
+    "name": null,
+    "desc": "Kill With Mewtwo Fair",
+    "unlocked": false
+  },
+  "MewtwoFair2": {
+    "name": null,
+    "desc": "Kill With Mewtwo Fair 10 Times",
+    "unlocked": false
+  },
+  "MewtwoFair3": {
+    "name": null,
+    "desc": "Kill With Mewtwo Fair 100 Times",
+    "unlocked": false
+  },
+  "LuigiSlippery1": {
+    "name": "Slippery Boy",
+    "desc": "Wavedash with Luigi",
+    "unlocked": false
+  },
+  "LuigiSlippery2": {
+    "name": "Slimey Hero",
+    "desc": "Wavedash 1000 Times",
+    "unlocked": false
+  },
   "LuigiSlippery3": {
     "name": "Slip 'n Slide",
-    "desc": "Wavedash 100000 Times"
+    "desc": "Wavedash 100000 Times",
+    "unlocked": false
   },
-  "Misfire1": { "name": "RNG RNG RNG", "desc": "Misfire" },
-  "Misfire2": { "name": "Decently Lucky", "desc": "Misfire 10 Times" },
-  "Misfire3": { "name": "1 In 7 Trillion", "desc": "Misfire 1000 Times" },
-  "MarthSpike1": { "name": "Half Moon", "desc": "Kill with Marths Spike" },
+  "Misfire1": { "name": "RNG RNG RNG", "desc": "Misfire", "unlocked": false },
+  "Misfire2": {
+    "name": "Decently Lucky",
+    "desc": "Misfire 10 Times",
+    "unlocked": false
+  },
+  "Misfire3": {
+    "name": "1 In 7 Trillion",
+    "desc": "Misfire 1000 Times",
+    "unlocked": false
+  },
+  "MarthSpike1": {
+    "name": "Half Moon",
+    "desc": "Kill with Marths Spike",
+    "unlocked": false
+  },
   "MarthSpike2": {
     "name": "The Day is Mine",
-    "desc": "Kill with Marths Spike 10 Times"
+    "desc": "Kill with Marths Spike 10 Times",
+    "unlocked": false
   },
   "MarthSpike3": {
     "name": "This Is My Time To Shine!",
-    "desc": "Kill With Marths Spike 100 Times"
+    "desc": "Kill With Marths Spike 100 Times",
+    "unlocked": false
   },
-  "MarthGrab1": { "name": "Catch and Release", "desc": "Sucessfully Grab" },
+  "MarthGrab1": {
+    "name": "Catch and Release",
+    "desc": "Sucessfully Grab",
+    "unlocked": false
+  },
   "MarthGrab2": {
     "name": "Might As Well Be a Tether",
-    "desc": "Grab 100 Times"
+    "desc": "Grab 100 Times",
+    "unlocked": false
   },
-  "MarthGrab3": { "name": "Chaingrabbing lol", "desc": "Grab 1000 Times" },
-  "ZeldaFair1": { "name": "Thunder Thighs", "desc": "Kill With Fair/Bair" },
+  "MarthGrab3": {
+    "name": "Chaingrabbing lol",
+    "desc": "Grab 1000 Times",
+    "unlocked": false
+  },
+  "ZeldaFair1": {
+    "name": "Thunder Thighs",
+    "desc": "Kill With Fair/Bair",
+    "unlocked": false
+  },
   "ZeldaFair2": {
     "name": "JuSt DoWN B LOL",
-    "desc": "Kill With Fair/Bair 10 Times"
+    "desc": "Kill With Fair/Bair 10 Times",
+    "unlocked": false
   },
   "ZeldaFair3": {
     "name": "Better Character",
-    "desc": "Kill With Fair/Bair 100 Times"
+    "desc": "Kill With Fair/Bair 100 Times",
+    "unlocked": false
   },
-  "ZeldaFlame1": { "name": "Din's Fire", "desc": "Spawn Din's Fire" },
+  "ZeldaFlame1": {
+    "name": "Din's Fire",
+    "desc": "Spawn Din's Fire",
+    "unlocked": false
+  },
   "ZeldaFlame2": {
     "name": "Din's Inferno",
-    "desc": "Spawn Din's Fire 100 Times"
+    "desc": "Spawn Din's Fire 100 Times",
+    "unlocked": false
   },
   "ZeldaFlame3": {
     "name": "Din's Rage",
-    "desc": "Spawn Din's Fire 10000 Times"
+    "desc": "Spawn Din's Fire 10000 Times",
+    "unlocked": false,
+    "unlocked": false
   },
-  "YinkArrow1": { "name": "Trained Archer", "desc": "Shoot An Arrow" },
-  "YinkArrow2": { "name": "Good-Eye", "desc": "Shoot 100 Arrows" },
-  "YinkArrow3": { "name": "Eagle-Eye", "desc": "Shoot 10000 Arrows" },
-  "YinkDownSmash1": { "name": null, "desc": "Kill With Young Link Down Smash" },
+  "YinkArrow1": {
+    "name": "Trained Archer",
+    "desc": "Shoot An Arrow",
+    "unlocked": false
+  },
+  "YinkArrow2": {
+    "name": "Good-Eye",
+    "desc": "Shoot 100 Arrows",
+    "unlocked": false
+  },
+  "YinkArrow3": {
+    "name": "Eagle-Eye",
+    "desc": "Shoot 10000 Arrows",
+    "unlocked": false
+  },
+  "YinkDownSmash1": {
+    "name": null,
+    "desc": "Kill With Young Link Down Smash",
+    "unlocked": false
+  },
   "YinkDownSmash2": {
     "name": null,
-    "desc": "Kill With Young Link Down Smash 10 Times"
+    "desc": "Kill With Young Link Down Smash 10 Times",
+    "unlocked": false
   },
   "YinkDownSmash3": {
     "name": null,
-    "desc": "Kill With Young Link Down Smash 100 Times"
+    "desc": "Kill With Young Link Down Smash 100 Times",
+    "unlocked": false
   },
-  "FalcoDair1": { "name": "Personally...", "desc": "Hit Falcos Downair" },
+  "FalcoDair1": {
+    "name": "Personally...",
+    "desc": "Hit Falcos Downair",
+    "unlocked": false
+  },
   "FalcoDair2": {
     "name": "I Prefer the Air",
-    "desc": "Hit Falcos Dair 100 Times"
+    "desc": "Hit Falcos Dair 100 Times",
+    "unlocked": false
   },
   "FalcoDair3": {
     "name": "Best Spike IMO",
-    "desc": "Hit Falcos Dair 10000 Times"
+    "desc": "Hit Falcos Dair 10000 Times",
+    "unlocked": false
   },
-  "FalcoLaser1": { "name": "I LOVE LASERS", "desc": "Shoot Laser 10 Times" },
+  "FalcoLaser1": {
+    "name": "I LOVE LASERS",
+    "desc": "Shoot Laser 10 Times",
+    "unlocked": false
+  },
   "FalcoLaser2": {
     "name": "ShieldStun Simulator",
-    "desc": "Shoot Laser 1000 Times"
+    "desc": "Shoot Laser 1000 Times",
+    "unlocked": false
   },
   "FalcoLaser3": {
     "name": "Well Someone is fun at Partys",
-    "desc": "Shoot Laser 100000 Times"
+    "desc": "Shoot Laser 100000 Times",
+    "unlocked": false
   },
   "PichuTJolt1": {
     "name": "Why Are You Hitting Yourself?",
-    "desc": "Use Pichus Thunder Jolt"
+    "desc": "Use Pichus Thunder Jolt",
+    "unlocked": false
   },
   "PichuTJolt2": {
     "name": "Why Are You Hitting Yourself??",
-    "desc": "Use Pichus Thunder Jolt 100 Times"
+    "desc": "Use Pichus Thunder Jolt 100 Times",
+    "unlocked": false
   },
   "PichuTJolt3": {
     "name": "Why Are You Hitting Yourself??",
-    "desc": "Use Pichus Thunder Jolt 10000 Times"
+    "desc": "Use Pichus Thunder Jolt 10000 Times",
+    "unlocked": false
   },
   "PichuBair1": {
     "name": "Why Are You Hitting Yourself????",
-    "desc": "Kill WIth Pichus Bair"
+    "desc": "Kill WIth Pichus Bair",
+    "unlocked": false
   },
   "PichuBair2": {
     "name": "Why Are You Hitting Yourself?????",
-    "desc": "Kill WIth Pichus Bair 10 Times"
+    "desc": "Kill WIth Pichus Bair 10 Times",
+    "unlocked": false
   },
   "PichuBair3": {
     "name": "Why Are You Hitting Yourself??????",
-    "desc": "Kill WIth Pichus Bair 100 Times"
+    "desc": "Kill WIth Pichus Bair 100 Times",
+    "unlocked": false
   },
-  "GNWNair1": { "name": "He Shoots", "desc": "Kill with Game And Watch Nair" },
+  "GNWNair1": {
+    "name": "He Shoots",
+    "desc": "Kill with Game And Watch Nair",
+    "unlocked": false
+  },
   "GNWNair2": {
     "name": "HE SCORES",
-    "desc": "Kill with Game And Watch Nair 10 Times"
+    "desc": "Kill with Game And Watch Nair 10 Times",
+    "unlocked": false
   },
   "GNWNair3": {
     "name": "Who even Needs Fun-Canceling?",
-    "desc": "Kill with Game And Watch Nair 100 Times"
+    "desc": "Kill with Game And Watch Nair 100 Times",
+    "unlocked": false
   },
   "GNWKey1": {
     "name": "Unlock The Win",
-    "desc": "Kill with Game And Watch Dair"
+    "desc": "Kill with Game And Watch Dair",
+    "unlocked": false
   },
-  "GNWKey2": { "name": null, "desc": "Kill with Game And Watch Dair 10 Times" },
+  "GNWKey2": {
+    "name": null,
+    "desc": "Kill with Game And Watch Dair 10 Times",
+    "unlocked": false
+  },
   "GNWKey3": {
     "name": "Nobody Needs Fun-Canceling",
-    "desc": "Kill with Game And Watch Dair 100 Times"
+    "desc": "Kill with Game And Watch Dair 100 Times",
+    "unlocked": false
   },
   "GannonP1": {
     "name": "Brutal Domination",
-    "desc": "Kill With Warlock Punch"
+    "desc": "Kill With Warlock Punch",
+    "unlocked": false
   },
-  "GannonP2": { "name": "EZ Clap", "desc": "Kill With Warlock Punch 10 Times" },
+  "GannonP2": {
+    "name": "EZ Clap",
+    "desc": "Kill With Warlock Punch 10 Times",
+    "unlocked": false
+  },
   "GannonP3": {
     "name": "How do People Keep Falling For It?",
-    "desc": "Kill With Warlock Punch 100 Times"
+    "desc": "Kill With Warlock Punch 100 Times",
+    "unlocked": false
   },
-  "GannonS1": { "name": "Any Spikers?", "desc": "Kill With Gannondorfs Spike" },
+  "GannonS1": {
+    "name": "Any Spikers?",
+    "desc": "Kill With Gannondorfs Spike",
+    "unlocked": false
+  },
   "GannonS2": {
     "name": "S.W.A.G",
-    "desc": "Kill with Gannondorfs Spike 10 Times"
+    "desc": "Kill with Gannondorfs Spike 10 Times",
+    "unlocked": false
   },
   "GannonS3": {
     "name": "Gannondorf's Ultimate Power",
-    "desc": "Kill with Gannondorfs Spike 100 Times"
+    "desc": "Kill with Gannondorfs Spike 100 Times",
+    "unlocked": false
   },
-  "DRMPills1": { "name": "The Doctor", "desc": "Spawn A Pill" },
-  "DRMPills2": { "name": "The Medic", "desc": "Spawn 100 Pills" },
-  "DRMPills3": { "name": "The Hero", "desc": "Spawn 10000 Pills" },
+  "DRMPills1": {
+    "name": "The Doctor",
+    "desc": "Spawn A Pill",
+    "unlocked": false
+  },
+  "DRMPills2": {
+    "name": "The Medic",
+    "desc": "Spawn 100 Pills",
+    "unlocked": false
+  },
+  "DRMPills3": {
+    "name": "The Hero",
+    "desc": "Spawn 10000 Pills",
+    "unlocked": false
+  },
   "DRMFair1": {
     "name": "If only this Spiked...",
-    "desc": "Kill With Dr.Mario Fair"
+    "desc": "Kill With Dr.Mario Fair",
+    "unlocked": false
   },
   "DRMFair2": {
     "name": "Mario but Better",
-    "desc": "Kill With Dr.Mario Fair 10 Times"
+    "desc": "Kill With Dr.Mario Fair 10 Times",
+    "unlocked": false
   },
   "DRMFair3": {
     "name": "Any Dockers?",
-    "desc": "Kill With Dr.Mario Fair 100 Times"
+    "desc": "Kill With Dr.Mario Fair 100 Times",
+    "unlocked": false
   }
 }

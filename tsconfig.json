@@ -9,6 +9,6 @@
     "noImplicitAny": false,
     "strictNullChecks": false,
     "module": "commonjs",
-    "target": "esnext"
+    "target": "es2019"
   }
 }

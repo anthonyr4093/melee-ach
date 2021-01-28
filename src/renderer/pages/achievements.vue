@@ -16,21 +16,18 @@
       <v-card>
         <v-card-title>Melee Achievements</v-card-title>
         <v-list>
-          <v-list-item
-            v-for="{ Ach_Unlocked, Ach_Name, Ach_Disc } of achs"
-            :key="Ach_Name"
-          >
+          <v-list-item v-for="{ unlocked, name, desc } of achs" :key="name">
             <v-list-item-icon>
-              <v-icon :color="Ach_Unlocked ? 'white' : 'grey'">
-                {{ "mdi-lock" + (Ach_Unlocked ? "-open-variant" : "") }}</v-icon
+              <v-icon :color="unlocked ? 'white' : 'grey'">
+                {{ "mdi-lock" + (unlocked ? "-open-variant" : "") }}</v-icon
               >
             </v-list-item-icon>
 
             <v-list-item-content>
               <v-list-item-title>
-                {{ Ach_Name }}
+                {{ name }}
               </v-list-item-title>
-              <v-list-item-subtitle> {{ Ach_Disc }}</v-list-item-subtitle>
+              <v-list-item-subtitle> {{ desc }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -65,33 +62,33 @@ export default {
       selectedItem: null,
       achs: [],
       catas: [
-        { text: "Misc Achievements", value: 27 },
-        { text: "General Achievements", value: 26 },
-        { text: "Dr. Mario", value: 22 },
-        { text: "Mario", value: 8 },
-        { text: "Luigi", value: 7 },
-        { text: "Bowser", value: 5 },
-        { text: "Peach", value: 12 },
-        { text: "Yoshi", value: 17 },
-        { text: "Donkey Kong", value: 1 },
-        { text: "Captain Falcon", value: 0 },
-        { text: "Gannondorf", value: 25 },
-        { text: "Falco", value: 20 },
-        { text: "Fox", value: 2 },
-        { text: "Ness", value: 11 },
-        { text: "Ice Climbers", value: 14 },
-        { text: "Kirby", value: 4 },
-        { text: "Samus", value: 16 },
-        { text: "Zelda", value: 18 },
-        { text: "Link", value: 6 },
-        { text: "Young Link", value: 21 },
-        { text: "Pichu", value: 24 },
-        { text: "Pikachu", value: 13 },
-        { text: "Jigglypuff", value: 15 },
-        { text: "Mewtwo", value: 10 },
-        { text: "Mr.Game And Watch", value: 3 },
-        { text: "Marth", value: 9 },
-        { text: "Roy", value: 17 },
+        { text: "Misc Achievements", value: "Misc" },
+        { text: "General Achievements", value: "General" },
+        { text: "Dr. Mario", value: "DrMario" },
+        { text: "Mario", value: "Mario" },
+        { text: "Luigi", value: "Luigi" },
+        { text: "Bowser", value: "Bowser" },
+        { text: "Peach", value: "Peach" },
+        { text: "Yoshi", value: "Yoshi" },
+        { text: "Donkey Kong", value: "DonkeyKong" },
+        { text: "Captain Falcon", value: "Falcon" },
+        { text: "Gannondorf", value: "Gannon" },
+        { text: "Falco", value: "Falco" },
+        { text: "Fox", value: "Fox" },
+        { text: "Ness", value: "Ness" },
+        { text: "Ice Climbers", value: "IceClimbers" },
+        { text: "Kirby", value: "Kirby" },
+        { text: "Samus", value: "Samus" },
+        { text: "Zelda", value: "Zelda" },
+        { text: "Link", value: "Link" },
+        { text: "Young Link", value: "Young Link" },
+        { text: "Pichu", value: "Pichu" },
+        { text: "Pikachu", value: "Pikachu" },
+        { text: "Jigglypuff", value: "Jigglypuff" },
+        { text: "Mewtwo", value: "Mewtwo" },
+        { text: "Mr.Game And Watch", value: "GNW" },
+        { text: "Marth", value: "Marth" },
+        { text: "Roy", value: "Roy" },
       ],
     };
   },
@@ -101,6 +98,7 @@ export default {
       electron.ipcRenderer
         .invoke("GetAch", this.selectedItem)
         .then((result) => {
+          console.log(result);
           this.achs = result;
         });
     },

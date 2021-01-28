@@ -43,9 +43,9 @@ const macOS = {
 
 module.exports = {
   asar: false,
-  productName: "My browser",
-  appId: "org.michalzarach.my-browser",
-  artifactName: "my-browser-${version}.${ext}",
+  productName: "Melee-Achievements",
+  appId: "org.ry.melee-achievements",
+  artifactName: "Melee-Achievements-${version}.${ext}",
   directories: {
     output: "build",
   },
