@@ -45,7 +45,7 @@ export default {
         {
           route: "settings",
           title: "Settings",
-          icon: "mdi-trophy-variant",
+          icon: "mdi-cog",
         },
         { route: "FileBrowser", title: "Slippi Files", icon: "mdi-folder" },
         // { route: "catagory", title: "Catagory", icon: "mdi-trophy-variant" },
