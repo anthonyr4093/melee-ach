@@ -45,7 +45,6 @@
 import Vue from "vue";
 import Vuelidate from "vuelidate";
 Vue.use(Vuelidate);
-const Path = require("path");
 const electron = require("electron");
 const Store = require("electron-store");
 const store = new Store();
@@ -90,10 +89,8 @@ export default {
     submit() {
       this.loading = true;
 
-      const { path } = this.file;
-
       electron.ipcRenderer
-        .invoke("IsSettingsValid?", Path.resolve(path, ".../"))
+        .invoke("IsSettingsValid?", this.Replay_Directory)
         .then((result) => {
           if (result === true) {
             this.loading = false;
