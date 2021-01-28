@@ -100,7 +100,7 @@ var Achivement = /** @class */ (function () {
     return Achivement;
 }());
 function isUnlocked(Ach) {
-    if (achstore.get(Ach) == true) {
+    if (achstore.get(Ach)) {
         return true;
     }
     else {
@@ -406,30 +406,6 @@ function AchievementUnlock(AchName, ChumpCheck, int) {
         }
     }
 }
-//Todo Learn if anything is wrong with lras, on discord seems to be buggy/broken.
-function lras(replay_file) {
-    var game = new slippi_js_1["default"](replay_file);
-    try {
-        if (game.getGameEnd().gameEndMethod == 7) {
-            var baseReplayValue = path_1.basename(replay_file);
-            var lrasindex = game.getGameEnd().lrasInitiatorIndex;
-            var metadata = game.getMetadata().players[lrasindex];
-            if (!metadata) {
-                return;
-            }
-            return {
-                str: baseReplayValue,
-                plr: metadata
-            };
-        }
-        else
-            return;
-    }
-    catch (error) {
-        console.error("HOW DID YOU FUCK THAT UP");
-        console.log(replay_file);
-    }
-}
 function name(gamefile, name) {
     var rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
     var game = new slippi_js_1["default"](path_1.join(rep, gamefile));
@@ -505,6 +481,7 @@ function CheckMoveKill_Int(gamefile, AttackID, Uname) {
  * @param gamefile The File That should be Checked
  * @param ActionID The Action that should be checked.
  */
+// TODO: This function doesn't work very well
 function CheckActionID(gamefile, ActionID, Uname) {
     var LastFrameCheck = false;
     var count = 0;
@@ -517,18 +494,18 @@ function CheckActionID(gamefile, ActionID, Uname) {
                 LastFrameCheck = true;
                 count += 1;
                 //console.log(frames[i].players[name(gamefile)].post);
-                //console.log("Shine Frame: " + i);}
+                console.log("Shine Frame: " + i);
+            }
+            continue;
+        }
+        else {
+            if (frames[i].players[name(gamefile, Uname)].post.actionStateId == ActionID) {
                 continue;
             }
             else {
-                if (frames[i].players[name(gamefile, Uname)].post.actionStateId ==
-                    ActionID) {
-                    continue;
-                }
-                else {
-                    LastFrameCheck = false;
-                    continue;
-                }
+                console.log("Set Last Frame Check to false");
+                LastFrameCheck = false;
+                continue;
             }
         }
     }
@@ -631,29 +608,28 @@ function checkSlippiFiles(gamefile, Uname) {
     //Initilize variables
     var rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
     var game = new slippi_js_1["default"](path_1.join(rep, gamefile));
-    var game_complete = null;
     var player = name(gamefile, Uname);
-    var murder;
-    var dam;
+    var murder = 0;
+    var dam = 0;
     //Process Gamefiles
-    if (game.getStats().gameComplete == true) {
+    if (game.getStats().gameComplete) {
         try {
             if (game.getMetadata().players != undefined &&
                 game.getMetadata().players != null &&
-                (name(gamefile, Uname) != -1) == true) {
+                name(gamefile, Uname) != -1) {
                 murder = game.getStats().overall[player].killCount;
             }
+            else
+                "Yo idiot, theres an error here: " + gamefile;
         }
         catch (err) {
             console.log("slp general check ran into an error at" + gamefile);
         }
-        if (game.getStats().gameComplete == true) {
-            try {
-                dam = Math.ceil(game.getStats().overall[player].totalDamage);
-            }
-            catch (err) {
-                //console.log(game.getStats().overall[player]);
-            }
+        try {
+            dam = Math.ceil(game.getStats().overall[player].totalDamage);
+        }
+        catch (err) {
+            //console.log(game.getStats().overall[player]);
         }
         null;
     }
@@ -933,7 +909,7 @@ function AddToStore(storename, addint) {
 }
 function CheckFileAch(gamefile, uname) {
     //console.log("Got Request For: " + gamefile);
-    if (store.get(gamefile, false) == false) {
+    if (!store.get(gamefile, false)) {
         //console.log(gamefile + " Not in the store");
         //console.log(charintGet(gamefile, uname));
         var temp = checkSlippiFiles(gamefile, uname);
@@ -2200,6 +2176,7 @@ electron.ipcMain.handle("GetFileArray", function (event, args) {
     ];
     var rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
     var uname = store.get("username");
+    //save directory with electorn-store
     if (exist(rep) == true) {
         var ReturnArray = [];
         var files = fs.readdirSync(rep, "utf-8");

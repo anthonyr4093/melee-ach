@@ -12,8 +12,7 @@
           <v-list-item :key="item.FileName">
             <v-list-item-content>
               <v-list-item-title>
-                <!-- {{ names[0] }} vs {{ names[1] }} -->
-                {{ item.FileName }}
+                {{ item.names[0] }} vs {{ item.names[1] }}
               </v-list-item-title>
               <v-list-item-subtitle>
                 {{ item.Stage }}

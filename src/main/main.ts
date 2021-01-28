@@ -1,10 +1,4 @@
 /*
-import SlippiGame from '@slippi/slippi-js';
-import { watch } from 'chokidar';
-import * as electron from 'electron';
-import * as fs from 'fs';
-import { basename, extname, join } from 'path';
-
 Notes:
 It seems like keeping all frame data for slippi files takes up alot of memory when held there, makes sense but i think on demand scans of slippi files will probably be needed. This will lead to long processing times for achievements, making this a really non-viable option for running in the background as played. Or im possibly just overthinking this. Probably the ladder.
 TODO: Test storing only individual player frame data, and only post frames, this should save a fourth of the memory usage. Hopefully. Worried about this running on lower-end pcs.
@@ -60,7 +54,7 @@ const replayDir = () =>
   (store.get("Replay_Directory") as string).replace(/\\\\/g, "\\");
 
 electron.ipcMain.handle("IsSettingsValid?", function (event, args) {
-  // console.log("Checking...");
+  //console.log("Checking...");
   const rep = args.Replay_Directory[0].toString().replace(/\\\\/g, "\\");
   // console.log(typeof rep);
   if (fs.existsSync(rep)) {
@@ -70,8 +64,8 @@ electron.ipcMain.handle("IsSettingsValid?", function (event, args) {
     store.set("Replay_Directory", rep.replace(/\\\\/g, "\\"));
     return true;
   } else {
-    // console.log("Settings Are Not Valid");
-    // console.log(rep);
+    //console.log("Settings Are Not Valid");
+    //console.log(rep);
     return false;
   }
 });
@@ -185,7 +179,7 @@ const DRMPillsArray = [1, 100, 10000];
 const DRMFairArray = [1, 10, 100];
 // Achievement End
 
-// code
+//code
 /**
  * This Function takes in the ach name, an array for values that need to be check, and the integer that should be checked. Not sure if i should return somthing here, i think returning void should work.
  *
@@ -200,7 +194,7 @@ function AchievementUnlock(
   int: number
 ): void {
   for (let i = 0; i in ChumpCheck; i++) {
-    // console.log("Checking Ach: " + AchName + " Against: " + int);
+    //console.log("Checking Ach: " + AchName + " Against: " + int);
 
     if (int > ChumpCheck[i]) {
       const key = `${AchName} ${i + 1}`;
@@ -224,10 +218,14 @@ function name(gamefile: string, name: string) {
         if (
           metadata.players[i].names.netplay.toLowerCase() ==
           name.toString().toLowerCase()
-        )
+        ) {
           return i;
-        else continue;
-      } else return -1;
+        } else {
+          continue;
+        }
+      } else {
+        return -1;
+      }
     }
   } catch (err) {
     return -1;
@@ -238,8 +236,8 @@ function name(gamefile: string, name: string) {
 function charintGet(gamefile: string, uname: string) {
   const rep = replayDir();
 
-  const game = new SlippiGame(join(rep, gamefile));
-  const int = game.getSettings().players[name(gamefile, uname)].characterId;
+  let game = new SlippiGame(join(rep, gamefile));
+  let int = game.getSettings().players[name(gamefile, uname)].characterId;
 
   return int;
 }
@@ -260,7 +258,7 @@ function CheckMoveKill(gamefile: string, AttackID: number, Uname: string) {
           ]?.post.lastAttackLanded as number) === AttackID
         )
           count += 1;
-      }
+        }
     }
   }
   return count;
@@ -293,19 +291,21 @@ function CheckActionID(gamefile: string, ActionID: number, Uname: string) {
         ActionID
       )
         continue;
-      else {
+      } else {
+        console.log("Set Last Frame Check to false");
+
         LastFrameCheck = false;
         continue;
       }
     }
-  }
+
   return count;
 }
 function ItemIDCheck(gamefile: string, itemid: number, Uname: string) {
   const rep = replayDir();
   const game = new SlippiGame(join(rep, gamefile));
   const frames = game.getFrames();
-  const UniqueItemId = [-1];
+  let UniqueItemId = [-1];
   let Count = 0;
   for (let n = 0; n in frames; n++) {
     if (frames[n].items != undefined) {
@@ -367,6 +367,16 @@ function CheckLastHit(
       else {
         LastFrameCheck = false;
         continue;
+      } else {
+        if (
+          frames[i].players[name(gamefile, Uname)].post.actionStateId ==
+          ActionStateID
+        ) {
+          continue;
+        } else {
+          LastFrameCheck = false;
+          continue;
+        }
       }
     }
   }
@@ -421,8 +431,9 @@ function checkSlippiFiles(gamefile: string, Uname: string) {
         game.getMetadata().players != undefined &&
         game.getMetadata().players != null &&
         name(gamefile, Uname) != -1
-      )
+      ) {
         murder = game.getStats().overall[player].killCount;
+      } else "Yo idiot, theres an error here: " + gamefile;
     } catch (err) {
       console.log("slp general check ran into an error at" + gamefile);
     }
@@ -436,8 +447,8 @@ function checkSlippiFiles(gamefile: string, Uname: string) {
     }
     null;
   }
-  // return data inside of an object???
-  // console.log("SLP stats Parse Is OK!");
+  //return data inside of an object???
+  //console.log("SLP stats Parse Is OK!");
 
   return { stock: murder, dama: dam, comp: game.getStats().gameComplete };
 }
@@ -560,6 +571,7 @@ function PeachParse(gamefile, Uname) {
             frames[n].frame[i].turnipFace === 7
           )
             PeachStich += 1;
+          }
         }
       }
     }
@@ -715,170 +727,170 @@ function AddToStore(storename: string, addint: number) {
   datastore.set(storename, datastore.get(storename, 0) + addint);
 }
 function CheckFileAch(gamefile, uname): void {
-  // console.log("Got Request For: " + gamefile);
+  //console.log("Got Request For: " + gamefile);
 
   if (store.get(gamefile, false) === false) {
     // console.log(gamefile + " Not in the store");
     // console.log(charintGet(gamefile, uname));
 
-    const temp = checkSlippiFiles(gamefile, uname);
+    let temp = checkSlippiFiles(gamefile, uname);
     datastore.set("stocks", datastore.get("stocks", 0) + temp.stock);
     switch (charintGet(gamefile, uname)) {
       case 0:
-        const Falcon = FalconParse(gamefile, uname);
+        let Falcon = FalconParse(gamefile, uname);
         AddToStore("Falcon_Punch", Falcon.fp);
         AddToStore("Falcon_Knee", Falcon.kn);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
 
         break;
       case 1:
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
-        const donkeyK = DonkeyParse(gamefile, uname);
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        let donkeyK = DonkeyParse(gamefile, uname);
         AddToStore("Donkey_Punch", donkeyK.DP);
         AddToStore("Cargo_Throw", donkeyK.CT);
         break;
       case 2:
-        const fox = foxParse(gamefile, uname);
+        let fox = foxParse(gamefile, uname);
         AddToStore("Shine", fox.Shine);
         AddToStore("Shine_Spike", fox.ShineSpike);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 3:
-        const GNW = GameAndWatchParse(gamefile, uname);
+        let GNW = GameAndWatchParse(gamefile, uname);
         AddToStore("GNWK", GNW.GK);
         AddToStore("GNWN", GNW.GN);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 4:
-        const Kirby = KirbyParse(gamefile, uname);
+        let Kirby = KirbyParse(gamefile, uname);
         AddToStore("Kirbycide", Kirby.KC);
         AddToStore("Kirby_Nair", Kirby.KN);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 5:
-        const Bowser = BowserParse(gamefile, uname);
+        let Bowser = BowserParse(gamefile, uname);
         AddToStore("Bowser_Nair", Bowser.BN);
         AddToStore("Bowser_Upb", Bowser.BUB);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 6:
-        const Link = linkParse(gamefile, uname);
+        let Link = linkParse(gamefile, uname);
         AddToStore("LinkNair", Link.LinkN);
         AddToStore("LinkBomb", Link.LinkB);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 7:
-        const Luigi = LuigiParse(gamefile, uname);
+        let Luigi = LuigiParse(gamefile, uname);
         AddToStore("Luigi_Wavedash", Luigi.wd);
         AddToStore("Misfire", Luigi.Mis);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 8:
-        const Mario = marioParse(gamefile, uname);
+        let Mario = marioParse(gamefile, uname);
         AddToStore("Fireball", Mario.fb);
         AddToStore("Mario_Spike", Mario.fs);
-      // console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
       case 9:
-        const Marth = MarthParse(gamefile, uname);
+        let Marth = MarthParse(gamefile, uname);
         AddToStore("Marth_Grab", Marth.mg);
         AddToStore("Marth_Spike", Marth.ms);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 10:
-        const Mewtwo = MewtwoParse(gamefile, uname);
+        let Mewtwo = MewtwoParse(gamefile, uname);
         AddToStore("Mewtwo_Fair", Mewtwo.MF);
         AddToStore("Mewtwo_ShadowBall", Mewtwo.MB);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 11:
-        const Ness = NessParse(gamefile, uname);
+        let Ness = NessParse(gamefile, uname);
         AddToStore("Ness_Dair", Ness.ND);
         AddToStore("Ness_Upb", Ness.NUB);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 12:
-        const Peach = PeachParse(gamefile, uname);
+        let Peach = PeachParse(gamefile, uname);
         AddToStore("Peach_Fair", Peach.PF);
         AddToStore("Peach_Stich", Peach.PS);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 13:
-        const Pikachu = PikachuParse(gamefile, uname);
+        let Pikachu = PikachuParse(gamefile, uname);
         AddToStore("Pikachu_Tjolt", Pikachu.tj);
         AddToStore("Pikachu.Tailspike", Pikachu.ts);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 14:
-        const Ice_Climbers = IceClimbersParse(gamefile, uname);
+        let Ice_Climbers = IceClimbersParse(gamefile, uname);
         AddToStore("ICDS", Ice_Climbers.DS);
         AddToStore("ICFS", Ice_Climbers.FS);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 15:
-        const Jigglypuff = JigglypuffParse(gamefile, uname);
+        let Jigglypuff = JigglypuffParse(gamefile, uname);
         AddToStore("Jigglypuff_Rest", Jigglypuff.Rest);
         AddToStore("Jigglypuff_Bair", Jigglypuff.bair);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 16:
-        const Samus = SamusParse(gamefile, uname);
+        let Samus = SamusParse(gamefile, uname);
         AddToStore("Samus_Chargeshot", Samus.cs);
         AddToStore("Samus_Missile", Samus.ms);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 17:
-        const Yoshi = YoshiParse(gamefile, uname);
+        let Yoshi = YoshiParse(gamefile, uname);
         AddToStore("Yoshi_Downsmash", Yoshi.YDS);
         AddToStore("Yoshi_Nair", Yoshi.YN);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 18:
-        const Zelda = ZeldaParse(gamefile, uname);
+        let Zelda = ZeldaParse(gamefile, uname);
         AddToStore("Zelda_Fair", Zelda.ZF);
         AddToStore("Zelda_Fire", Zelda.ZFI);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 19:
-        const Shiek = ShiekParse(gamefile, uname);
+        let Shiek = ShiekParse(gamefile, uname);
         AddToStore("Sheik_Needle", Shiek.SNEED);
         AddToStore("Shiek_Nair", Shiek.SN);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 20:
-        const Falco = FalcoParse(gamefile, uname);
+        let Falco = FalcoParse(gamefile, uname);
         AddToStore("Falco_Dair", Falco.FD);
         AddToStore("Falco_Laser", Falco.FL);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 21:
-        const Young_Link = YoungLinkParse(gamefile, uname);
+        let Young_Link = YoungLinkParse(gamefile, uname);
         AddToStore("Yink_Arrow", Young_Link.YLA);
         AddToStore("Yink_Downsmash", Young_Link.YLDS);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 22:
-        const Dr_Mario = DrMParse(gamefile, uname);
+        let Dr_Mario = DrMParse(gamefile, uname);
         AddToStore("DRMF", Dr_Mario.DRMF);
         AddToStore("DRMP", Dr_Mario.DRMP);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 23:
-        const Roy = RoyParse(gamefile, uname);
+        let Roy = RoyParse(gamefile, uname);
         AddToStore("Roy_B", Roy.RB);
         AddToStore("Roy_Fsmash", Roy.RS);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 24:
-        const Pichu = PichuParse(gamefile, uname);
+        let Pichu = PichuParse(gamefile, uname);
         AddToStore("Pichu_Bair", Pichu.PB);
         AddToStore("Pichu_Tjolt", Pichu.PTJ);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 25:
-        const Gannnondorf = GannonParse(gamefile, uname);
+        let Gannnondorf = GannonParse(gamefile, uname);
         AddToStore("Gannon_Punch", Gannnondorf.GP);
         AddToStore("Gannon_Spike", Gannnondorf.GS);
-        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 26:
         break;
@@ -888,7 +900,7 @@ function CheckFileAch(gamefile, uname): void {
 }
 function CheckAch(GamefileArray, uname): void {
   for (let i = 0; i in GamefileArray; i++) {
-    const gamefile = GamefileArray[i];
+    let gamefile = GamefileArray[i];
     CheckFileAch(gamefile, uname);
   }
   // Chump Checks Down Here (HAVE FUN :))))
@@ -1078,7 +1090,7 @@ function CheckAch(GamefileArray, uname): void {
 
 function Thisisstupid(ClassBaseName, ArrrValues, ArrName) {
   for (let num = 1; num in ArrrValues; num++) {
-    const ArrName = [];
+    let ArrName = [];
     ArrName.push[eval(ClassBaseName + num)];
   }
   return ArrName;
@@ -1302,7 +1314,7 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
       if (extname(file) === ".slp") slippiFilesToArray.push(file);
     });
 
-    const uname = store.get("username");
+    let uname = store.get("username");
     try {
       for (let i = 0; i in slippiFilesToArray; i++) {
         /*
@@ -1312,8 +1324,8 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
           console.log(i);
         }
         */
-        // console.log("Checking this file: " + slippiFilesToArray[i]);
-        const gamefile = slippiFilesToArray[i];
+        //console.log("Checking this file: " + slippiFilesToArray[i]);
+        let gamefile = slippiFilesToArray[i];
         if (
           store.get(gamefile, false) === false &&
           name(gamefile, uname) !== -1
@@ -1324,11 +1336,11 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
             console.log("Program ran into an error at gamefile: " + gamefile);
             console.log(err);
           }
-          // console.log("File Check Went Ok");
+          //console.log("File Check Went Ok");
           event.sender.send("clearCache");
           store.set(gamefile, true);
         } else {
-          // console.log("Skipping this file" + slippiFilesToArray[i]);
+          //console.log("Skipping this file" + slippiFilesToArray[i]);
 
           continue;
         }
@@ -1573,16 +1585,16 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
       return false;
     }
   } else {
-    // console.log(exist(rep));
+    //console.log(exist(rep));
     console.log("Couldn't Find Replay Dir");
-    // console.log(rep);
+    //console.log(rep);
 
     return false;
   }
 });
 
 electron.ipcMain.handle("GetFileArray", (event, args) => {
-  const stageid = [
+  let stageid = [
     "Impossible",
     "Impossible",
     "Fountain of Dream",
@@ -1658,7 +1670,7 @@ electron.ipcMain.handle("GetFileArray", (event, args) => {
   }
 });
 
-// i really dont feel like thinking right now
+//i really dont feel like thinking right now
 // Depreciated for AchivementCheck Function. This was stupid and im happy i could come up with a function.
 /*
 if(Game_Total >= 1){
