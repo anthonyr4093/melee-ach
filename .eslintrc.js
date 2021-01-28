@@ -13,7 +13,7 @@ module.exports = {
   plugins: ["prettier"],
   extends: ["@nuxtjs", "prettier", "prettier/vue"],
   rules: {
-    "arrow-parens": ["error", "as-needed"],
+    // "arrow-parens": ["error", "as-needed"],
     "import/no-extraneous-dependencies": "off",
     "require-await": 0,
 
