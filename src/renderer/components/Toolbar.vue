@@ -2,27 +2,21 @@
   <div>
     <v-navigation-drawer v-model="show" width="33%" fixed app>
       <v-list nav>
-        <div>
-          <v-hover v-slot:default="{ hover }">
-            <div>
-              <v-list-item
-                v-for="{ title, route, icon } in items"
-                :key="title"
-                :to="route"
-                router
-                exact
-              >
-                <v-list-item-icon class="my-auto">
-                  <v-icon>{{ icon + (hover ? "" : "-outline") }}</v-icon>
-                </v-list-item-icon>
+        <v-hover
+          v-for="{ title, route, icon } in items"
+          :key="title"
+          v-slot:default="{ hover }"
+        >
+          <v-list-item :to="route" router exact>
+            <v-list-item-icon class="my-auto">
+              <v-icon>{{ icon + (hover ? "" : "-outline") }}</v-icon>
+            </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-title>{{ title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </div>
-          </v-hover>
-        </div>
+            <v-list-item-content>
+              <v-list-item-title>{{ title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-hover>
       </v-list>
     </v-navigation-drawer>
   </div>
