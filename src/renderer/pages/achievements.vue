@@ -38,9 +38,11 @@
       <v-btn :loading="loading" class="mt-2" @click="CheckAch()"
         >Check Achievements</v-btn
       >
-      <v-snackbar v-model="snackbarE" type="error"> {{ error }} </v-snackbar>
+      <v-snackbar v-model="snackbarE" type="error"
+        >The Achievement Parser Failed. Double Check Settings</v-snackbar
+      >
       <v-snackbar v-model="snackbarS" type="Success">
-        <span>{{ success }} </span>
+        <span>The Achievement Parser Succeeded.</span>
       </v-snackbar>
     </div>
   </div>
@@ -58,7 +60,6 @@ export default {
       snackbarE: false,
       snackbarS: false,
       error: "The Achievement Parser Failed. Double Check Settings",
-      success: "The Achievement Parser Succeeded.",
       loading: false,
       CurrentAch: null,
       selectedItem: null,

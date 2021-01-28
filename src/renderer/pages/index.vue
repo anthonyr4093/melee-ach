@@ -1,7 +1,15 @@
 <template>
-  <v-container> LMFAO LANFIGN PAGE LMFAOOOO </v-container>
+  <v-container>
+    <h1>Melee Achievements</h1>
+    <p>
+      Hello, Welcome To Melee Achievements app. To get started click the sidebar
+      and enter your username and replay directory. Then head to the achievement
+      parser
+    </p>
+    <v-img src="https://picsum.photos/536/354" />
+  </v-container>
 </template>
-
+//todo: add colorful image
 <script>
 // import { remote } from "electron";
 // import SystemInformation from "@/components/SystemInformation.vue"
