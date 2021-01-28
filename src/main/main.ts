@@ -1,4 +1,10 @@
 /*
+import SlippiGame from '@slippi/slippi-js';
+import { watch } from 'chokidar';
+import * as electron from 'electron';
+import * as fs from 'fs';
+import { basename, extname, join } from 'path';
+
 Notes:
 It seems like keeping all frame data for slippi files takes up alot of memory when held there, makes sense but i think on demand scans of slippi files will probably be needed. This will lead to long processing times for achievements, making this a really non-viable option for running in the background as played. Or im possibly just overthinking this. Probably the ladder.
 TODO: Test storing only individual player frame data, and only post frames, this should save a fourth of the memory usage. Hopefully. Worried about this running on lower-end pcs.
@@ -6,15 +12,8 @@ TODO: Setup inputs for user data like usernames.
 TODO: put todos in more relevant places.
 */
 
-import { watch } from "chokidar";
-import SlippiGame from "@slippi/slippi-js";
-import * as fs from "fs";
-import { read } from "fs";
-import { basename, join, extname, resolve } from "path";
-import * as readline from "readline";
-import * as electron from "electron";
-const exist = require("fs-exists-sync");
-const Store = require("electron-store");
+import Store from "electron-store";
+
 const store = new Store();
 const datastoredata = { name: "Data" };
 const Achstoredata = { name: "Ach" };
@@ -27,32 +26,32 @@ function insert(str, index, value) {
   return str.substr(0, index) + value + str.substr(index);
 }
 electron.ipcMain.handle("IsSettingsValid?", function (event, args) {
-  //console.log("Checking...");
+  // console.log("Checking...");
   const rep = args.Replay_Directory[0].toString().replace(/\\\\/g, "\\");
-  //console.log(typeof rep);
+  // console.log(typeof rep);
   if (exist(rep) == true) {
-    //console.log("Settings Are Valid");
+    // console.log("Settings Are Valid");
     store.delete("Replay_Directory");
     store.set("username", args.username);
     store.set("Replay_Directory", rep.replace(/\\\\/g, "\\"));
     return true;
   } else {
-    //console.log("Settings Are Not Valid");
-    //console.log(rep);
+    // console.log("Settings Are Not Valid");
+    // console.log(rep);
     return false;
   }
 });
 watch(join(electron.app.getPath("appData"), "Config.json")).on(
   "change",
   (path) => {
-    let username = store.get("Username");
-    let Replay_Directory = store.get("Replay_Directory");
+    const username = store.get("Username");
+    const Replay_Directory = store.get("Replay_Directory");
   }
 );
 // Initialize Variables For Later use, Later figure out how to load values from json. This is probably when we figure out ui
 //= store.get("Replay_Directory", ).replace(/\\\\/g, "\\");
 // let username = store.get("Username");
-let slippiFilesToArray = [];
+const slippiFilesToArray = [];
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
@@ -70,82 +69,79 @@ class Achivement {
   ) {
     (this.Ach_Name = Ach_Name),
       (this.Ach_Disc = Ach_Disc),
-      (this.Ach_Unlocked = Ach_Unlocked),
+      (this.Ach_Unlocked = isUnlocked(Ach_Key)),
       (this.Ach_Key = Ach_Key);
   }
 }
 function isUnlocked(Ach) {
-  if (achstore.get(Ach) == true) {
-    return true;
-  } else {
-    return false;
-  }
+  if (achstore.get(Ach) == true) return true;
+  else return false;
 }
-//Empty Achivement class
+// Empty Achivement class
 // let null = new Achivement(null, null, null)
-//General Achievemnts
-//Kill Achievements
-let kill1 = new Achivement(
+// General Achievemnts
+// Kill Achievements
+const kill1 = new Achivement(
   "Monster Hunter",
   "You have taken a stock,",
   isUnlocked("kill1"),
   "kill1"
 );
-let kill2 = new Achivement(
+const kill2 = new Achivement(
   "Monster Slayer",
   "Take 10 Stocks",
   isUnlocked("kill2"),
   "kill2"
 );
-let kill3 = new Achivement(
+const kill3 = new Achivement(
   "You're The Monstor",
   "Take 100 Stocks",
   isUnlocked("kill3"),
   "kill3"
 );
-let kill4 = new Achivement(
+const kill4 = new Achivement(
   "Cold Blooded Killer",
   "Take 1000 Stocks,",
   isUnlocked("kill4"),
   "kill4"
 );
-let kill5 = new Achivement(
+const kill5 = new Achivement(
   "Murderer",
   "Take 2500 Stocks",
   isUnlocked("kill5"),
   "kill5"
 );
-let kill6 = new Achivement(
+const kill6 = new Achivement(
   "True Crime",
   "Take 5000 Stocks",
   isUnlocked("kill6"),
   "kill6"
 );
-let kill7 = new Achivement(
+const kill7 = new Achivement(
   "Un-Lawful",
   "Take 10000 Stocks",
   isUnlocked("kill7"),
   "kill7"
 );
-let kill8 = new Achivement(
+const kill8 = new Achivement(
   "King Slayer",
   "Take 25000 Stocks",
   isUnlocked("kill8"),
   "kill8"
 );
-let kill9 = new Achivement(
+const kill9 = new Achivement(
   "Demi-God Slayer",
   "Take 50000 Stocks",
   isUnlocked("kill9"),
   "kill9"
 );
-let kill10 = new Achivement(
+const kill10 = new Achivement(
   "God Slayer",
   "Take 1000000 Stocks",
   isUnlocked("kill10"),
   "kill10"
 );
-let killCheckArray = [
+const killCheckArray = [
   1,
   10,
   100,
@@ -157,1101 +153,1101 @@ let killCheckArray = [
   50000,
   1000000,
 ];
-//Game count Achievements
-let Game1 = new Achivement(
+// Game count Achievements
+const Game1 = new Achivement(
   "Everyone starts somwhere",
   "Play 1 Game",
   isUnlocked("Game1"),
   "Game1"
 );
-let Game2 = new Achivement(
+const Game2 = new Achivement(
   "Rookie Numbers",
   "Play 10 Games",
   isUnlocked("Game2"),
   "Game2"
 );
-let Game3 = new Achivement(
+const Game3 = new Achivement(
   "Slowly Learning",
   "Play 50 Games",
   isUnlocked("Game3"),
   "Game3"
 );
-let Game4 = new Achivement(
+const Game4 = new Achivement(
   "Getting Better",
   "Play 100 Games",
   isUnlocked("Game4"),
   "Game4"
 );
-let Game5 = new Achivement(
+const Game5 = new Achivement(
   "Developing New Strats",
   "Play 250 Games",
   isUnlocked("Game5"),
   "Game5"
 );
-let Game6 = new Achivement(
+const Game6 = new Achivement(
   "Hot Shot",
   "Play 500 Games",
   isUnlocked("Game6"),
   "Game6"
 );
-let Game7 = new Achivement(
+const Game7 = new Achivement(
   "Hard Work",
   "Play 1000 Games",
   isUnlocked("Game7"),
   "Game7"
 );
-let Game8 = new Achivement(
+const Game8 = new Achivement(
   "Serious Time",
   "Play 2500 Games",
   isUnlocked("Game8"),
   "Game8"
 );
-let Game9 = new Achivement(
+const Game9 = new Achivement(
   "Incredible",
   "Play 5000 Games",
   isUnlocked("Game9"),
   "Game9"
 );
-let Game10 = new Achivement(
+const Game10 = new Achivement(
   "Serious Dedication",
   "Play 10000 Games",
   isUnlocked("Game10"),
   "Game10"
 );
-let GameCheckArray = [1, 10, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
-//Misc Achievements
-let AATW = new Achivement(
+const GameCheckArray = [1, 10, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
+// Misc Achievements
+const AATW = new Achivement(
   "All Around The World",
   "Play on every stage",
   false,
   "AATW"
 );
-let Specialist = new Achivement(
+const Specialist = new Achivement(
   "Character Specialist",
   "Play as every character",
   false,
   "Specialist"
 );
-//Character Specific Achivements
-//Mario
-let Fire1 = new Achivement(
+// Character Specific Achivements
+// Mario
+const Fire1 = new Achivement(
   "Now You're Playing With Super Power!",
   "Shoot a Fireball",
   isUnlocked("Fire1"),
   "Fire1"
 );
-let Fire2 = new Achivement(
+const Fire2 = new Achivement(
   "Fire Mario",
   "Shoot 1000 Fireballs",
   isUnlocked("Fire2"),
   "Fire2"
 );
-let Fire3 = new Achivement(
+const Fire3 = new Achivement(
   "Super Mario",
   "Shoot 100000 Fireballs",
   isUnlocked("Fire3"),
   "Fire3"
 );
-let FireCheckArray = [1, 1000, 100000];
-let MarioSpike1 = new Achivement(
+const FireCheckArray = [1, 1000, 100000];
+const MarioSpike1 = new Achivement(
   "Nice Spike",
   "Kill With Mario Spike Once",
   isUnlocked("MarioSpike1"),
   "MarioSpike1"
 );
-let MarioSpike2 = new Achivement(
+const MarioSpike2 = new Achivement(
   "Fixing Pipes",
   "Spike 10 Times",
   isUnlocked("MarioSpike2"),
   "MarioSpike2"
-); //null Achivement_Name
-let MarioSpike3 = new Achivement(
+); // null Achivement_Name
+const MarioSpike3 = new Achivement(
   "The Ultimate Mario",
   "Spike 100 Time",
   isUnlocked("MarioSpike3"),
   "MarioSpike3"
 );
-let marSpikeCheckArray = [1, 10, 100];
-//Fox
-let shine1 = new Achivement(
+const marSpikeCheckArray = [1, 10, 100];
+// Fox
+const shine1 = new Achivement(
   "Baby Steps",
   "Perform the shine",
   isUnlocked("shine1"),
   "shine1"
 );
-let shine2 = new Achivement(
+const shine2 = new Achivement(
   "Best Move",
   "Shine 1000 Times",
   isUnlocked("shine2"),
   "shine2"
-); //null Achievement Name
-let shine3 = new Achivement(
+); // null Achievement Name
+const shine3 = new Achivement(
   "Shined Blind",
   "Perform The Shine 100000 Times",
   isUnlocked("shine3"),
   "shine3"
 );
-let ShineCheckArray = [1, 1000, 100000];
-let ShineSpike1 = new Achivement(
+const ShineCheckArray = [1, 1000, 100000];
+const ShineSpike1 = new Achivement(
   "So that kills huh",
   "Kill with the shine",
   isUnlocked("ShineSpike1"),
   "ShineSpike1"
 );
-let ShineSpike2 = new Achivement(
+const ShineSpike2 = new Achivement(
   "Professinal Gimp",
   "Shine Spike 10 Times",
   isUnlocked("ShineSpike2"),
   "ShineSpike2"
 );
-let ShineSpike3 = new Achivement(
+const ShineSpike3 = new Achivement(
   "Shined Out of Your Mind",
   "Shine Spike 100 Times",
   isUnlocked("ShineSpike3"),
   "ShineSpike3"
 );
-let ShineSpikeCheckArray = [1, 10, 100];
-//Captin Falcon
-let Knee1 = new Achivement(
+const ShineSpikeCheckArray = [1, 10, 100];
+// Captin Falcon
+const Knee1 = new Achivement(
   "Knee'd lol",
   "Kill With A Knee",
   isUnlocked("Knee1"),
   "Knee1"
 );
-let Knee2 = new Achivement(
+const Knee2 = new Achivement(
   "Justice",
   "Kill With 50 Knees",
   isUnlocked("Knee2"),
   "Knee2"
 );
-let Knee3 = new Achivement(
+const Knee3 = new Achivement(
   "Falcons Glory",
   "Kill With Knee 100 Times",
   isUnlocked("Knee3"),
   "Knee3"
 );
-let KneeCheckArray = [1, 50, 100];
-let FalconPunch1 = new Achivement(
+const KneeCheckArray = [1, 50, 100];
+const FalconPunch1 = new Achivement(
   "Did he just walk up forward, And Falcon Punch?",
   "Hit a Falcon Punch",
   isUnlocked("FalconPunch1"),
   "FalconPunch1"
 );
-let FalconPunch2 = new Achivement(
+const FalconPunch2 = new Achivement(
   "I can't believe that worked",
   "Hit Falcon Punch 10 Times",
   isUnlocked("FalconPunch2"),
   "FalconPunch2"
 );
-let FalconPunch3 = new Achivement(
+const FalconPunch3 = new Achivement(
   "Theres no way...",
   "Hit Falcon Punch 50 Times",
   isUnlocked("FalconPunch3"),
   "FalconPunch3"
 );
-let FalconPunchArray = [1, 10, 50];
-//Donkey Kong
-let CargoThrow1 = new Achivement(
+const FalconPunchArray = [1, 10, 50];
+// Donkey Kong
+const CargoThrow1 = new Achivement(
   "Carrier Monkey",
   "Kill with Cargo Throw",
   isUnlocked("CargoThrow1"),
   "CargoThrow1"
 );
-let CargoThrow2 = new Achivement(
+const CargoThrow2 = new Achivement(
   "Ding-Dong",
   "Kill with Cargo Throw 10 Times",
   isUnlocked("CargoThrow2"),
   "CargoThrow2"
 );
-let CargoThrow3 = new Achivement(
+const CargoThrow3 = new Achivement(
   "The Game Was Rigged From The Start...",
   "Kill with Cargo Throw 100 Times",
   isUnlocked("CargoThrow3"),
   "CargoThrow3"
 );
-let CargoThrowArray = [1, 10, 100];
-let DonkeyP1 = new Achivement(
+const CargoThrowArray = [1, 10, 100];
+const DonkeyP1 = new Achivement(
   "DONK PUNCH",
   "Kill with Donkey Punch",
   isUnlocked("DonkeyP1"),
   "DonkeyP1"
 );
-let DonkeyP2 = new Achivement(
+const DonkeyP2 = new Achivement(
   "You Ain't No Air Fighter",
   "Kill with Donkey Punch 10 Times",
   isUnlocked("DonkeyP2"),
   "DonkeyP2"
 );
-let DonkeyP3 = new Achivement(
+const DonkeyP3 = new Achivement(
   "One Punch Man",
   "Kill with Donkey Punch 100 Times",
   isUnlocked("DonkeyP3"),
   "DonkeyP3"
 );
-let DonkeyPArray = [1, 10, 100];
-//Roy
-let RoyNeutralB1 = new Achivement(
+const DonkeyPArray = [1, 10, 100];
+// Roy
+const RoyNeutralB1 = new Achivement(
   "Probably the only move that kills",
   "Kill with Roys Neutral B",
   isUnlocked("RoyNeutralB1"),
   "RoyNeutralB1"
 );
-let RoyNeutralB2 = new Achivement(
+const RoyNeutralB2 = new Achivement(
   null,
   "Kill with Roys Neutral B 10 Times",
   isUnlocked("RoyNeutralB2"),
   "RoyNeutralB2"
 );
-let RoyNeutralB3 = new Achivement(
+const RoyNeutralB3 = new Achivement(
   "Dont Test Me...",
   "Kill with Roys Neutral B 100 Times",
   isUnlocked("RoyNeutralB3"),
   "RoyNeutralB3"
 );
-let RoyNeutralBArray = [1, 10, 100];
-let RoySideSmash1 = new Achivement(
+const RoyNeutralBArray = [1, 10, 100];
+const RoySideSmash1 = new Achivement(
   null,
   "Kill With Roys Side Smash",
   isUnlocked("RoySideSmash1"),
   "RoySideSmash1"
 );
-let RoySideSmash2 = new Achivement(
+const RoySideSmash2 = new Achivement(
   null,
   "Kill With Roys Side Smash 10 Times",
   isUnlocked("RoySideSmash2"),
   "RoySideSmash2"
 );
-let RoySideSmash3 = new Achivement(
+const RoySideSmash3 = new Achivement(
   null,
   "Kill With Roys Side Smash 100 Times",
   isUnlocked("RoySideSmash3"),
   "RoySideSmash3"
 );
-let RoySideSmashArray = [1, 10, 100];
-//Kirby
-let Kirbycide1 = new Achivement(
+const RoySideSmashArray = [1, 10, 100];
+// Kirby
+const Kirbycide1 = new Achivement(
   "If i Die...",
   "Kill With Kirby Back/Forward Throw",
   isUnlocked("Kirbycide1"),
   "Kirbycide1"
 );
-let Kirbycide2 = new Achivement(
+const Kirbycide2 = new Achivement(
   "You go With Me.",
   "Kill With Kirby Back/Forward Throw 10 Times",
   isUnlocked("Kirbycide2"),
   "Kirbycide2"
 );
-let Kirbycide3 = new Achivement(
+const Kirbycide3 = new Achivement(
   "Martyrdom",
   "Kill With Kirby Back/Forward Throw 100 Times",
   isUnlocked("Kirbycide3"),
   "Kirbycide3"
 );
 
-let KirbyNair1 = new Achivement(
+const KirbyNair1 = new Achivement(
   "You spin me right round",
   "Hit Kirbys Nair",
   isUnlocked("KirbyNair1"),
   "KirbyNair1"
 );
-let KirbyNair2 = new Achivement(
+const KirbyNair2 = new Achivement(
   "i feel sorry for kirby mains",
   "Hit Kirbys Nair 10 Times",
   isUnlocked("KirbyNair2"),
   "KirbyNair2"
 );
-let KirbyNair3 = new Achivement(
+const KirbyNair3 = new Achivement(
   "Remember to put somthing here",
   "Hit Kirbys Nair 100 Times",
   isUnlocked("KirbyNair3"),
   "KirbyNair3"
 );
-let KirbycideArray = [1, 10, 100];
-let KirbyNairArray = [1, 10, 100];
-//Bowser
-let BowserNair1 = new Achivement(
+const KirbycideArray = [1, 10, 100];
+const KirbyNairArray = [1, 10, 100];
+// Bowser
+const BowserNair1 = new Achivement(
   "What does he even do lol",
   "Hit With Bowsers Nair",
   isUnlocked("BowserNair1"),
   "BowserNair1"
 );
-let BowserNair2 = new Achivement(
+const BowserNair2 = new Achivement(
   "Can Bowser Reaction Techchase?",
   "Hit Bowsers Nair 10 Times",
   isUnlocked("BowserNair2"),
   "BowserNair2"
 );
-let BowserNair3 = new Achivement(
+const BowserNair3 = new Achivement(
   "Is anyone even gonna read this lol?",
   "Hit Bowsers Nair 100 Times",
   isUnlocked("BowserNair3"),
   "BowserNair3"
 );
-let BowserNairArray = [1, 10, 100];
-let BowserUpB1 = new Achivement(
+const BowserNairArray = [1, 10, 100];
+const BowserUpB1 = new Achivement(
   "Rolling Fortress",
   "Hit Bowsers UpB",
   isUnlocked("BowserUpB1"),
   "BowserUpB1"
 );
-let BowserUpB2 = new Achivement(
+const BowserUpB2 = new Achivement(
   "Flying Castle",
   "Hit Bowsers Upb 10 Times",
   isUnlocked("BowserUpB2"),
   "BowserUpB2"
 );
-let BowserUpB3 = new Achivement(
+const BowserUpB3 = new Achivement(
   "Must Be Dizzy",
   "Hit Bowsers Up-b 100 Times",
   isUnlocked("BowserUpB3"),
   "BowserUpB3"
 );
-let BowserUpBArray = [1, 10, 100];
-//Link
-let LinkNair1 = new Achivement(
+const BowserUpBArray = [1, 10, 100];
+// Link
+const LinkNair1 = new Achivement(
   "Jankiest move in the game",
   "Kill With Nair once",
   isUnlocked("LinkNair1"),
   "LinkNair1"
 );
-let LinkNair2 = new Achivement(
+const LinkNair2 = new Achivement(
   null,
   "Kill with Nair 10 Times",
   isUnlocked("LinkNair2"),
   "LinkNair2"
 );
-let LinkNair3 = new Achivement(
+const LinkNair3 = new Achivement(
   "",
   "Kill with Nair 100 Times",
   isUnlocked("LinkNair3"),
   "LinkNair3"
 );
-let LinkNairArray = [1, 10, 100];
-let LinkBomb1 = new Achivement(
+const LinkNairArray = [1, 10, 100];
+const LinkBomb1 = new Achivement(
   null,
   "Spawn a bomb",
   isUnlocked("LinkBomb1"),
   "LinkBomb1"
 );
-let LinkBomb2 = new Achivement(
+const LinkBomb2 = new Achivement(
   null,
   "Spawn a bomb 100 Times",
   isUnlocked("LinkBomb2"),
   "LinkBomb2"
 );
-let LinkBomb3 = new Achivement(
+const LinkBomb3 = new Achivement(
   null,
   "Spawn a bomb 10000 Times",
   isUnlocked("LinkBomb3"),
   "LinkBomb3"
 );
-let LinkBombArray = [1, 100, 10000];
+const LinkBombArray = [1, 100, 10000];
 
-//Shiek Nair And Neddle
-let ShiekNair1 = new Achivement(
+// Shiek Nair And Neddle
+const ShiekNair1 = new Achivement(
   "Why is this called a Sex Kick?",
   "Kill With Nair Once",
   isUnlocked("ShiekNair1"),
   "ShiekNair1"
 );
-let ShiekNair2 = new Achivement(
+const ShiekNair2 = new Achivement(
   "Free Edgeguards",
   "Kill With Nair 10 Times",
   isUnlocked("ShiekNair2"),
   "ShiekNair2"
 );
-let ShiekNair3 = new Achivement(
+const ShiekNair3 = new Achivement(
   "Fastfallers Nightmare",
   "Kill With Nair 100 Times",
   isUnlocked("ShiekNair3"),
   "ShiekNair3"
 );
-let ShiekNairArray = [1, 10, 100];
-let ShiekNeedle1 = new Achivement(
+const ShiekNairArray = [1, 10, 100];
+const ShiekNeedle1 = new Achivement(
   "Little Flys",
   "Shoot 50 Needles",
   isUnlocked("ShiekNeedle1"),
   "ShiekNeedle1"
 );
-let ShiekNeedle2 = new Achivement(
+const ShiekNeedle2 = new Achivement(
   "Dedicated Bees",
   "Shoot 500 Needles",
   isUnlocked("ShiekNeedle2"),
   "ShiekNeedle2"
 );
-let ShiekNeedle3 = new Achivement(
+const ShiekNeedle3 = new Achivement(
   "Angry Wasps",
   "Shoot 50000 Needles",
   isUnlocked("ShiekNeedle3"),
   "ShiekNeedle3"
 );
-let ShiekNeedleArray = [50, 500, 50000];
-//Ness
-let NessDair1 = new Achivement(
+const ShiekNeedleArray = [50, 500, 50000];
+// Ness
+const NessDair1 = new Achivement(
   "Spiked",
   "Kill with Ness Dair",
   isUnlocked("NessDair1"),
   "NessDair1"
 );
-let NessDair2 = new Achivement(
+const NessDair2 = new Achivement(
   null,
   "Kill with Ness Dair 10 Times",
   isUnlocked("NessDair2"),
   "NessDair2"
 );
-let NessDair3 = new Achivement(
+const NessDair3 = new Achivement(
   "Destroyed by a Child",
   "Kill with Ness Dair 100 Times",
   isUnlocked("NessDair3"),
   "NessDair3"
 );
-let NessdairArray = [1, 10, 100];
-let NessUpb1 = new Achivement(
+const NessdairArray = [1, 10, 100];
+const NessUpb1 = new Achivement(
   "Shock Jacket",
   "Hit Ness's Up-B While Recovering",
   isUnlocked("NessUpb1"),
   "NessUpb1"
 );
-let NessUpb2 = new Achivement(
+const NessUpb2 = new Achivement(
   "Can't Edgeguard Me",
   "Hit Ness's Up-B While Recovering 10 Times",
   isUnlocked("NessUpb2"),
   "NessUpb2"
 );
-let NessUpb3 = new Achivement(
+const NessUpb3 = new Achivement(
   "Mistake or Yo-Yo Glitch?",
   "Hit Ness's Up-B While Recovering 100 Times",
   isUnlocked("NessUpb3"),
   "NessUpb3"
 );
-let NessUpbArray = [1, 10, 100];
-//Peach
-let PeachStich1 = new Achivement(
+const NessUpbArray = [1, 10, 100];
+// Peach
+const PeachStich1 = new Achivement(
   "Lucky Number 7",
   "Pull A Stich Face Turnip",
   isUnlocked("PeachStitch1"),
   "PeachStitch1"
 );
-let PeachStich2 = new Achivement(
+const PeachStich2 = new Achivement(
   "Slot Machine",
   "Pull A Stich Face Turnip 10 Times",
   isUnlocked("PeachStitch2"),
   "PeachStitch2"
 );
-let PeachStich3 = new Achivement(
+const PeachStich3 = new Achivement(
   "Casino Simulator",
   "Pull A Stich Face Turnip 100 Times",
   isUnlocked("PeachStitch3"),
   "PeachStitch3"
 );
-let PeachStickArray = [1, 10, 100];
-let PeachFair1 = new Achivement(
+const PeachStickArray = [1, 10, 100];
+const PeachFair1 = new Achivement(
   "Fierce Fighter",
   "Kill With Fair",
   isUnlocked("PeachFair1"),
   "PeachFair1"
 );
-let PeachFair2 = new Achivement(
+const PeachFair2 = new Achivement(
   "Fair and Balanced",
   "Kill With Fair 10 Times",
   isUnlocked("PeachFair2"),
   "PeachFair2"
 );
-let PeachFair3 = new Achivement(
+const PeachFair3 = new Achivement(
   "Vegatable God",
   "Kill With Fair 100 Times",
   isUnlocked("PeachFair3"),
   "PeachFair3"
 );
-let PeachFairArray = [1, 10, 100];
-//Ice Climbers??? Dont even know how i would start with this one lol. TODO: Figure out frame Parsing for IC.
-let IceClimbersFS1 = new Achivement(
+const PeachFairArray = [1, 10, 100];
+// Ice Climbers??? Dont even know how i would start with this one lol. TODO: Figure out frame Parsing for IC.
+const IceClimbersFS1 = new Achivement(
   "Ice Cold",
   "Kill With Ice Climbers Forward Smash",
   isUnlocked("IceClimbersFS1"),
   "IceClimbersFS1"
 );
-let IceClimbersFS2 = new Achivement(
+const IceClimbersFS2 = new Achivement(
   "Cooled Killers",
   "Kill With Ice Climbers Forward Smash 10 Times",
   isUnlocked("IceClimbersFS2"),
   "IceClimbersFS2"
 );
-let IceClimbersFS3 = new Achivement(
+const IceClimbersFS3 = new Achivement(
   "On Fire",
   "Kill With Ice Climbers Forward Smash 100 Times",
   isUnlocked("IceClimbersFS3"),
   "IceClimbersFS3"
 );
-let IceClimbersFSArray = [1, 10, 100];
-let IceClimbersDS1 = new Achivement(
+const IceClimbersFSArray = [1, 10, 100];
+const IceClimbersDS1 = new Achivement(
   "Icy Vengance",
   "Kill With Ice Climbers Down Smash",
   isUnlocked("IceClimbersDS1"),
   "IceClimbersDS1"
 );
-let IceClimbersDS2 = new Achivement(
+const IceClimbersDS2 = new Achivement(
   "Cool Cat",
   "Kill With Ice Climbers Down Smash 10 Times",
   isUnlocked("IceClimbersDS2"),
   "IceClimbersDS2"
 );
-let IceClimbersDS3 = new Achivement(
+const IceClimbersDS3 = new Achivement(
   "Hot Shot",
   "Kill With Ice Climbers Down Smash 100 Times",
   isUnlocked("IceClimbersDS3"),
   "IceClimbersDS3"
 );
-let IceClimbersDSArray = [1, 10, 100];
-//Pikachu Tail Spike And
-let TailSpike1 = new Achivement(
+const IceClimbersDSArray = [1, 10, 100];
+// Pikachu Tail Spike And
+const TailSpike1 = new Achivement(
   "Nice gimp",
   "Land a Tail Spike",
   isUnlocked("TailSpike1"),
   "TailSpike1"
 );
-let TailSpike2 = new Achivement(
+const TailSpike2 = new Achivement(
   "The Cute Killer",
   "Land 10 Tail Spikes",
   isUnlocked("TailSpike2"),
   "TailSpike2"
 );
-let TailSpike3 = new Achivement(
+const TailSpike3 = new Achivement(
   "The Rat",
   "Land 100 Tail Spikes",
   isUnlocked("TailSpike3"),
   "TailSpike3"
 );
-let TailSpikeArray = [1, 10, 100];
-let Thunderjolt1 = new Achivement(
+const TailSpikeArray = [1, 10, 100];
+const Thunderjolt1 = new Achivement(
   null,
   "Spawn Thunder Jolt",
   isUnlocked("Thunderjolt1"),
   "Thunderjolt1"
 );
-let Thunderjolt2 = new Achivement(
+const Thunderjolt2 = new Achivement(
   null,
   "Spawn 10 Thunder Jolt",
   isUnlocked("Thunderjolt2"),
   "Thunderjolt2"
 );
-let Thunderjolt3 = new Achivement(
+const Thunderjolt3 = new Achivement(
   null,
   "Spawn 100 Thunder Jolts",
   isUnlocked("Thunderjolt3"),
   "Thunderjolt3"
 );
-let ThunderJoltArray = [1, 10, 100];
-//Samus Missile And Chargeshot
-let Missile1 = new Achivement(
+const ThunderJoltArray = [1, 10, 100];
+// Samus Missile And Chargeshot
+const Missile1 = new Achivement(
   "Humble Beginings",
   "Shoot a Missile",
   isUnlocked("Missile1"),
   "Missile1"
 );
-let Missile2 = new Achivement(
+const Missile2 = new Achivement(
   "Crowd Control",
   "Shoot 500 Missiles",
   isUnlocked("Missile2"),
   "Missile2"
 );
-let Missile3 = new Achivement(
+const Missile3 = new Achivement(
   "Neutral Dictator",
   "Shoot 5000 Missiles",
   isUnlocked("Missile3"),
   "Missile3"
 );
-let MissileArray = [1, 500, 5000];
-let Chargeshot1 = new Achivement(
+const MissileArray = [1, 500, 5000];
+const Chargeshot1 = new Achivement(
   "Lucky Shot",
   "Kill with a Chargeshot",
   isUnlocked("Chargeshot1"),
   "Chargeshot1"
 );
-let Chargeshot2 = new Achivement(
+const Chargeshot2 = new Achivement(
   "She Dont Miss",
   "Kill With 50 Chargeshots",
   isUnlocked("Chargeshot2"),
   "Chargeshot2"
 );
-let Chargeshot3 = new Achivement(
+const Chargeshot3 = new Achivement(
   "Bounty Hunter",
   "Kill With 500 Chargeshots",
   isUnlocked("Chargeshot3"),
   "Chargeshot3"
 );
-let ChargeShotArray = [1, 50, 500];
-//Yoshi
-let YoshiNair1 = new Achivement(
+const ChargeShotArray = [1, 50, 500];
+// Yoshi
+const YoshiNair1 = new Achivement(
   "Someone give me a good reason why this is named sex kick",
   "Hit Yoshis Nair 10 Times",
   isUnlocked("YoshiNair1"),
   "YoshiNair1"
 );
-let YoshiNair2 = new Achivement(
+const YoshiNair2 = new Achivement(
   "Super Armor Lol",
   "Hit Yoshis Nair 100 Times",
   isUnlocked("YoshiNair2"),
   "YoshiNair2"
 );
-let YoshiNair3 = new Achivement(
+const YoshiNair3 = new Achivement(
   "Wait, Wheres Baby Mario?",
   "Hit Yoshis Nair 1000 Times",
   isUnlocked("YoshiNair3"),
   "YoshiNair3"
 );
-let YoshiNairArray = [10, 100, 1000];
-let YoshiDownSmash1 = new Achivement(
+const YoshiNairArray = [10, 100, 1000];
+const YoshiDownSmash1 = new Achivement(
   null,
   "Kill With Yoshi's Downsmash",
   isUnlocked("YoshiDownSmash1"),
   "YoshiDownSmash1"
 );
-let YoshiDownSmash2 = new Achivement(
+const YoshiDownSmash2 = new Achivement(
   null,
   "Kill With Yoshi's Downsmash 10 Times",
   isUnlocked("YoshiDownSmash2"),
   "YoshiDownSmash2"
 );
-let YoshiDownSmash3 = new Achivement(
+const YoshiDownSmash3 = new Achivement(
   null,
   "Kill WIth Yoshi's Downsmash 100 Times",
   isUnlocked("YoshiDownSmash3"),
   "YoshiDownSmash3"
 );
-let YoshiDownSmashArray = [1, 10, 100];
-//Jigglypuff
-let JigBackair1 = new Achivement(
+const YoshiDownSmashArray = [1, 10, 100];
+// Jigglypuff
+const JigBackair1 = new Achivement(
   null,
   "Hit Backair",
   isUnlocked("JigBackair1"),
   "JigBackair1"
 );
-let JigBackair2 = new Achivement(
+const JigBackair2 = new Achivement(
   null,
   "Hit 100 Backairs",
   isUnlocked("JigBackair2"),
   "JigBackair2"
 );
-let JigBackair3 = new Achivement(
+const JigBackair3 = new Achivement(
   null,
   "Hit 10000 Backairs",
   isUnlocked("JigBackair3"),
   "JigBackair3"
 );
-let JigBackAirArray = [1, 100, 10000];
-let RestKill1 = new Achivement(
+const JigBackAirArray = [1, 100, 10000];
+const RestKill1 = new Achivement(
   "Sleepy Time",
   "Kill with Rest",
   isUnlocked("RestKill1"),
   "RestKill1"
 );
-let RestKill2 = new Achivement(
+const RestKill2 = new Achivement(
   null,
   "Kill with 10 Rests",
   isUnlocked("RestKill2"),
   "RestKill2"
 );
-let RestKill3 = new Achivement(
+const RestKill3 = new Achivement(
   "Well Rested",
   "Kill with 100 Rests",
   isUnlocked("RestKill3"),
   "RestKill3"
 );
-let RestKillArray = [1, 10, 100];
-//Mewtwo
-let MewtwoSB1 = new Achivement(
+const RestKillArray = [1, 10, 100];
+// Mewtwo
+const MewtwoSB1 = new Achivement(
   null,
   "Shoot a Shadow Ball",
   isUnlocked("MewtwoSB1"),
   "MewtwoSB1"
 );
-let MewtwoSB2 = new Achivement(
+const MewtwoSB2 = new Achivement(
   null,
   "Shoot 10 Shadow Balls",
   isUnlocked("MewtwoSB2"),
   "MewtwoSB2"
 );
-let MewtwoSB3 = new Achivement(
+const MewtwoSB3 = new Achivement(
   null,
   "Shoot 100 Shadow Balls",
   isUnlocked("MewtwoSB3"),
   "MewtwoSB3"
 );
-let MewtwoArray = [1, 10, 100];
-let MewtwoFair1 = new Achivement(
+const MewtwoArray = [1, 10, 100];
+const MewtwoFair1 = new Achivement(
   null,
   "Kill With Mewtwo Fair",
   isUnlocked("MewtwoFair1"),
   "MewtwoFair1"
 );
-let MewtwoFair2 = new Achivement(
+const MewtwoFair2 = new Achivement(
   null,
   "Kill With Mewtwo Fair 10 Times",
   isUnlocked("MewtwoFair2"),
   "MewtwoFair2"
 );
-let MewtwoFair3 = new Achivement(
+const MewtwoFair3 = new Achivement(
   null,
   "Kill With Mewtwo Fair 100 Times",
   isUnlocked("MewtwoFair3"),
   "MewtwoFair3"
 );
-//Luigi Wavedash and Misfire
-let LuigiSlippery1 = new Achivement(
+// Luigi Wavedash and Misfire
+const LuigiSlippery1 = new Achivement(
   "Slippery Boy",
   "Wavedash with Luigi",
   isUnlocked("LuigiSlippery1"),
   "LuigiSlippery1"
 );
-let LuigiSlippery2 = new Achivement(
+const LuigiSlippery2 = new Achivement(
   "Slimey Hero",
   "Wavedash 1000 Times",
   isUnlocked("LuigiSlippery2"),
   "LuigiSlippery2"
 );
-let LuigiSlippery3 = new Achivement(
+const LuigiSlippery3 = new Achivement(
   "Slip 'n Slide",
   "Wavedash 100000 Times",
   isUnlocked("LuigiSlippery3"),
   "LuigiSlippery3"
 );
-let LuigiSlipperyArray = [1, 1000, 100000];
-let Misfire1 = new Achivement(
+const LuigiSlipperyArray = [1, 1000, 100000];
+const Misfire1 = new Achivement(
   "RNG RNG RNG",
   "Misfire",
   isUnlocked("Misfire1"),
   "Misfire1"
 );
-let Misfire2 = new Achivement(
+const Misfire2 = new Achivement(
   "Decently Lucky",
   "Misfire 10 Times",
   isUnlocked("Misfire2"),
   "Misfire2"
 );
-let Misfire3 = new Achivement(
+const Misfire3 = new Achivement(
   "1 In 7 Trillion",
   "Misfire 1000 Times",
   isUnlocked("Misfire3"),
   "Misfire3"
 );
-let MisfireArray = [1, 10, 1000];
-//Marth Down Air and Grab
-let MarthSpike1 = new Achivement(
+const MisfireArray = [1, 10, 1000];
+// Marth Down Air and Grab
+const MarthSpike1 = new Achivement(
   "Half Moon",
   "Kill with Marths Spike",
   isUnlocked("MarthSpike1"),
   "MarthSpike1"
 );
-let MarthSpike2 = new Achivement(
+const MarthSpike2 = new Achivement(
   "The Day is Mine",
   "Kill with Marths Spike 10 Times",
   isUnlocked("MarthSpike2"),
   "MarthSpike2"
 );
-let MarthSpike3 = new Achivement(
+const MarthSpike3 = new Achivement(
   "This Is My Time To Shine!",
   "Kill With Marths Spike 100 Times",
   isUnlocked("MarthSpike3"),
   "MarthSpike3"
 );
-let MarthSpikeArray = [1, 10, 100];
-let MarthGrab1 = new Achivement(
+const MarthSpikeArray = [1, 10, 100];
+const MarthGrab1 = new Achivement(
   "Catch and Release",
   "Sucessfully Grab",
   isUnlocked("MarthGrab1"),
   "MarthGrab1"
 );
-let MarthGrab2 = new Achivement(
+const MarthGrab2 = new Achivement(
   "Might As Well Be a Tether",
   "Grab 100 Times",
   isUnlocked("MarthGrab2"),
   "MarthGrab2"
 );
-let MarthGrab3 = new Achivement(
+const MarthGrab3 = new Achivement(
   "Chaingrabbing lol",
   "Grab 1000 Times",
   isUnlocked("MarthGrab3"),
   "MarthGrab3"
 );
-let MarthGrabArray = [1, 100, 1000];
-//Zelda
-let ZeldaFair1 = new Achivement(
+const MarthGrabArray = [1, 100, 1000];
+// Zelda
+const ZeldaFair1 = new Achivement(
   "Thunder Thighs",
   "Kill With Fair/Bair",
   isUnlocked("ZeldaFair1"),
   "ZeldaFair1"
 );
-let ZeldaFair2 = new Achivement(
+const ZeldaFair2 = new Achivement(
   "JuSt DoWN B LOL",
   "Kill With Fair/Bair 10 Times",
   isUnlocked("ZeldaFair2"),
   "ZeldaFair2"
 );
-let ZeldaFair3 = new Achivement(
+const ZeldaFair3 = new Achivement(
   "Better Character",
   "Kill With Fair/Bair 100 Times",
   isUnlocked("ZeldaFair3"),
   "ZeldaFair3"
 );
-let ZeldaFairArray = [1, 10, 100];
-let ZeldaFlame1 = new Achivement(
+const ZeldaFairArray = [1, 10, 100];
+const ZeldaFlame1 = new Achivement(
   "Din's Fire",
   "Spawn Din's Fire",
   isUnlocked("ZeldaFlame1"),
   "ZeldaFlame1"
 );
-let ZeldaFlame2 = new Achivement(
+const ZeldaFlame2 = new Achivement(
   "Din's Inferno",
   "Spawn Din's Fire 100 Times",
   isUnlocked("ZeldaFlame2"),
   "ZeldaFlame2"
 );
-let ZeldaFlame3 = new Achivement(
+const ZeldaFlame3 = new Achivement(
   "Din's Rage",
   "Spawn Din's Fire 10000 Times",
   isUnlocked("ZeldaFlame3"),
   "ZeldaFlame3"
 );
-let ZeldaFireArray = [1, 100, 10000];
-//Young Link
-let YinkArrow1 = new Achivement(
+const ZeldaFireArray = [1, 100, 10000];
+// Young Link
+const YinkArrow1 = new Achivement(
   "Trained Archer",
   "Shoot An Arrow",
   isUnlocked("YinkArrow1"),
   "YinkArrow1"
 );
-let YinkArrow2 = new Achivement(
+const YinkArrow2 = new Achivement(
   "Good-Eye",
   "Shoot 100 Arrows",
   isUnlocked("YinkArrow2"),
   "YinkArrow2"
 );
-let YinkArrow3 = new Achivement(
+const YinkArrow3 = new Achivement(
   "Eagle-Eye",
   "Shoot 10000 Arrows",
   isUnlocked("YinkArrow3"),
   "YinkArrow3"
 );
-let YinkArrowArray = [1, 100, 1000];
-let YinkDownSmash1 = new Achivement(
+const YinkArrowArray = [1, 100, 1000];
+const YinkDownSmash1 = new Achivement(
   null,
   "Kill With Young Link Down Smash",
   isUnlocked("YinkDownSmash1"),
   "YinkDownSmash1"
 );
-let YinkDownSmash2 = new Achivement(
+const YinkDownSmash2 = new Achivement(
   null,
   "Kill With Young Link Down Smash 10 Times",
   isUnlocked("YinkDownSmash2"),
   "YinkDownSmash2"
 );
-let YinkDownSmash3 = new Achivement(
+const YinkDownSmash3 = new Achivement(
   null,
   "Kill With Young Link Down Smash 100 Times",
   isUnlocked("YinkDownSmash3"),
   "YinkDownSmash3"
 );
-let YinkDownSmashArray = [1, 10, 100];
-//Falco Lazer and Dair
-let FalcoDair1 = new Achivement(
+const YinkDownSmashArray = [1, 10, 100];
+// Falco Lazer and Dair
+const FalcoDair1 = new Achivement(
   "Personally...",
   "Hit Falcos Downair",
   isUnlocked("FalcoDair1"),
   "FalcoDair1"
 );
-let FalcoDair2 = new Achivement(
+const FalcoDair2 = new Achivement(
   "I Prefer the Air",
   "Hit Falcos Dair 100 Times",
   isUnlocked("FalcoDair2"),
   "FalcoDair2"
 );
-let FalcoDair3 = new Achivement(
+const FalcoDair3 = new Achivement(
   "Best Spike IMO",
   "Hit Falcos Dair 10000 Times",
   isUnlocked("FalcoDair3"),
   "FalcoDair3"
 );
-let FalcoDairArray = [1, 100, 10000];
-let FalcoLaser1 = new Achivement(
+const FalcoDairArray = [1, 100, 10000];
+const FalcoLaser1 = new Achivement(
   "I LOVE LASERS",
   "Shoot Laser 10 Times",
   isUnlocked("FalcoLaser1"),
   "FalcoLaser1"
 );
-let FalcoLaser2 = new Achivement(
+const FalcoLaser2 = new Achivement(
   "ShieldStun Simulator",
   "Shoot Laser 1000 Times",
   isUnlocked("FalcoLaser2"),
   "FalcoLaser2"
 );
-let FalcoLaser3 = new Achivement(
+const FalcoLaser3 = new Achivement(
   "Well Someone is fun at Partys",
   "Shoot Laser 100000 Times",
   isUnlocked("FalcoLaser3"),
   "FalcoLaser3"
 );
-let FalcoLaserArray = [10, 1000, 100000];
-//Pichu
-let PichuTJolt1 = new Achivement(
+const FalcoLaserArray = [10, 1000, 100000];
+// Pichu
+const PichuTJolt1 = new Achivement(
   "Why Are You Hitting Yourself?",
   "Use Pichus Thunder Jolt",
   isUnlocked("PichuTJolt1"),
   "PichuTJolt1"
 );
-let PichuTJolt2 = new Achivement(
+const PichuTJolt2 = new Achivement(
   "Why Are You Hitting Yourself??",
   "Use Pichus Thunder Jolt 100 Times",
   isUnlocked("PichuTJolt2"),
   "PichuTJolt2"
 );
-let PichuTJolt3 = new Achivement(
+const PichuTJolt3 = new Achivement(
   "Why Are You Hitting Yourself??",
   "Use Pichus Thunder Jolt 10000 Times",
   isUnlocked("PichuTjolt3"),
   "PichuTjolt3"
 );
-let PichuTJoltArray = [1, 100, 10000];
-let PichuBair1 = new Achivement(
+const PichuTJoltArray = [1, 100, 10000];
+const PichuBair1 = new Achivement(
   "Why Are You Hitting Yourself????",
   "Kill WIth Pichus Bair",
   isUnlocked("PichuBair1"),
   "PichuBair1"
 );
-let PichuBair2 = new Achivement(
+const PichuBair2 = new Achivement(
   "Why Are You Hitting Yourself?????",
   "Kill WIth Pichus Bair 10 Times",
   isUnlocked("PichuBair2"),
   "PichuBair2"
 );
-let PichuBair3 = new Achivement(
+const PichuBair3 = new Achivement(
   "Why Are You Hitting Yourself??????",
   "Kill WIth Pichus Bair 100 Times",
   isUnlocked("PichuBair3"),
   "PichuBair3"
 );
 
-let PichuBairArray = [1, 10, 100];
-//Mr. Game And Watch
-let GNWNair1 = new Achivement(
+const PichuBairArray = [1, 10, 100];
+// Mr. Game And Watch
+const GNWNair1 = new Achivement(
   "He Shoots",
   "Kill with Game And Watch Nair",
   isUnlocked("GNWNair1"),
   "GNWNair1"
 );
-let GNWNair2 = new Achivement(
+const GNWNair2 = new Achivement(
   "HE SCORES",
   "Kill with Game And Watch Nair 10 Times",
   isUnlocked("GNWNair2"),
   "GNWNair2"
 );
-let GNWNair3 = new Achivement(
+const GNWNair3 = new Achivement(
   "Who even Needs Fun-Canceling?",
   "Kill with Game And Watch Nair 100 Times",
   isUnlocked("GNWNair3"),
   "GNWNair3"
 );
-let GNWKey1 = new Achivement(
+const GNWKey1 = new Achivement(
   "Unlock The Win",
   "Kill with Game And Watch Dair",
   isUnlocked("GNWKey1"),
   "GNWKey1"
 );
-let GNWKey2 = new Achivement(
+const GNWKey2 = new Achivement(
   null,
   "Kill with Game And Watch Dair 10 Times",
   isUnlocked("GNWKey2"),
   "GNWKey2"
 );
-let GNWKey3 = new Achivement(
+const GNWKey3 = new Achivement(
   "Nobody Needs Fun-Canceling",
   "Kill with Game And Watch Dair 100 Times",
   isUnlocked("GNWKey3"),
   "GNWKey3"
 );
-let GNWKeyArray = [1, 10, 100];
-let GNWNairArray = [1, 10, 100];
-//Gannondorf
-let GannonP1 = new Achivement(
+const GNWKeyArray = [1, 10, 100];
+const GNWNairArray = [1, 10, 100];
+// Gannondorf
+const GannonP1 = new Achivement(
   "Brutal Domination",
   "Kill With Warlock Punch",
   isUnlocked("GannonP1"),
   "GannonP1"
 );
-let GannonP2 = new Achivement(
+const GannonP2 = new Achivement(
   "EZ Clap",
   "Kill With Warlock Punch 10 Times",
   isUnlocked("GannonP2"),
   "GannonP2"
 );
-let GannonP3 = new Achivement(
+const GannonP3 = new Achivement(
   "How do People Keep Falling For It?",
   "Kill With Warlock Punch 100 Times",
   isUnlocked("GannonP3"),
   "GannonP3"
 );
-let GannonPArray = [1, 10, 100];
-let GannonS1 = new Achivement(
+const GannonPArray = [1, 10, 100];
+const GannonS1 = new Achivement(
   "Any Spikers?",
   "Kill With Gannondorfs Spike",
   isUnlocked("GannonS1"),
   "GannonS1"
 );
-let GannonS2 = new Achivement(
+const GannonS2 = new Achivement(
   "S.W.A.G",
   "Kill with Gannondorfs Spike 10 Times",
   isUnlocked("GannonS2"),
   "GannonS2"
 );
-let GannonS3 = new Achivement(
+const GannonS3 = new Achivement(
   "Gannondorf's Ultimate Power",
   "Kill with Gannondorfs Spike 100 Times",
   isUnlocked("GannonS3"),
   "GannonS3"
 );
-let GannonSArray = [1, 10, 100];
-//Dr. Mario
-let DRMPills1 = new Achivement(
+const GannonSArray = [1, 10, 100];
+// Dr. Mario
+const DRMPills1 = new Achivement(
   "The Doctor",
   "Spawn A Pill",
   isUnlocked("DRMPills1"),
   "DRMPills1"
 );
-let DRMPills2 = new Achivement(
+const DRMPills2 = new Achivement(
   "The Medic",
   "Spawn 100 Pills",
   isUnlocked("DRMPills2"),
   "DRMPills2"
 );
-let DRMPills3 = new Achivement(
+const DRMPills3 = new Achivement(
   "The Hero",
   "Spawn 10000 Pills",
   isUnlocked("DRMPills3"),
   "DRMPills3"
 );
-let DRMPillsArray = [1, 100, 10000];
-let DRMFair1 = new Achivement(
+const DRMPillsArray = [1, 100, 10000];
+const DRMFair1 = new Achivement(
   "If only this Spiked...",
   "Kill With Dr.Mario Fair",
   isUnlocked("DRMFair1"),
   "DRMFair1"
 );
-let DRMFair2 = new Achivement(
+const DRMFair2 = new Achivement(
   "Mario but Better",
   "Kill With Dr.Mario Fair 10 Times",
   isUnlocked("DRMFair2"),
   "DRMFair2"
 );
-let DRMFair3 = new Achivement(
+const DRMFair3 = new Achivement(
   "Any Dockers?",
   "Kill With Dr.Mario Fair 100 Times",
   isUnlocked("DRMFair3"),
   "DRMFair3"
 );
-let DRMFairArray = [1, 10, 100];
-//Achievement End
+const DRMFairArray = [1, 10, 100];
+// Achievement End
 
-//code
+// code
 /**
  * This Function takes in the ach name, an array for values that need to be check, and the integer that should be checked. Not sure if i should return somthing here, i think returning void should work.
  *
@@ -1259,37 +1255,34 @@ let DRMFairArray = [1, 10, 100];
  * @param ChumpCheck This is an array with the values needed to check against. TODO:Come up with better name lol
  * @param int This is the integer that should be checked against Chump Check. This should be the count like number of games.
  */
-let RepDirExist = false;
+const RepDirExist = false;
 function AchievementUnlock(AchName: string, ChumpCheck: any[], int): void {
   for (let i = 0; i in ChumpCheck; i++) {
-    //console.log("Checking Ach: " + AchName + " Against: " + int);
+    // console.log("Checking Ach: " + AchName + " Against: " + int);
 
     if (int > ChumpCheck[i]) {
       eval(AchName + (i + 1)).Ach_Unlocked = true;
 
       achstore.set(eval(AchName + (i + 1)).Ach_Key, true);
-      //console.log("I UNLOCKED: " + AchName);
+      // console.log("I UNLOCKED: " + AchName);
 
       continue;
-    } else {
-      continue;
-    }
+    } else continue;
   }
 }
 
-//Todo Learn if anything is wrong with lras, on discord seems to be buggy/broken.
+// Todo Learn if anything is wrong with lras, on discord seems to be buggy/broken.
 function lras(replay_file) {
   const game = new SlippiGame(replay_file);
 
   try {
     if (game.getGameEnd().gameEndMethod == 7) {
-      let baseReplayValue = basename(replay_file);
-      let lrasindex = game.getGameEnd().lrasInitiatorIndex;
+      const baseReplayValue = basename(replay_file);
+      const lrasindex = game.getGameEnd().lrasInitiatorIndex;
 
       const metadata = game.getMetadata().players[lrasindex];
-      if (!metadata) {
-        return;
-      }
+      if (!metadata) return;
+
       return {
         str: baseReplayValue,
         plr: metadata,
@@ -1302,24 +1295,20 @@ function lras(replay_file) {
 }
 
 function name(gamefile, name) {
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, gamefile));
-  let settings = game.getSettings();
-  let metadata = game.getMetadata();
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, gamefile));
+  const settings = game.getSettings();
+  const metadata = game.getMetadata();
   try {
     for (let i = 0; i in settings.players; i++) {
       if (settings.players[i].type != 1 && metadata.players[i].names != null) {
         if (
           metadata.players[i].names.netplay.toLowerCase() ==
           name.toString().toLowerCase()
-        ) {
+        )
           return i;
-        } else {
-          continue;
-        }
-      } else {
-        return -1;
-      }
+        else continue;
+      } else return -1;
     }
   } catch (err) {
     return -1;
@@ -1328,28 +1317,27 @@ function name(gamefile, name) {
   return -1;
 }
 function charintGet(gamefile, uname) {
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
 
-  let game = new SlippiGame(join(rep, gamefile));
-  let int = game.getSettings().players[name(gamefile, uname)].characterId;
+  const game = new SlippiGame(join(rep, gamefile));
+  const int = game.getSettings().players[name(gamefile, uname)].characterId;
 
   return int;
 }
 function CheckMoveKill(gamefile, AttackID, Uname) {
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, gamefile));
-  let stats = game.getStats();
-  let frames = game.getFrames();
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, gamefile));
+  const stats = game.getStats();
+  const frames = game.getFrames();
   for (let i = 0; i in stats.conversions; i++) {
     if (stats.conversions[i].didKill == true) {
       if (stats.conversions[i].playerIndex == name(gamefile, Uname)) {
-        //console.log(frames[stats.conversions[i].endFrame].players[name(gamefile)].post.lastAttackLanded)
+        // console.log(frames[stats.conversions[i].endFrame].players[name(gamefile)].post.lastAttackLanded)
         if (
           frames[stats.conversions[i].endFrame].players[name(gamefile, Uname)]
             .post.lastAttackLanded == AttackID
-        ) {
+        )
           return true;
-        }
       }
     }
   }
@@ -1357,21 +1345,20 @@ function CheckMoveKill(gamefile, AttackID, Uname) {
 }
 
 function CheckMoveKill_Int(gamefile, AttackID, Uname) {
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, gamefile));
-  let stats = game.getStats();
-  let frames = game.getFrames();
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, gamefile));
+  const stats = game.getStats();
+  const frames = game.getFrames();
   let count = 0;
   for (let i = 0; i in stats.conversions; i++) {
     if (stats.conversions[i].didKill == true) {
       if (stats.conversions[i].playerIndex == name(gamefile, Uname)) {
-        //console.log(frames[stats.conversions[i].endFrame].players[name(gamefile)].post.lastAttackLanded)
+        // console.log(frames[stats.conversions[i].endFrame].players[name(gamefile)].post.lastAttackLanded)
         if (
           frames[stats.conversions[i].endFrame].players[name(gamefile, Uname)]
             .post.lastAttackLanded == AttackID
-        ) {
+        )
           count += 1;
-        }
       }
     }
   }
@@ -1386,9 +1373,9 @@ function CheckMoveKill_Int(gamefile, AttackID, Uname) {
 function CheckActionID(gamefile, ActionID, Uname) {
   let LastFrameCheck = false;
   let count = 0;
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, gamefile));
-  let frames = game.getFrames();
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, gamefile));
+  const frames = game.getFrames();
   for (let i = 0; i in frames; i++) {
     if (LastFrameCheck == false) {
       if (
@@ -1396,19 +1383,16 @@ function CheckActionID(gamefile, ActionID, Uname) {
       ) {
         LastFrameCheck = true;
         count += 1;
-        //console.log(frames[i].players[name(gamefile)].post);
-        //console.log("Shine Frame: " + i);}
+        // console.log(frames[i].players[name(gamefile)].post);
+        // console.log("Shine Frame: " + i);}
         continue;
-      } else {
-        if (
-          frames[i].players[name(gamefile, Uname)].post.actionStateId ==
-          ActionID
-        ) {
-          continue;
-        } else {
-          LastFrameCheck = false;
-          continue;
-        }
+      } else if (
+        frames[i].players[name(gamefile, Uname)].post.actionStateId == ActionID
+      )
+        continue;
+      else {
+        LastFrameCheck = false;
+        continue;
       }
     }
   }
@@ -1418,7 +1402,7 @@ function ItemIDCheck(gamefile, itemid, Uname) {
   const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
   const game = new SlippiGame(join(rep, gamefile));
   const frames = game.getFrames();
-  let UniqueItemId = [-1];
+  const UniqueItemId = [-1];
   let Count = 0;
   for (let n = 0; n in frames; n++) {
     if (frames[n].items != undefined) {
@@ -1450,9 +1434,9 @@ function ItemIDCheck(gamefile, itemid, Uname) {
 function CheckLastHit(gamefile, AttackID, ActionStateID, Uname) {
   let LastFrameCheck = false;
   let count = 0;
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, gamefile));
-  let frames = game.getFrames();
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, gamefile));
+  const frames = game.getFrames();
   for (let i = 0; i in frames; i++) {
     if (LastFrameCheck == false) {
       if (
@@ -1461,19 +1445,17 @@ function CheckLastHit(gamefile, AttackID, ActionStateID, Uname) {
       ) {
         LastFrameCheck = true;
         count += 1;
-        //console.log(frames[i].players[name(gamefile)].post);
-        //console.log("Shine Frame: " + i);}
+        // console.log(frames[i].players[name(gamefile)].post);
+        // console.log("Shine Frame: " + i);}
         continue;
-      } else {
-        if (
-          frames[i].players[name(gamefile, Uname)].post.actionStateId ==
-          ActionStateID
-        ) {
-          continue;
-        } else {
-          LastFrameCheck = false;
-          continue;
-        }
+      } else if (
+        frames[i].players[name(gamefile, Uname)].post.actionStateId ==
+        ActionStateID
+      )
+        continue;
+      else {
+        LastFrameCheck = false;
+        continue;
       }
     }
   }
@@ -1488,7 +1470,7 @@ const ObjData = {};
  * @param Slippi_File The Splippi File
  * @param Replay_Directory The Replay Directory
  */
-/* Commented out in favor of on demand scans. 
+/* Commented out in favor of on demand scans.
 function IsProcessed(Slippi_File, Replay_Directory) {
   const File_Path = join(Replay_Directory, Slippi_File);
   if (!ObjData[File_Path].IsProcessed) {
@@ -1514,23 +1496,22 @@ function IsProcessed(Slippi_File, Replay_Directory) {
  *This is whats used to gather general data about SLP files
  */
 function checkSlippiFiles(gamefile: string, Uname) {
-  //Initilize variables
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, gamefile));
-  let game_complete = null;
-  let player = name(gamefile, Uname);
+  // Initilize variables
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, gamefile));
+  const game_complete = null;
+  const player = name(gamefile, Uname);
   let murder;
   let dam;
-  //Process Gamefiles
+  // Process Gamefiles
   if (game.getStats().gameComplete == true) {
     try {
       if (
         game.getMetadata().players != undefined &&
         game.getMetadata().players != null &&
         (name(gamefile, Uname) != -1) == true
-      ) {
+      )
         murder = game.getStats().overall[player].killCount;
-      }
     } catch (err) {
       console.log("slp general check ran into an error at" + gamefile);
     }
@@ -1539,13 +1520,13 @@ function checkSlippiFiles(gamefile: string, Uname) {
       try {
         dam = Math.ceil(game.getStats().overall[player].totalDamage);
       } catch (err) {
-        //console.log(game.getStats().overall[player]);
+        // console.log(game.getStats().overall[player]);
       }
     }
     null;
   }
-  //return data inside of an object???
-  //console.log("SLP stats Parse Is OK!");
+  // return data inside of an object???
+  // console.log("SLP stats Parse Is OK!");
 
   return { stock: murder, dama: dam, comp: game.getStats().gameComplete };
 }
@@ -1595,8 +1576,8 @@ function JigglypuffParse(gamefile, uname) {
 function LuigiParse(gamefile, Uname) {
   let WD = 0;
   let Misfire = 0;
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, gamefile));
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, gamefile));
   WD += game.getStats().actionCounts[name(gamefile, Uname)].wavedashCount;
   Misfire += CheckActionID(gamefile, 348, Uname);
   return { wd: WD, Mis: Misfire };
@@ -1630,7 +1611,7 @@ function PikachuParse(gamefile, uname) {
   let Tailspike = 0;
   let TJolt = 0;
   Tailspike += CheckMoveKill_Int(gamefile, 18, uname);
-  TJolt += ItemIDCheck(gamefile, 89, uname); //There are like 4 diffrent values for what this might be, so i just picked the one i think would be tjolt.
+  TJolt += ItemIDCheck(gamefile, 89, uname); // There are like 4 diffrent values for what this might be, so i just picked the one i think would be tjolt.
   return { ts: Tailspike, tj: TJolt };
 }
 function ShiekParse(gamefile, uname) {
@@ -1649,13 +1630,13 @@ function linkParse(gamefile, uname) {
 }
 function PeachParse(gamefile, Uname) {
   let PeachStich = 0;
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
   let PeachFair = 0;
   PeachFair += CheckMoveKill_Int(gamefile, 14, Uname);
-  let game = new SlippiGame(join(rep, gamefile));
-  let stats = game.getStats();
-  let frames = game.getFrames();
-  let hitFireball = 0;
+  const game = new SlippiGame(join(rep, gamefile));
+  const stats = game.getStats();
+  const frames = game.getFrames();
+  const hitFireball = 0;
   let UniqueItemId = -1;
   for (let n = 0; n in frames; n++) {
     if (frames[n].items != undefined) {
@@ -1666,9 +1647,8 @@ function PeachParse(gamefile, Uname) {
             frames[n].items[i].owner == name(gamefile, Uname) &&
             frames[n].items[i].typeId == 99 &&
             frames[n].frame[i].turnipFace == 7
-          ) {
+          )
             PeachStich += 1;
-          }
         }
       }
     }
@@ -1825,182 +1805,180 @@ function AddToStore(storename: string, addint: number) {
   datastore.set(storename, datastore.get(storename, 0) + addint);
 }
 function CheckFileAch(gamefile, uname): void {
-  //console.log("Got Request For: " + gamefile);
+  // console.log("Got Request For: " + gamefile);
 
   if (store.get(gamefile, false) == false) {
-    //console.log(gamefile + " Not in the store");
-    //console.log(charintGet(gamefile, uname));
+    // console.log(gamefile + " Not in the store");
+    // console.log(charintGet(gamefile, uname));
 
-    let temp = checkSlippiFiles(gamefile, uname);
+    const temp = checkSlippiFiles(gamefile, uname);
     datastore.set("stocks", datastore.get("stocks", 0) + temp.stock);
     switch (charintGet(gamefile, uname)) {
       case 0:
-        let Falcon = FalconParse(gamefile, uname);
+        const Falcon = FalconParse(gamefile, uname);
         AddToStore("Falcon_Punch", Falcon.fp);
         AddToStore("Falcon_Knee", Falcon.kn);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
 
         break;
       case 1:
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
-        let donkeyK = DonkeyParse(gamefile, uname);
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
+        const donkeyK = DonkeyParse(gamefile, uname);
         AddToStore("Donkey_Punch", donkeyK.DP);
         AddToStore("Cargo_Throw", donkeyK.CT);
         break;
       case 2:
-        let fox = foxParse(gamefile, uname);
+        const fox = foxParse(gamefile, uname);
         AddToStore("Shine", fox.Shine);
         AddToStore("Shine_Spike", fox.ShineSpike);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 3:
-        let GNW = GameAndWatchParse(gamefile, uname);
+        const GNW = GameAndWatchParse(gamefile, uname);
         AddToStore("GNWK", GNW.GK);
         AddToStore("GNWN", GNW.GN);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 4:
-        let Kirby = KirbyParse(gamefile, uname);
+        const Kirby = KirbyParse(gamefile, uname);
         AddToStore("Kirbycide", Kirby.KC);
         AddToStore("Kirby_Nair", Kirby.KN);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 5:
-        let Bowser = BowserParse(gamefile, uname);
+        const Bowser = BowserParse(gamefile, uname);
         AddToStore("Bowser_Nair", Bowser.BN);
         AddToStore("Bowser_Upb", Bowser.BUB);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 6:
-        let Link = linkParse(gamefile, uname);
+        const Link = linkParse(gamefile, uname);
         AddToStore("LinkNair", Link.LinkN);
         AddToStore("LinkBomb", Link.LinkB);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 7:
-        let Luigi = LuigiParse(gamefile, uname);
+        const Luigi = LuigiParse(gamefile, uname);
         AddToStore("Luigi_Wavedash", Luigi.wd);
         AddToStore("Misfire", Luigi.Mis);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 8:
-        let Mario = marioParse(gamefile, uname);
+        const Mario = marioParse(gamefile, uname);
         AddToStore("Fireball", Mario.fb);
         AddToStore("Mario_Spike", Mario.fs);
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      // console.log("Checking This Char..." + charintGet(gamefile, uname));
       case 9:
-        let Marth = MarthParse(gamefile, uname);
+        const Marth = MarthParse(gamefile, uname);
         AddToStore("Marth_Grab", Marth.mg);
         AddToStore("Marth_Spike", Marth.ms);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 10:
-        let Mewtwo = MewtwoParse(gamefile, uname);
+        const Mewtwo = MewtwoParse(gamefile, uname);
         AddToStore("Mewtwo_Fair", Mewtwo.MF);
         AddToStore("Mewtwo_ShadowBall", Mewtwo.MB);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 11:
-        let Ness = NessParse(gamefile, uname);
+        const Ness = NessParse(gamefile, uname);
         AddToStore("Ness_Dair", Ness.ND);
         AddToStore("Ness_Upb", Ness.NUB);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 12:
-        let Peach = PeachParse(gamefile, uname);
+        const Peach = PeachParse(gamefile, uname);
         AddToStore("Peach_Fair", Peach.PF);
         AddToStore("Peach_Stich", Peach.PS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 13:
-        let Pikachu = PikachuParse(gamefile, uname);
+        const Pikachu = PikachuParse(gamefile, uname);
         AddToStore("Pikachu_Tjolt", Pikachu.tj);
         AddToStore("Pikachu.Tailspike", Pikachu.ts);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 14:
-        let Ice_Climbers = IceClimbersParse(gamefile, uname);
+        const Ice_Climbers = IceClimbersParse(gamefile, uname);
         AddToStore("ICDS", Ice_Climbers.DS);
         AddToStore("ICFS", Ice_Climbers.FS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 15:
-        let Jigglypuff = JigglypuffParse(gamefile, uname);
+        const Jigglypuff = JigglypuffParse(gamefile, uname);
         AddToStore("Jigglypuff_Rest", Jigglypuff.Rest);
         AddToStore("Jigglypuff_Bair", Jigglypuff.bair);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 16:
-        let Samus = SamusParse(gamefile, uname);
+        const Samus = SamusParse(gamefile, uname);
         AddToStore("Samus_Chargeshot", Samus.cs);
         AddToStore("Samus_Missile", Samus.ms);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 17:
-        let Yoshi = YoshiParse(gamefile, uname);
+        const Yoshi = YoshiParse(gamefile, uname);
         AddToStore("Yoshi_Downsmash", Yoshi.YDS);
         AddToStore("Yoshi_Nair", Yoshi.YN);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 18:
-        let Zelda = ZeldaParse(gamefile, uname);
+        const Zelda = ZeldaParse(gamefile, uname);
         AddToStore("Zelda_Fair", Zelda.ZF);
         AddToStore("Zelda_Fire", Zelda.ZFI);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 19:
-        let Shiek = ShiekParse(gamefile, uname);
+        const Shiek = ShiekParse(gamefile, uname);
         AddToStore("Sheik_Needle", Shiek.SNEED);
         AddToStore("Shiek_Nair", Shiek.SN);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 20:
-        let Falco = FalcoParse(gamefile, uname);
+        const Falco = FalcoParse(gamefile, uname);
         AddToStore("Falco_Dair", Falco.FD);
         AddToStore("Falco_Laser", Falco.FL);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 21:
-        let Young_Link = YoungLinkParse(gamefile, uname);
+        const Young_Link = YoungLinkParse(gamefile, uname);
         AddToStore("Yink_Arrow", Young_Link.YLA);
         AddToStore("Yink_Downsmash", Young_Link.YLDS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 22:
-        let Dr_Mario = DrMParse(gamefile, uname);
+        const Dr_Mario = DrMParse(gamefile, uname);
         AddToStore("DRMF", Dr_Mario.DRMF);
         AddToStore("DRMP", Dr_Mario.DRMP);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 23:
-        let Roy = RoyParse(gamefile, uname);
+        const Roy = RoyParse(gamefile, uname);
         AddToStore("Roy_B", Roy.RB);
         AddToStore("Roy_Fsmash", Roy.RS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 24:
-        let Pichu = PichuParse(gamefile, uname);
+        const Pichu = PichuParse(gamefile, uname);
         AddToStore("Pichu_Bair", Pichu.PB);
         AddToStore("Pichu_Tjolt", Pichu.PTJ);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 25:
-        let Gannnondorf = GannonParse(gamefile, uname);
+        const Gannnondorf = GannonParse(gamefile, uname);
         AddToStore("Gannon_Punch", Gannnondorf.GP);
         AddToStore("Gannon_Spike", Gannnondorf.GS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        // console.log("Checking This Char..." + charintGet(gamefile, uname));
         break;
       case 26:
         break;
     }
-    if (temp.comp == true) {
-      AddToStore("Game_Total", 1);
-    }
+    if (temp.comp == true) AddToStore("Game_Total", 1);
   }
 }
 function CheckAch(GamefileArray, uname): void {
   for (let i = 0; i in GamefileArray; i++) {
-    let gamefile = GamefileArray[i];
+    const gamefile = GamefileArray[i];
     CheckFileAch(gamefile, uname);
   }
   // Chump Checks Down Here (HAVE FUN :))))
@@ -2190,7 +2168,7 @@ function CheckAch(GamefileArray, uname): void {
 
 function Thisisstupid(ClassBaseName, ArrrValues, ArrName) {
   for (let num = 1; num in ArrrValues; num++) {
-    let ArrName = [];
+    const ArrName = [];
     ArrName.push[eval(ClassBaseName + num)];
   }
   return ArrName;
@@ -2402,67 +2380,67 @@ let MiscAchArray = [AATW, Specialist];
 */
 
 electron.ipcMain.handle("GetAch", (event, args) => {
-  let kill1 = new Achivement(
+  const kill1 = new Achivement(
     "Monster Hunter",
     "You have taken a stock,",
     isUnlocked("kill1"),
     "kill1"
   );
-  let kill2 = new Achivement(
+  const kill2 = new Achivement(
     "Monster Slayer",
     "Take 10 Stocks",
     isUnlocked("kill2"),
     "kill2"
   );
-  let kill3 = new Achivement(
+  const kill3 = new Achivement(
     "You're The Monstor",
     "Take 100 Stocks",
     isUnlocked("kill3"),
     "kill3"
   );
-  let kill4 = new Achivement(
+  const kill4 = new Achivement(
     "Cold Blooded Killer",
     "Take 1000 Stocks,",
     isUnlocked("kill4"),
     "kill4"
   );
-  let kill5 = new Achivement(
+  const kill5 = new Achivement(
     "Murderer",
     "Take 2500 Stocks",
     isUnlocked("kill5"),
     "kill5"
   );
-  let kill6 = new Achivement(
+  const kill6 = new Achivement(
     "True Crime",
     "Take 5000 Stocks",
     isUnlocked("kill6"),
     "kill6"
   );
-  let kill7 = new Achivement(
+  const kill7 = new Achivement(
     "Un-Lawful",
     "Take 10000 Stocks",
     isUnlocked("kill7"),
     "kill7"
   );
-  let kill8 = new Achivement(
+  const kill8 = new Achivement(
     "King Slayer",
     "Take 25000 Stocks",
     isUnlocked("kill8"),
     "kill8"
   );
-  let kill9 = new Achivement(
+  const kill9 = new Achivement(
     "Demi-God Slayer",
     "Take 50000 Stocks",
     isUnlocked("kill9"),
     "kill9"
   );
-  let kill10 = new Achivement(
+  const kill10 = new Achivement(
     "God Slayer",
     "Take 1000000 Stocks",
     isUnlocked("kill10"),
     "kill10"
   );
-  let killCheckArray = [
+  const killCheckArray = [
     1,
     10,
     100,
@@ -2474,1099 +2452,1099 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     50000,
     1000000,
   ];
-  //Game count Achievements
-  let Game1 = new Achivement(
+  // Game count Achievements
+  const Game1 = new Achivement(
     "Everyone starts somwhere",
     "Play 1 Game",
     isUnlocked("Game1"),
     "Game1"
   );
-  let Game2 = new Achivement(
+  const Game2 = new Achivement(
     "Rookie Numbers",
     "Play 10 Games",
     isUnlocked("Game2"),
     "Game2"
   );
-  let Game3 = new Achivement(
+  const Game3 = new Achivement(
     "Slowly Learning",
     "Play 50 Games",
     isUnlocked("Game3"),
     "Game3"
   );
-  let Game4 = new Achivement(
+  const Game4 = new Achivement(
     "Getting Better",
     "Play 100 Games",
     isUnlocked("Game4"),
     "Game4"
   );
-  let Game5 = new Achivement(
+  const Game5 = new Achivement(
     "Developing New Strats",
     "Play 250 Games",
     isUnlocked("Game5"),
     "Game5"
   );
-  let Game6 = new Achivement(
+  const Game6 = new Achivement(
     "Hot Shot",
     "Play 500 Games",
     isUnlocked("Game6"),
     "Game6"
   );
-  let Game7 = new Achivement(
+  const Game7 = new Achivement(
     "Hard Work",
     "Play 1000 Games",
     isUnlocked("Game7"),
     "Game7"
   );
-  let Game8 = new Achivement(
+  const Game8 = new Achivement(
     "Serious Time",
     "Play 2500 Games",
     isUnlocked("Game8"),
     "Game8"
   );
-  let Game9 = new Achivement(
+  const Game9 = new Achivement(
     "Incredible",
     "Play 5000 Games",
     isUnlocked("Game9"),
     "Game9"
   );
-  let Game10 = new Achivement(
+  const Game10 = new Achivement(
     "Serious Dedication",
     "Play 10000 Games",
     isUnlocked("Game10"),
     "Game10"
   );
-  let GameCheckArray = [1, 10, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
-  //Misc Achievements
-  let AATW = new Achivement(
+  const GameCheckArray = [1, 10, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
+  // Misc Achievements
+  const AATW = new Achivement(
     "All Around The World",
     "Play on every stage",
     false,
     "AATW"
   );
-  let Specialist = new Achivement(
+  const Specialist = new Achivement(
     "Character Specialist",
     "Play as every character",
     false,
     "Specialist"
   );
-  //Character Specific Achivements
-  //Mario
-  let Fire1 = new Achivement(
+  // Character Specific Achivements
+  // Mario
+  const Fire1 = new Achivement(
     "Now You're Playing With Super Power!",
     "Shoot a Fireball",
     isUnlocked("Fire1"),
     "Fire1"
   );
-  let Fire2 = new Achivement(
+  const Fire2 = new Achivement(
     "Fire Mario",
     "Shoot 1000 Fireballs",
     isUnlocked("Fire2"),
     "Fire2"
   );
-  let Fire3 = new Achivement(
+  const Fire3 = new Achivement(
     "Super Mario",
     "Shoot 100000 Fireballs",
     isUnlocked("Fire3"),
     "Fire3"
   );
-  let FireCheckArray = [1, 1000, 100000];
-  let MarioSpike1 = new Achivement(
+  const FireCheckArray = [1, 1000, 100000];
+  const MarioSpike1 = new Achivement(
     "Nice Spike",
     "Kill With Mario Spike Once",
     isUnlocked("MarioSpike1"),
     "MarioSpike1"
   );
-  let MarioSpike2 = new Achivement(
+  const MarioSpike2 = new Achivement(
     "Fixing Pipes",
     "Spike 10 Times",
     isUnlocked("MarioSpike2"),
     "MarioSpike2"
-  ); //null Achivement_Name
-  let MarioSpike3 = new Achivement(
+  ); // null Achivement_Name
+  const MarioSpike3 = new Achivement(
     "The Ultimate Mario",
     "Spike 100 Time",
     isUnlocked("MarioSpike3"),
     "MarioSpike3"
   );
-  let marSpikeCheckArray = [1, 10, 100];
-  //Fox
-  let shine1 = new Achivement(
+  const marSpikeCheckArray = [1, 10, 100];
+  // Fox
+  const shine1 = new Achivement(
     "Baby Steps",
     "Perform the shine",
     isUnlocked("shine1"),
     "shine1"
   );
-  let shine2 = new Achivement(
+  const shine2 = new Achivement(
     "Best Move",
     "Shine 1000 Times",
     isUnlocked("shine2"),
     "shine2"
-  ); //null Achievement Name
-  let shine3 = new Achivement(
+  ); // null Achievement Name
+  const shine3 = new Achivement(
     "Shined Blind",
     "Perform The Shine 100000 Times",
     isUnlocked("shine3"),
     "shine3"
   );
-  let ShineCheckArray = [1, 1000, 100000];
-  let ShineSpike1 = new Achivement(
+  const ShineCheckArray = [1, 1000, 100000];
+  const ShineSpike1 = new Achivement(
     "So that kills huh",
     "Kill with the shine",
     isUnlocked("ShineSpike1"),
     "ShineSpike1"
   );
-  let ShineSpike2 = new Achivement(
+  const ShineSpike2 = new Achivement(
     "Professinal Gimp",
     "Shine Spike 10 Times",
     isUnlocked("ShineSpike2"),
     "ShineSpike2"
   );
-  let ShineSpike3 = new Achivement(
+  const ShineSpike3 = new Achivement(
     "Shined Out of Your Mind",
     "Shine Spike 100 Times",
     isUnlocked("ShineSpike3"),
     "ShineSpike3"
   );
-  let ShineSpikeCheckArray = [1, 10, 100];
-  //Captin Falcon
-  let Knee1 = new Achivement(
+  const ShineSpikeCheckArray = [1, 10, 100];
+  // Captin Falcon
+  const Knee1 = new Achivement(
     "Knee'd lol",
     "Kill With A Knee",
     isUnlocked("Knee1"),
     "Knee1"
   );
-  let Knee2 = new Achivement(
+  const Knee2 = new Achivement(
     "Justice",
     "Kill With 50 Knees",
     isUnlocked("Knee2"),
     "Knee2"
   );
-  let Knee3 = new Achivement(
+  const Knee3 = new Achivement(
     "Falcons Glory",
     "Kill With Knee 100 Times",
     isUnlocked("Knee3"),
     "Knee3"
   );
-  let KneeCheckArray = [1, 50, 100];
-  let FalconPunch1 = new Achivement(
+  const KneeCheckArray = [1, 50, 100];
+  const FalconPunch1 = new Achivement(
     "Did he just walk up forward, And Falcon Punch?",
     "Hit a Falcon Punch",
     isUnlocked("FalconPunch1"),
     "FalconPunch1"
   );
-  let FalconPunch2 = new Achivement(
+  const FalconPunch2 = new Achivement(
     "I can't believe that worked",
     "Hit Falcon Punch 10 Times",
     isUnlocked("FalconPunch2"),
     "FalconPunch2"
   );
-  let FalconPunch3 = new Achivement(
+  const FalconPunch3 = new Achivement(
     "Theres no way...",
     "Hit Falcon Punch 50 Times",
     isUnlocked("FalconPunch3"),
     "FalconPunch3"
   );
-  let FalconPunchArray = [1, 10, 50];
-  //Donkey Kong
-  let CargoThrow1 = new Achivement(
+  const FalconPunchArray = [1, 10, 50];
+  // Donkey Kong
+  const CargoThrow1 = new Achivement(
     "Carrier Monkey",
     "Kill with Cargo Throw",
     isUnlocked("CargoThrow1"),
     "CargoThrow1"
   );
-  let CargoThrow2 = new Achivement(
+  const CargoThrow2 = new Achivement(
     "Ding-Dong",
     "Kill with Cargo Throw 10 Times",
     isUnlocked("CargoThrow2"),
     "CargoThrow2"
   );
-  let CargoThrow3 = new Achivement(
+  const CargoThrow3 = new Achivement(
     "The Game Was Rigged From The Start...",
     "Kill with Cargo Throw 100 Times",
     isUnlocked("CargoThrow3"),
     "CargoThrow3"
   );
-  let CargoThrowArray = [1, 10, 100];
-  let DonkeyP1 = new Achivement(
+  const CargoThrowArray = [1, 10, 100];
+  const DonkeyP1 = new Achivement(
     "DONK PUNCH",
     "Kill with Donkey Punch",
     isUnlocked("DonkeyP1"),
     "DonkeyP1"
   );
-  let DonkeyP2 = new Achivement(
+  const DonkeyP2 = new Achivement(
     "You Ain't No Air Fighter",
     "Kill with Donkey Punch 10 Times",
     isUnlocked("DonkeyP2"),
     "DonkeyP2"
   );
-  let DonkeyP3 = new Achivement(
+  const DonkeyP3 = new Achivement(
     "One Punch Man",
     "Kill with Donkey Punch 100 Times",
     isUnlocked("DonkeyP3"),
     "DonkeyP3"
   );
-  let DonkeyPArray = [1, 10, 100];
-  //Roy
-  let RoyNeutralB1 = new Achivement(
+  const DonkeyPArray = [1, 10, 100];
+  // Roy
+  const RoyNeutralB1 = new Achivement(
     "Probably the only move that kills",
     "Kill with Roys Neutral B",
     isUnlocked("RoyNeutralB1"),
     "RoyNeutralB1"
   );
-  let RoyNeutralB2 = new Achivement(
+  const RoyNeutralB2 = new Achivement(
     null,
     "Kill with Roys Neutral B 10 Times",
     isUnlocked("RoyNeutralB2"),
     "RoyNeutralB2"
   );
-  let RoyNeutralB3 = new Achivement(
+  const RoyNeutralB3 = new Achivement(
     "Dont Test Me...",
     "Kill with Roys Neutral B 100 Times",
     isUnlocked("RoyNeutralB3"),
     "RoyNeutralB3"
   );
-  let RoyNeutralBArray = [1, 10, 100];
-  let RoySideSmash1 = new Achivement(
+  const RoyNeutralBArray = [1, 10, 100];
+  const RoySideSmash1 = new Achivement(
     null,
     "Kill With Roys Side Smash",
     isUnlocked("RoySideSmash1"),
     "RoySideSmash1"
   );
-  let RoySideSmash2 = new Achivement(
+  const RoySideSmash2 = new Achivement(
     null,
     "Kill With Roys Side Smash 10 Times",
     isUnlocked("RoySideSmash2"),
     "RoySideSmash2"
   );
-  let RoySideSmash3 = new Achivement(
+  const RoySideSmash3 = new Achivement(
     null,
     "Kill With Roys Side Smash 100 Times",
     isUnlocked("RoySideSmash3"),
     "RoySideSmash3"
   );
-  let RoySideSmashArray = [1, 10, 100];
-  //Kirby
-  let Kirbycide1 = new Achivement(
+  const RoySideSmashArray = [1, 10, 100];
+  // Kirby
+  const Kirbycide1 = new Achivement(
     "If i Die...",
     "Kill With Kirby Back/Forward Throw",
     isUnlocked("Kirbycide1"),
     "Kirbycide1"
   );
-  let Kirbycide2 = new Achivement(
+  const Kirbycide2 = new Achivement(
     "You go With Me.",
     "Kill With Kirby Back/Forward Throw 10 Times",
     isUnlocked("Kirbycide2"),
     "Kirbycide2"
   );
-  let Kirbycide3 = new Achivement(
+  const Kirbycide3 = new Achivement(
     "Martyrdom",
     "Kill With Kirby Back/Forward Throw 100 Times",
     isUnlocked("Kirbycide3"),
     "Kirbycide3"
   );
 
-  let KirbyNair1 = new Achivement(
+  const KirbyNair1 = new Achivement(
     "You spin me right round",
     "Hit Kirbys Nair",
     isUnlocked("KirbyNair1"),
     "KirbyNair1"
   );
-  let KirbyNair2 = new Achivement(
+  const KirbyNair2 = new Achivement(
     "i feel sorry for kirby mains",
     "Hit Kirbys Nair 10 Times",
     isUnlocked("KirbyNair2"),
     "KirbyNair2"
   );
-  let KirbyNair3 = new Achivement(
+  const KirbyNair3 = new Achivement(
     "Remember to put somthing here",
     "Hit Kirbys Nair 100 Times",
     isUnlocked("KirbyNair3"),
     "KirbyNair3"
   );
-  let KirbycideArray = [1, 10, 100];
-  let KirbyNairArray = [1, 10, 100];
-  //Bowser
-  let BowserNair1 = new Achivement(
+  const KirbycideArray = [1, 10, 100];
+  const KirbyNairArray = [1, 10, 100];
+  // Bowser
+  const BowserNair1 = new Achivement(
     "What does he even do lol",
     "Hit With Bowsers Nair",
     isUnlocked("BowserNair1"),
     "BowserNair1"
   );
-  let BowserNair2 = new Achivement(
+  const BowserNair2 = new Achivement(
     "Can Bowser Reaction Techchase?",
     "Hit Bowsers Nair 10 Times",
     isUnlocked("BowserNair2"),
     "BowserNair2"
   );
-  let BowserNair3 = new Achivement(
+  const BowserNair3 = new Achivement(
     "Is anyone even gonna read this lol?",
     "Hit Bowsers Nair 100 Times",
     isUnlocked("BowserNair3"),
     "BowserNair3"
   );
-  let BowserNairArray = [1, 10, 100];
-  let BowserUpB1 = new Achivement(
+  const BowserNairArray = [1, 10, 100];
+  const BowserUpB1 = new Achivement(
     "Rolling Fortress",
     "Hit Bowsers UpB",
     isUnlocked("BowserUpB1"),
     "BowserUpB1"
   );
-  let BowserUpB2 = new Achivement(
+  const BowserUpB2 = new Achivement(
     "Flying Castle",
     "Hit Bowsers Upb 10 Times",
     isUnlocked("BowserUpB2"),
     "BowserUpB2"
   );
-  let BowserUpB3 = new Achivement(
+  const BowserUpB3 = new Achivement(
     "Must Be Dizzy",
     "Hit Bowsers Up-b 100 Times",
     isUnlocked("BowserUpB3"),
     "BowserUpB3"
   );
-  let BowserUpBArray = [1, 10, 100];
-  //Link
-  let LinkNair1 = new Achivement(
+  const BowserUpBArray = [1, 10, 100];
+  // Link
+  const LinkNair1 = new Achivement(
     "Jankiest move in the game",
     "Kill With Nair once",
     isUnlocked("LinkNair1"),
     "LinkNair1"
   );
-  let LinkNair2 = new Achivement(
+  const LinkNair2 = new Achivement(
     null,
     "Kill with Nair 10 Times",
     isUnlocked("LinkNair2"),
     "LinkNair2"
   );
-  let LinkNair3 = new Achivement(
+  const LinkNair3 = new Achivement(
     "",
     "Kill with Nair 100 Times",
     isUnlocked("LinkNair3"),
     "LinkNair3"
   );
-  let LinkNairArray = [1, 10, 100];
-  let LinkBomb1 = new Achivement(
+  const LinkNairArray = [1, 10, 100];
+  const LinkBomb1 = new Achivement(
     null,
     "Spawn a bomb",
     isUnlocked("LinkBomb1"),
     "LinkBomb1"
   );
-  let LinkBomb2 = new Achivement(
+  const LinkBomb2 = new Achivement(
     null,
     "Spawn a bomb 100 Times",
     isUnlocked("LinkBomb2"),
     "LinkBomb2"
   );
-  let LinkBomb3 = new Achivement(
+  const LinkBomb3 = new Achivement(
     null,
     "Spawn a bomb 10000 Times",
     isUnlocked("LinkBomb3"),
     "LinkBomb3"
   );
-  let LinkBombArray = [1, 100, 10000];
+  const LinkBombArray = [1, 100, 10000];
 
-  //Shiek Nair And Neddle
-  let ShiekNair1 = new Achivement(
+  // Shiek Nair And Neddle
+  const ShiekNair1 = new Achivement(
     "Why is this called a Sex Kick?",
     "Kill With Nair Once",
     isUnlocked("ShiekNair1"),
     "ShiekNair1"
   );
-  let ShiekNair2 = new Achivement(
+  const ShiekNair2 = new Achivement(
     "Free Edgeguards",
     "Kill With Nair 10 Times",
     isUnlocked("ShiekNair2"),
     "ShiekNair2"
   );
-  let ShiekNair3 = new Achivement(
+  const ShiekNair3 = new Achivement(
     "Fastfallers Nightmare",
     "Kill With Nair 100 Times",
     isUnlocked("ShiekNair3"),
     "ShiekNair3"
   );
-  let ShiekNairArray = [1, 10, 100];
-  let ShiekNeedle1 = new Achivement(
+  const ShiekNairArray = [1, 10, 100];
+  const ShiekNeedle1 = new Achivement(
     "Little Flys",
     "Shoot 50 Needles",
     isUnlocked("ShiekNeedle1"),
     "ShiekNeedle1"
   );
-  let ShiekNeedle2 = new Achivement(
+  const ShiekNeedle2 = new Achivement(
     "Dedicated Bees",
     "Shoot 500 Needles",
     isUnlocked("ShiekNeedle2"),
     "ShiekNeedle2"
   );
-  let ShiekNeedle3 = new Achivement(
+  const ShiekNeedle3 = new Achivement(
     "Angry Wasps",
     "Shoot 50000 Needles",
     isUnlocked("ShiekNeedle3"),
     "ShiekNeedle3"
   );
-  let ShiekNeedleArray = [50, 500, 50000];
-  //Ness
-  let NessDair1 = new Achivement(
+  const ShiekNeedleArray = [50, 500, 50000];
+  // Ness
+  const NessDair1 = new Achivement(
     "Spiked",
     "Kill with Ness Dair",
     isUnlocked("NessDair1"),
     "NessDair1"
   );
-  let NessDair2 = new Achivement(
+  const NessDair2 = new Achivement(
     null,
     "Kill with Ness Dair 10 Times",
     isUnlocked("NessDair2"),
     "NessDair2"
   );
-  let NessDair3 = new Achivement(
+  const NessDair3 = new Achivement(
     "Destroyed by a Child",
     "Kill with Ness Dair 100 Times",
     isUnlocked("NessDair3"),
     "NessDair3"
   );
-  let NessdairArray = [1, 10, 100];
-  let NessUpb1 = new Achivement(
+  const NessdairArray = [1, 10, 100];
+  const NessUpb1 = new Achivement(
     "Shock Jacket",
     "Hit Ness's Up-B While Recovering",
     isUnlocked("NessUpb1"),
     "NessUpb1"
   );
-  let NessUpb2 = new Achivement(
+  const NessUpb2 = new Achivement(
     "Can't Edgeguard Me",
     "Hit Ness's Up-B While Recovering 10 Times",
     isUnlocked("NessUpb2"),
     "NessUpb2"
   );
-  let NessUpb3 = new Achivement(
+  const NessUpb3 = new Achivement(
     "Mistake or Yo-Yo Glitch?",
     "Hit Ness's Up-B While Recovering 100 Times",
     isUnlocked("NessUpb3"),
     "NessUpb3"
   );
-  let NessUpbArray = [1, 10, 100];
-  //Peach
-  let PeachStich1 = new Achivement(
+  const NessUpbArray = [1, 10, 100];
+  // Peach
+  const PeachStich1 = new Achivement(
     "Lucky Number 7",
     "Pull A Stich Face Turnip",
     isUnlocked("PeachStitch1"),
     "PeachStitch1"
   );
-  let PeachStich2 = new Achivement(
+  const PeachStich2 = new Achivement(
     "Slot Machine",
     "Pull A Stich Face Turnip 10 Times",
     isUnlocked("PeachStitch2"),
     "PeachStitch2"
   );
-  let PeachStich3 = new Achivement(
+  const PeachStich3 = new Achivement(
     "Casino Simulator",
     "Pull A Stich Face Turnip 100 Times",
     isUnlocked("PeachStitch3"),
     "PeachStitch3"
   );
-  let PeachStickArray = [1, 10, 100];
-  let PeachFair1 = new Achivement(
+  const PeachStickArray = [1, 10, 100];
+  const PeachFair1 = new Achivement(
     "Fierce Fighter",
     "Kill With Fair",
     isUnlocked("PeachFair1"),
     "PeachFair1"
   );
-  let PeachFair2 = new Achivement(
+  const PeachFair2 = new Achivement(
     "Fair and Balanced",
     "Kill With Fair 10 Times",
     isUnlocked("PeachFair2"),
     "PeachFair2"
   );
-  let PeachFair3 = new Achivement(
+  const PeachFair3 = new Achivement(
     "Vegatable God",
     "Kill With Fair 100 Times",
     isUnlocked("PeachFair3"),
     "PeachFair3"
   );
-  let PeachFairArray = [1, 10, 100];
-  //Ice Climbers??? Dont even know how i would start with this one lol. TODO: Figure out frame Parsing for IC.
-  let IceClimbersFS1 = new Achivement(
+  const PeachFairArray = [1, 10, 100];
+  // Ice Climbers??? Dont even know how i would start with this one lol. TODO: Figure out frame Parsing for IC.
+  const IceClimbersFS1 = new Achivement(
     "Ice Cold",
     "Kill With Ice Climbers Forward Smash",
     isUnlocked("IceClimbersFS1"),
     "IceClimbersFS1"
   );
-  let IceClimbersFS2 = new Achivement(
+  const IceClimbersFS2 = new Achivement(
     "Cooled Killers",
     "Kill With Ice Climbers Forward Smash 10 Times",
     isUnlocked("IceClimbersFS2"),
     "IceClimbersFS2"
   );
-  let IceClimbersFS3 = new Achivement(
+  const IceClimbersFS3 = new Achivement(
     "On Fire",
     "Kill With Ice Climbers Forward Smash 100 Times",
     isUnlocked("IceClimbersFS3"),
     "IceClimbersFS3"
   );
-  let IceClimbersFSArray = [1, 10, 100];
-  let IceClimbersDS1 = new Achivement(
+  const IceClimbersFSArray = [1, 10, 100];
+  const IceClimbersDS1 = new Achivement(
     "Icy Vengance",
     "Kill With Ice Climbers Down Smash",
     isUnlocked("IceClimbersDS1"),
     "IceClimbersDS1"
   );
-  let IceClimbersDS2 = new Achivement(
+  const IceClimbersDS2 = new Achivement(
     "Cool Cat",
     "Kill With Ice Climbers Down Smash 10 Times",
     isUnlocked("IceClimbersDS2"),
     "IceClimbersDS2"
   );
-  let IceClimbersDS3 = new Achivement(
+  const IceClimbersDS3 = new Achivement(
     "Hot Shot",
     "Kill With Ice Climbers Down Smash 100 Times",
     isUnlocked("IceClimbersDS3"),
     "IceClimbersDS3"
   );
-  let IceClimbersDSArray = [1, 10, 100];
-  //Pikachu Tail Spike And
-  let TailSpike1 = new Achivement(
+  const IceClimbersDSArray = [1, 10, 100];
+  // Pikachu Tail Spike And
+  const TailSpike1 = new Achivement(
     "Nice gimp",
     "Land a Tail Spike",
     isUnlocked("TailSpike1"),
     "TailSpike1"
   );
-  let TailSpike2 = new Achivement(
+  const TailSpike2 = new Achivement(
     "The Cute Killer",
     "Land 10 Tail Spikes",
     isUnlocked("TailSpike2"),
     "TailSpike2"
   );
-  let TailSpike3 = new Achivement(
+  const TailSpike3 = new Achivement(
     "The Rat",
     "Land 100 Tail Spikes",
     isUnlocked("TailSpike3"),
     "TailSpike3"
   );
-  let TailSpikeArray = [1, 10, 100];
-  let Thunderjolt1 = new Achivement(
+  const TailSpikeArray = [1, 10, 100];
+  const Thunderjolt1 = new Achivement(
     null,
     "Spawn Thunder Jolt",
     isUnlocked("Thunderjolt1"),
     "Thunderjolt1"
   );
-  let Thunderjolt2 = new Achivement(
+  const Thunderjolt2 = new Achivement(
     null,
     "Spawn 10 Thunder Jolt",
     isUnlocked("Thunderjolt2"),
     "Thunderjolt2"
   );
-  let Thunderjolt3 = new Achivement(
+  const Thunderjolt3 = new Achivement(
     null,
     "Spawn 100 Thunder Jolts",
     isUnlocked("Thunderjolt3"),
     "Thunderjolt3"
   );
-  let ThunderJoltArray = [1, 10, 100];
-  //Samus Missile And Chargeshot
-  let Missile1 = new Achivement(
+  const ThunderJoltArray = [1, 10, 100];
+  // Samus Missile And Chargeshot
+  const Missile1 = new Achivement(
     "Humble Beginings",
     "Shoot a Missile",
     isUnlocked("Missile1"),
     "Missile1"
   );
-  let Missile2 = new Achivement(
+  const Missile2 = new Achivement(
     "Crowd Control",
     "Shoot 500 Missiles",
     isUnlocked("Missile2"),
     "Missile2"
   );
-  let Missile3 = new Achivement(
+  const Missile3 = new Achivement(
     "Neutral Dictator",
     "Shoot 5000 Missiles",
     isUnlocked("Missile3"),
     "Missile3"
   );
-  let MissileArray = [1, 500, 5000];
-  let Chargeshot1 = new Achivement(
+  const MissileArray = [1, 500, 5000];
+  const Chargeshot1 = new Achivement(
     "Lucky Shot",
     "Kill with a Chargeshot",
     isUnlocked("Chargeshot1"),
     "Chargeshot1"
   );
-  let Chargeshot2 = new Achivement(
+  const Chargeshot2 = new Achivement(
     "She Dont Miss",
     "Kill With 50 Chargeshots",
     isUnlocked("Chargeshot2"),
     "Chargeshot2"
   );
-  let Chargeshot3 = new Achivement(
+  const Chargeshot3 = new Achivement(
     "Bounty Hunter",
     "Kill With 500 Chargeshots",
     isUnlocked("Chargeshot3"),
     "Chargeshot3"
   );
-  let ChargeShotArray = [1, 50, 500];
-  //Yoshi
-  let YoshiNair1 = new Achivement(
+  const ChargeShotArray = [1, 50, 500];
+  // Yoshi
+  const YoshiNair1 = new Achivement(
     "Someone give me a good reason why this is named sex kick",
     "Hit Yoshis Nair 10 Times",
     isUnlocked("YoshiNair1"),
     "YoshiNair1"
   );
-  let YoshiNair2 = new Achivement(
+  const YoshiNair2 = new Achivement(
     "Super Armor Lol",
     "Hit Yoshis Nair 100 Times",
     isUnlocked("YoshiNair2"),
     "YoshiNair2"
   );
-  let YoshiNair3 = new Achivement(
+  const YoshiNair3 = new Achivement(
     "Wait, Wheres Baby Mario?",
     "Hit Yoshis Nair 1000 Times",
     isUnlocked("YoshiNair3"),
     "YoshiNair3"
   );
-  let YoshiNairArray = [10, 100, 1000];
-  let YoshiDownSmash1 = new Achivement(
+  const YoshiNairArray = [10, 100, 1000];
+  const YoshiDownSmash1 = new Achivement(
     null,
     "Kill With Yoshi's Downsmash",
     isUnlocked("YoshiDownSmash1"),
     "YoshiDownSmash1"
   );
-  let YoshiDownSmash2 = new Achivement(
+  const YoshiDownSmash2 = new Achivement(
     null,
     "Kill With Yoshi's Downsmash 10 Times",
     isUnlocked("YoshiDownSmash2"),
     "YoshiDownSmash2"
   );
-  let YoshiDownSmash3 = new Achivement(
+  const YoshiDownSmash3 = new Achivement(
     null,
     "Kill WIth Yoshi's Downsmash 100 Times",
     isUnlocked("YoshiDownSmash3"),
     "YoshiDownSmash3"
   );
-  let YoshiDownSmashArray = [1, 10, 100];
-  //Jigglypuff
-  let JigBackair1 = new Achivement(
+  const YoshiDownSmashArray = [1, 10, 100];
+  // Jigglypuff
+  const JigBackair1 = new Achivement(
     null,
     "Hit Backair",
     isUnlocked("JigBackair1"),
     "JigBackair1"
   );
-  let JigBackair2 = new Achivement(
+  const JigBackair2 = new Achivement(
     null,
     "Hit 100 Backairs",
     isUnlocked("JigBackair2"),
     "JigBackair2"
   );
-  let JigBackair3 = new Achivement(
+  const JigBackair3 = new Achivement(
     null,
     "Hit 10000 Backairs",
     isUnlocked("JigBackair3"),
     "JigBackair3"
   );
-  let JigBackAirArray = [1, 100, 10000];
-  let RestKill1 = new Achivement(
+  const JigBackAirArray = [1, 100, 10000];
+  const RestKill1 = new Achivement(
     "Sleepy Time",
     "Kill with Rest",
     isUnlocked("RestKill1"),
     "RestKill1"
   );
-  let RestKill2 = new Achivement(
+  const RestKill2 = new Achivement(
     null,
     "Kill with 10 Rests",
     isUnlocked("RestKill2"),
     "RestKill2"
   );
-  let RestKill3 = new Achivement(
+  const RestKill3 = new Achivement(
     "Well Rested",
     "Kill with 100 Rests",
     isUnlocked("RestKill3"),
     "RestKill3"
   );
-  let RestKillArray = [1, 10, 100];
-  //Mewtwo
-  let MewtwoSB1 = new Achivement(
+  const RestKillArray = [1, 10, 100];
+  // Mewtwo
+  const MewtwoSB1 = new Achivement(
     null,
     "Shoot a Shadow Ball",
     isUnlocked("MewtwoSB1"),
     "MewtwoSB1"
   );
-  let MewtwoSB2 = new Achivement(
+  const MewtwoSB2 = new Achivement(
     null,
     "Shoot 10 Shadow Balls",
     isUnlocked("MewtwoSB2"),
     "MewtwoSB2"
   );
-  let MewtwoSB3 = new Achivement(
+  const MewtwoSB3 = new Achivement(
     null,
     "Shoot 100 Shadow Balls",
     isUnlocked("MewtwoSB3"),
     "MewtwoSB3"
   );
-  let MewtwoArray = [1, 10, 100];
-  let MewtwoFair1 = new Achivement(
+  const MewtwoArray = [1, 10, 100];
+  const MewtwoFair1 = new Achivement(
     null,
     "Kill With Mewtwo Fair",
     isUnlocked("MewtwoFair1"),
     "MewtwoFair1"
   );
-  let MewtwoFair2 = new Achivement(
+  const MewtwoFair2 = new Achivement(
     null,
     "Kill With Mewtwo Fair 10 Times",
     isUnlocked("MewtwoFair2"),
     "MewtwoFair2"
   );
-  let MewtwoFair3 = new Achivement(
+  const MewtwoFair3 = new Achivement(
     null,
     "Kill With Mewtwo Fair 100 Times",
     isUnlocked("MewtwoFair3"),
     "MewtwoFair3"
   );
-  //Luigi Wavedash and Misfire
-  let LuigiSlippery1 = new Achivement(
+  // Luigi Wavedash and Misfire
+  const LuigiSlippery1 = new Achivement(
     "Slippery Boy",
     "Wavedash with Luigi",
     isUnlocked("LuigiSlippery1"),
     "LuigiSlippery1"
   );
-  let LuigiSlippery2 = new Achivement(
+  const LuigiSlippery2 = new Achivement(
     "Slimey Hero",
     "Wavedash 1000 Times",
     isUnlocked("LuigiSlippery2"),
     "LuigiSlippery2"
   );
-  let LuigiSlippery3 = new Achivement(
+  const LuigiSlippery3 = new Achivement(
     "Slip 'n Slide",
     "Wavedash 100000 Times",
     isUnlocked("LuigiSlippery3"),
     "LuigiSlippery3"
   );
-  let LuigiSlipperyArray = [1, 1000, 100000];
-  let Misfire1 = new Achivement(
+  const LuigiSlipperyArray = [1, 1000, 100000];
+  const Misfire1 = new Achivement(
     "RNG RNG RNG",
     "Misfire",
     isUnlocked("Misfire1"),
     "Misfire1"
   );
-  let Misfire2 = new Achivement(
+  const Misfire2 = new Achivement(
     "Decently Lucky",
     "Misfire 10 Times",
     isUnlocked("Misfire2"),
     "Misfire2"
   );
-  let Misfire3 = new Achivement(
+  const Misfire3 = new Achivement(
     "1 In 7 Trillion",
     "Misfire 1000 Times",
     isUnlocked("Misfire3"),
     "Misfire3"
   );
-  let MisfireArray = [1, 10, 1000];
-  //Marth Down Air and Grab
-  let MarthSpike1 = new Achivement(
+  const MisfireArray = [1, 10, 1000];
+  // Marth Down Air and Grab
+  const MarthSpike1 = new Achivement(
     "Half Moon",
     "Kill with Marths Spike",
     isUnlocked("MarthSpike1"),
     "MarthSpike1"
   );
-  let MarthSpike2 = new Achivement(
+  const MarthSpike2 = new Achivement(
     "The Day is Mine",
     "Kill with Marths Spike 10 Times",
     isUnlocked("MarthSpike2"),
     "MarthSpike2"
   );
-  let MarthSpike3 = new Achivement(
+  const MarthSpike3 = new Achivement(
     "This Is My Time To Shine!",
     "Kill With Marths Spike 100 Times",
     isUnlocked("MarthSpike3"),
     "MarthSpike3"
   );
-  let MarthSpikeArray = [1, 10, 100];
-  let MarthGrab1 = new Achivement(
+  const MarthSpikeArray = [1, 10, 100];
+  const MarthGrab1 = new Achivement(
     "Catch and Release",
     "Sucessfully Grab",
     isUnlocked("MarthGrab1"),
     "MarthGrab1"
   );
-  let MarthGrab2 = new Achivement(
+  const MarthGrab2 = new Achivement(
     "Might As Well Be a Tether",
     "Grab 100 Times",
     isUnlocked("MarthGrab2"),
     "MarthGrab2"
   );
-  let MarthGrab3 = new Achivement(
+  const MarthGrab3 = new Achivement(
     "Chaingrabbing lol",
     "Grab 1000 Times",
     isUnlocked("MarthGrab3"),
     "MarthGrab3"
   );
-  let MarthGrabArray = [1, 100, 1000];
-  //Zelda
-  let ZeldaFair1 = new Achivement(
+  const MarthGrabArray = [1, 100, 1000];
+  // Zelda
+  const ZeldaFair1 = new Achivement(
     "Thunder Thighs",
     "Kill With Fair/Bair",
     isUnlocked("ZeldaFair1"),
     "ZeldaFair1"
   );
-  let ZeldaFair2 = new Achivement(
+  const ZeldaFair2 = new Achivement(
     "JuSt DoWN B LOL",
     "Kill With Fair/Bair 10 Times",
     isUnlocked("ZeldaFair2"),
     "ZeldaFair2"
   );
-  let ZeldaFair3 = new Achivement(
+  const ZeldaFair3 = new Achivement(
     "Better Character",
     "Kill With Fair/Bair 100 Times",
     isUnlocked("ZeldaFair3"),
     "ZeldaFair3"
   );
-  let ZeldaFairArray = [1, 10, 100];
-  let ZeldaFlame1 = new Achivement(
+  const ZeldaFairArray = [1, 10, 100];
+  const ZeldaFlame1 = new Achivement(
     "Din's Fire",
     "Spawn Din's Fire",
     isUnlocked("ZeldaFlame1"),
     "ZeldaFlame1"
   );
-  let ZeldaFlame2 = new Achivement(
+  const ZeldaFlame2 = new Achivement(
     "Din's Inferno",
     "Spawn Din's Fire 100 Times",
     isUnlocked("ZeldaFlame2"),
     "ZeldaFlame2"
   );
-  let ZeldaFlame3 = new Achivement(
+  const ZeldaFlame3 = new Achivement(
     "Din's Rage",
     "Spawn Din's Fire 10000 Times",
     isUnlocked("ZeldaFlame3"),
     "ZeldaFlame3"
   );
-  let ZeldaFireArray = [1, 100, 10000];
-  //Young Link
-  let YinkArrow1 = new Achivement(
+  const ZeldaFireArray = [1, 100, 10000];
+  // Young Link
+  const YinkArrow1 = new Achivement(
     "Trained Archer",
     "Shoot An Arrow",
     isUnlocked("YinkArrow1"),
     "YinkArrow1"
   );
-  let YinkArrow2 = new Achivement(
+  const YinkArrow2 = new Achivement(
     "Good-Eye",
     "Shoot 100 Arrows",
     isUnlocked("YinkArrow2"),
     "YinkArrow2"
   );
-  let YinkArrow3 = new Achivement(
+  const YinkArrow3 = new Achivement(
     "Eagle-Eye",
     "Shoot 10000 Arrows",
     isUnlocked("YinkArrow3"),
     "YinkArrow3"
   );
-  let YinkArrowArray = [1, 100, 1000];
-  let YinkDownSmash1 = new Achivement(
+  const YinkArrowArray = [1, 100, 1000];
+  const YinkDownSmash1 = new Achivement(
     null,
     "Kill With Young Link Down Smash",
     isUnlocked("YinkDownSmash1"),
     "YinkDownSmash1"
   );
-  let YinkDownSmash2 = new Achivement(
+  const YinkDownSmash2 = new Achivement(
     null,
     "Kill With Young Link Down Smash 10 Times",
     isUnlocked("YinkDownSmash2"),
     "YinkDownSmash2"
   );
-  let YinkDownSmash3 = new Achivement(
+  const YinkDownSmash3 = new Achivement(
     null,
     "Kill With Young Link Down Smash 100 Times",
     isUnlocked("YinkDownSmash3"),
     "YinkDownSmash3"
   );
-  let YinkDownSmashArray = [1, 10, 100];
-  //Falco Lazer and Dair
-  let FalcoDair1 = new Achivement(
+  const YinkDownSmashArray = [1, 10, 100];
+  // Falco Lazer and Dair
+  const FalcoDair1 = new Achivement(
     "Personally...",
     "Hit Falcos Downair",
     isUnlocked("FalcoDair1"),
     "FalcoDair1"
   );
-  let FalcoDair2 = new Achivement(
+  const FalcoDair2 = new Achivement(
     "I Prefer the Air",
     "Hit Falcos Dair 100 Times",
     isUnlocked("FalcoDair2"),
     "FalcoDair2"
   );
-  let FalcoDair3 = new Achivement(
+  const FalcoDair3 = new Achivement(
     "Best Spike IMO",
     "Hit Falcos Dair 10000 Times",
     isUnlocked("FalcoDair3"),
     "FalcoDair3"
   );
-  let FalcoDairArray = [1, 100, 10000];
-  let FalcoLaser1 = new Achivement(
+  const FalcoDairArray = [1, 100, 10000];
+  const FalcoLaser1 = new Achivement(
     "I LOVE LASERS",
     "Shoot Laser 10 Times",
     isUnlocked("FalcoLaser1"),
     "FalcoLaser1"
   );
-  let FalcoLaser2 = new Achivement(
+  const FalcoLaser2 = new Achivement(
     "ShieldStun Simulator",
     "Shoot Laser 1000 Times",
     isUnlocked("FalcoLaser2"),
     "FalcoLaser2"
   );
-  let FalcoLaser3 = new Achivement(
+  const FalcoLaser3 = new Achivement(
     "Well Someone is fun at Partys",
     "Shoot Laser 100000 Times",
     isUnlocked("FalcoLaser3"),
     "FalcoLaser3"
   );
-  let FalcoLaserArray = [10, 1000, 100000];
-  //Pichu
-  let PichuTJolt1 = new Achivement(
+  const FalcoLaserArray = [10, 1000, 100000];
+  // Pichu
+  const PichuTJolt1 = new Achivement(
     "Why Are You Hitting Yourself?",
     "Use Pichus Thunder Jolt",
     isUnlocked("PichuTJolt1"),
     "PichuTJolt1"
   );
-  let PichuTJolt2 = new Achivement(
+  const PichuTJolt2 = new Achivement(
     "Why Are You Hitting Yourself??",
     "Use Pichus Thunder Jolt 100 Times",
     isUnlocked("PichuTJolt2"),
     "PichuTJolt2"
   );
-  let PichuTJolt3 = new Achivement(
+  const PichuTJolt3 = new Achivement(
     "Why Are You Hitting Yourself??",
     "Use Pichus Thunder Jolt 10000 Times",
     isUnlocked("PichuTjolt3"),
     "PichuTjolt3"
   );
-  let PichuTJoltArray = [1, 100, 10000];
-  let PichuBair1 = new Achivement(
+  const PichuTJoltArray = [1, 100, 10000];
+  const PichuBair1 = new Achivement(
     "Why Are You Hitting Yourself????",
     "Kill WIth Pichus Bair",
     isUnlocked("PichuBair1"),
     "PichuBair1"
   );
-  let PichuBair2 = new Achivement(
+  const PichuBair2 = new Achivement(
     "Why Are You Hitting Yourself?????",
     "Kill WIth Pichus Bair 10 Times",
     isUnlocked("PichuBair2"),
     "PichuBair2"
   );
-  let PichuBair3 = new Achivement(
+  const PichuBair3 = new Achivement(
     "Why Are You Hitting Yourself??????",
     "Kill WIth Pichus Bair 100 Times",
     isUnlocked("PichuBair3"),
     "PichuBair3"
   );
 
-  let PichuBairArray = [1, 10, 100];
-  //Mr. Game And Watch
-  let GNWNair1 = new Achivement(
+  const PichuBairArray = [1, 10, 100];
+  // Mr. Game And Watch
+  const GNWNair1 = new Achivement(
     "He Shoots",
     "Kill with Game And Watch Nair",
     isUnlocked("GNWNair1"),
     "GNWNair1"
   );
-  let GNWNair2 = new Achivement(
+  const GNWNair2 = new Achivement(
     "HE SCORES",
     "Kill with Game And Watch Nair 10 Times",
     isUnlocked("GNWNair2"),
     "GNWNair2"
   );
-  let GNWNair3 = new Achivement(
+  const GNWNair3 = new Achivement(
     "Who even Needs Fun-Canceling?",
     "Kill with Game And Watch Nair 100 Times",
     isUnlocked("GNWNair3"),
     "GNWNair3"
   );
-  let GNWKey1 = new Achivement(
+  const GNWKey1 = new Achivement(
     "Unlock The Win",
     "Kill with Game And Watch Dair",
     isUnlocked("GNWKey1"),
     "GNWKey1"
   );
-  let GNWKey2 = new Achivement(
+  const GNWKey2 = new Achivement(
     null,
     "Kill with Game And Watch Dair 10 Times",
     isUnlocked("GNWKey2"),
     "GNWKey2"
   );
-  let GNWKey3 = new Achivement(
+  const GNWKey3 = new Achivement(
     "Nobody Needs Fun-Canceling",
     "Kill with Game And Watch Dair 100 Times",
     isUnlocked("GNWKey3"),
     "GNWKey3"
   );
-  let GNWKeyArray = [1, 10, 100];
-  let GNWNairArray = [1, 10, 100];
-  //Gannondorf
-  let GannonP1 = new Achivement(
+  const GNWKeyArray = [1, 10, 100];
+  const GNWNairArray = [1, 10, 100];
+  // Gannondorf
+  const GannonP1 = new Achivement(
     "Brutal Domination",
     "Kill With Warlock Punch",
     isUnlocked("GannonP1"),
     "GannonP1"
   );
-  let GannonP2 = new Achivement(
+  const GannonP2 = new Achivement(
     "EZ Clap",
     "Kill With Warlock Punch 10 Times",
     isUnlocked("GannonP2"),
     "GannonP2"
   );
-  let GannonP3 = new Achivement(
+  const GannonP3 = new Achivement(
     "How do People Keep Falling For It?",
     "Kill With Warlock Punch 100 Times",
     isUnlocked("GannonP3"),
     "GannonP3"
   );
-  let GannonPArray = [1, 10, 100];
-  let GannonS1 = new Achivement(
+  const GannonPArray = [1, 10, 100];
+  const GannonS1 = new Achivement(
     "Any Spikers?",
     "Kill With Gannondorfs Spike",
     isUnlocked("GannonS1"),
     "GannonS1"
   );
-  let GannonS2 = new Achivement(
+  const GannonS2 = new Achivement(
     "S.W.A.G",
     "Kill with Gannondorfs Spike 10 Times",
     isUnlocked("GannonS2"),
     "GannonS2"
   );
-  let GannonS3 = new Achivement(
+  const GannonS3 = new Achivement(
     "Gannondorf's Ultimate Power",
     "Kill with Gannondorfs Spike 100 Times",
     isUnlocked("GannonS3"),
     "GannonS3"
   );
-  let GannonSArray = [1, 10, 100];
-  //Dr. Mario
-  let DRMPills1 = new Achivement(
+  const GannonSArray = [1, 10, 100];
+  // Dr. Mario
+  const DRMPills1 = new Achivement(
     "The Doctor",
     "Spawn A Pill",
     isUnlocked("DRMPills1"),
     "DRMPills1"
   );
-  let DRMPills2 = new Achivement(
+  const DRMPills2 = new Achivement(
     "The Medic",
     "Spawn 100 Pills",
     isUnlocked("DRMPills2"),
     "DRMPills2"
   );
-  let DRMPills3 = new Achivement(
+  const DRMPills3 = new Achivement(
     "The Hero",
     "Spawn 10000 Pills",
     isUnlocked("DRMPills3"),
     "DRMPills3"
   );
-  let DRMPillsArray = [1, 100, 10000];
-  let DRMFair1 = new Achivement(
+  const DRMPillsArray = [1, 100, 10000];
+  const DRMFair1 = new Achivement(
     "If only this Spiked...",
     "Kill With Dr.Mario Fair",
     isUnlocked("DRMFair1"),
     "DRMFair1"
   );
-  let DRMFair2 = new Achivement(
+  const DRMFair2 = new Achivement(
     "Mario but Better",
     "Kill With Dr.Mario Fair 10 Times",
     isUnlocked("DRMFair2"),
     "DRMFair2"
   );
-  let DRMFair3 = new Achivement(
+  const DRMFair3 = new Achivement(
     "Any Dockers?",
     "Kill With Dr.Mario Fair 100 Times",
     isUnlocked("DRMFair3"),
     "DRMFair3"
   );
-  let DRMFairArray = [1, 10, 100];
-  let FalconArray = [
+  const DRMFairArray = [1, 10, 100];
+  const FalconArray = [
     FalconPunch1,
     FalconPunch2,
     FalconPunch3,
@@ -3574,7 +3552,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     Knee2,
     Knee3,
   ];
-  let DonkeyKongArray = [
+  const DonkeyKongArray = [
     DonkeyP1,
     DonkeyP2,
     DonkeyP3,
@@ -3582,7 +3560,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     CargoThrow2,
     CargoThrow3,
   ];
-  let FoxArray = [
+  const FoxArray = [
     shine1,
     shine2,
     shine3,
@@ -3590,8 +3568,8 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     ShineSpike2,
     ShineSpike3,
   ];
-  let GNWArray = [GNWKey1, GNWKey2, GNWKey3, GNWNair1, GNWNair2, GNWNair3];
-  let KirbyArray = [
+  const GNWArray = [GNWKey1, GNWKey2, GNWKey3, GNWNair1, GNWNair2, GNWNair3];
+  const KirbyArray = [
     KirbyNair1,
     KirbyNair2,
     KirbyNair3,
@@ -3599,7 +3577,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     Kirbycide2,
     Kirbycide3,
   ];
-  let BowserArray = [
+  const BowserArray = [
     BowserNair1,
     BowserNair2,
     BowserNair3,
@@ -3607,7 +3585,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     BowserUpB2,
     BowserUpB3,
   ];
-  let LinkArray = [
+  const LinkArray = [
     LinkBomb1,
     LinkBomb2,
     LinkBomb3,
@@ -3615,7 +3593,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     LinkNair2,
     LinkNair3,
   ];
-  let LuigiArray = [
+  const LuigiArray = [
     LuigiSlippery1,
     LuigiSlippery2,
     LuigiSlippery3,
@@ -3623,8 +3601,15 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     Misfire2,
     Misfire3,
   ];
-  let MarioArray = [MarioSpike1, MarioSpike2, MarioSpike3, Fire1, Fire2, Fire3];
-  let MarthArray = [
+  const MarioArray = [
+    MarioSpike1,
+    MarioSpike2,
+    MarioSpike3,
+    Fire1,
+    Fire2,
+    Fire3,
+  ];
+  const MarthArray = [
     MarthGrab1,
     MarthGrab2,
     MarthGrab3,
@@ -3632,7 +3617,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     MarthSpike2,
     MarthSpike3,
   ];
-  let MewtwoAArray = [
+  const MewtwoAArray = [
     MewtwoFair1,
     MewtwoFair2,
     MewtwoFair3,
@@ -3640,7 +3625,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     MewtwoSB2,
     MewtwoSB3,
   ];
-  let NessArray = [
+  const NessArray = [
     NessDair1,
     NessDair2,
     NessDair3,
@@ -3648,7 +3633,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     NessUpb2,
     NessUpb3,
   ];
-  let PeachArray = [
+  const PeachArray = [
     PeachFair1,
     PeachFair2,
     PeachFair3,
@@ -3656,7 +3641,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     PeachStich2,
     PeachStich3,
   ];
-  let PikachuArray = [
+  const PikachuArray = [
     TailSpike1,
     TailSpike2,
     TailSpike3,
@@ -3664,7 +3649,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     Thunderjolt2,
     Thunderjolt3,
   ];
-  let IceClimbersArray = [
+  const IceClimbersArray = [
     IceClimbersFS1,
     IceClimbersFS2,
     IceClimbersFS3,
@@ -3672,7 +3657,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     IceClimbersDS2,
     IceClimbersDS3,
   ];
-  let JigglypuffArray = [
+  const JigglypuffArray = [
     JigBackair1,
     JigBackair2,
     JigBackair3,
@@ -3680,7 +3665,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     RestKill2,
     RestKill3,
   ];
-  let SamusArray = [
+  const SamusArray = [
     Missile1,
     Missile2,
     Missile3,
@@ -3688,7 +3673,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     Chargeshot2,
     Chargeshot3,
   ];
-  let YoshiArray = [
+  const YoshiArray = [
     YoshiNair1,
     YoshiNair2,
     YoshiNair3,
@@ -3696,7 +3681,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     YoshiDownSmash2,
     YoshiDownSmash3,
   ];
-  let ZeldaArray = [
+  const ZeldaArray = [
     ZeldaFair1,
     ZeldaFair2,
     ZeldaFair3,
@@ -3704,7 +3689,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     ZeldaFlame2,
     ZeldaFlame3,
   ];
-  let ShiekArray = [
+  const ShiekArray = [
     ShiekNair1,
     ShiekNair2,
     ShiekNair3,
@@ -3712,7 +3697,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     ShiekNeedle2,
     ShiekNeedle3,
   ];
-  let FalcoArray = [
+  const FalcoArray = [
     FalcoDair1,
     FalcoDair2,
     FalcoDair3,
@@ -3720,7 +3705,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     FalcoLaser2,
     FalcoLaser3,
   ];
-  let YoungLinkArray = [
+  const YoungLinkArray = [
     YinkArrow1,
     YinkArrow2,
     YinkArrow3,
@@ -3728,7 +3713,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     YinkDownSmash2,
     YinkDownSmash3,
   ];
-  let DrMarioArray = [
+  const DrMarioArray = [
     DRMFair1,
     DRMFair2,
     DRMFair3,
@@ -3736,7 +3721,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     DRMPills2,
     DRMPills3,
   ];
-  let RoyArray = [
+  const RoyArray = [
     RoyNeutralB1,
     RoyNeutralB2,
     RoyNeutralB3,
@@ -3744,7 +3729,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     RoySideSmash2,
     RoySideSmash3,
   ];
-  let PichuArray = [
+  const PichuArray = [
     PichuTJolt1,
     PichuTJolt2,
     PichuTJolt3,
@@ -3752,7 +3737,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     PichuBair2,
     PichuBair3,
   ];
-  let GannondorfArray = [
+  const GannondorfArray = [
     GannonP1,
     GannonP2,
     GannonP3,
@@ -3760,7 +3745,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     GannonS2,
     GannonS3,
   ];
-  let GeneralAchArray = [
+  const GeneralAchArray = [
     kill1,
     kill2,
     kill3,
@@ -3782,7 +3767,7 @@ electron.ipcMain.handle("GetAch", (event, args) => {
     Game9,
     Game10,
   ];
-  let MiscAchArray = [AATW, Specialist];
+  const MiscAchArray = [AATW, Specialist];
   switch (args) {
     case 0:
       return FalconArray;
@@ -3871,14 +3856,14 @@ electron.ipcMain.handle("GetAch", (event, args) => {
 });
 
 electron.ipcMain.handle("CheckAch", async (event, args) => {
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
   if (exist(rep) == true) {
-    let files = fs.readdirSync(rep, "utf-8");
+    const files = fs.readdirSync(rep, "utf-8");
     files.forEach((file) => {
       if (extname(file) == ".slp") slippiFilesToArray.push(file);
     });
 
-    let uname = store.get("username");
+    const uname = store.get("username");
     try {
       for (let i = 0; i in slippiFilesToArray; i++) {
         /*
@@ -3888,8 +3873,8 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
           console.log(i);
         }
         */
-        //console.log("Checking this file: " + slippiFilesToArray[i]);
-        let gamefile = slippiFilesToArray[i];
+        // console.log("Checking this file: " + slippiFilesToArray[i]);
+        const gamefile = slippiFilesToArray[i];
         if (
           store.get(gamefile, false) == false &&
           name(gamefile, uname) !== -1
@@ -3900,11 +3885,11 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
             console.log("Program ran into an error at gamefile: " + gamefile);
             console.log(err);
           }
-          //console.log("File Check Went Ok");
+          // console.log("File Check Went Ok");
           event.sender.send("clearCache");
           store.set(gamefile, true);
         } else {
-          //console.log("Skipping this file" + slippiFilesToArray[i]);
+          // console.log("Skipping this file" + slippiFilesToArray[i]);
 
           continue;
         }
@@ -4149,34 +4134,34 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
       return false;
     }
   } else {
-    //console.log(exist(rep));
+    // console.log(exist(rep));
     console.log("Couldn't Find Replay Dir");
-    //console.log(rep);
+    // console.log(rep);
 
     return false;
   }
 });
 
 function enterCharDir(DirName, FileName, UName, Gamefile) {
-  let src = "src/resources";
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, Gamefile));
-  let file =
+  const src = "src/resources";
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, Gamefile));
+  const file =
     FileName +
     game
       .getSettings()
       .players[name(Gamefile, UName)].characterColor.toString() +
     ".png";
 
-  let FilePath = join(src, DirName, file);
+  const FilePath = join(src, DirName, file);
 
   return FilePath;
 }
 function getStockIcon(gamefile, Uname) {
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let src = "src/resources";
-  let game = new SlippiGame(join(rep, gamefile));
-  let uname = store.get("username");
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const src = "src/resources";
+  const game = new SlippiGame(join(rep, gamefile));
+  const uname = store.get("username");
   switch (charintGet(gamefile, Uname)) {
     case 0:
       return enterCharDir("CaptainFalcon", "Falcon", uname, gamefile);
@@ -4258,19 +4243,17 @@ function getStockIcon(gamefile, Uname) {
   }
 }
 function didiwin(gamefile) {
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let game = new SlippiGame(join(rep, gamefile));
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const game = new SlippiGame(join(rep, gamefile));
   if (
     game.getLatestFrame().players[name(gamefile, store.get("username"))].post
       .stocksRemaining != 0
-  ) {
+  )
     return true;
-  } else {
-    return false;
-  }
+  else return false;
 }
 electron.ipcMain.handle("GetFileArray", (event, args) => {
-  let stageid = [
+  const stageid = [
     "Impossible",
     "Impossible",
     "Fountain of Dream",
@@ -4305,13 +4288,13 @@ electron.ipcMain.handle("GetFileArray", (event, args) => {
     "Battlefield",
     "Final Destination",
   ];
-  let rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
-  let uname = store.get("username");
+  const rep = store.get("Replay_Directory").replace(/\\\\/g, "\\");
+  const uname = store.get("username");
 
   if (exist(rep) == true) {
-    let ReturnArray = [];
-    let files = fs.readdirSync(rep, "utf-8");
-    let slippiFilesToArray = [];
+    const ReturnArray = [];
+    const files = fs.readdirSync(rep, "utf-8");
+    const slippiFilesToArray = [];
     let opponentname;
     files.forEach((file) => {
       if (extname(file) == ".slp") slippiFilesToArray.push(file);
@@ -4322,16 +4305,15 @@ electron.ipcMain.handle("GetFileArray", (event, args) => {
         name(slippiFilesToArray[i], store.get("username")) !== -1 &&
         name(slippiFilesToArray[i], store.get("username")) !== undefined
       ) {
-        let game = new SlippiGame(join(rep, slippiFilesToArray[i]));
-        let namearray = [];
-        for (let i = 0; i in game.getMetadata().players; i++) {
+        const game = new SlippiGame(join(rep, slippiFilesToArray[i]));
+        const namearray = [];
+        for (let i = 0; i in game.getMetadata().players; i++)
           namearray.push(game.getMetadata().players[i].names.netplay);
-        }
-        if (name(slippiFilesToArray[i], store.get("username") == 0)) {
+
+        if (name(slippiFilesToArray[i], store.get("username") == 0))
           opponentname = game.getMetadata().players[1].names.netplay;
-        } else {
-          opponentname = game.getMetadata().players[0].names.netplay;
-        }
+        else opponentname = game.getMetadata().players[0].names.netplay;
+
         ReturnArray.push({
           FileName: slippiFilesToArray[i],
           names: namearray,
@@ -4345,7 +4327,7 @@ electron.ipcMain.handle("GetFileArray", (event, args) => {
   }
 });
 
-//i really dont feel like thinking right now
+// i really dont feel like thinking right now
 // Depreciated for AchivementCheck Function. This was stupid and im happy i could come up with a function.
 /*
 if(Game_Total >= 1){
