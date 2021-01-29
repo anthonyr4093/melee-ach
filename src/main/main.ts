@@ -7,7 +7,7 @@ TODO: put todos in more relevant places.
 */
 
 import fs from "fs";
-import { basename, extname, join } from "path";
+import { basename, extname, join, parse } from "path";
 import electron from "electron";
 import Store from "electron-store";
 
@@ -1317,43 +1317,64 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
     return false;
   }
 });
-
+let stageid = [
+  "Impossible",
+  "Impossible",
+  "Fountain of Dream",
+  "Pokemon Stadium",
+  "Princess Peach's Castle",
+  "Kongo Jungle",
+  "Brinstar",
+  "Coneria",
+  "Yoshi's Story",
+  "Onett",
+  "Mute City",
+  "Rainbow Cruise",
+  "Jungle Japes",
+  "Great Bay",
+  "Hyrule Temple",
+  "Brinstar Depths",
+  "Yoshi's Island",
+  "Green Greens",
+  "Fourside",
+  "Mushroom Kingdom I",
+  "Mushroom Kingdom II",
+  "Impossible",
+  "Venom",
+  "Poké Floats",
+  "Big Blue",
+  "Icicle Mountain",
+  "Icetop",
+  "Flatzone",
+  "Dream Land N64",
+  "Yoshi's Island N64",
+  "Kongo Jungle N64",
+  "Battlefield",
+  "Final Destination",
+];
+function didiwin(gamefile, Uname) {
+  let rep = replayDir();
+  let game = new SlippiGame(join(rep, gamefile));
+  if (
+    game.getLatestFrame().players[name(gamefile, Uname)].post.stocksRemaining !=
+    0
+  ) {
+    return true;
+  } else return false;
+}
+electron.ipcMain.handle("CheckThisFile", (event, args) => {
+  let rep = replayDir();
+  let uname = name(args, store.get("username") as string);
+  let slpcheck = checkSlippiFiles(args, store.get("username", null) as string);
+  let game = new SlippiGame(join(rep, args));
+  let filename = parse(args).name;
+  let altobj = {};
+  altobj["name1"] = game.getMetadata().players[0].names.netplay;
+  altobj["name2"] = game.getMetadata().players[1].names.netplay;
+  altobj["stage"] = stageid[game.getSettings().stageId];
+  return { slpparse: slpcheck, alt: altobj };
+});
 electron.ipcMain.handle("GetFileArray", (event, args) => {
-  let stageid = [
-    "Impossible",
-    "Impossible",
-    "Fountain of Dream",
-    "Pokemon Stadium",
-    "Princess Peach's Castle",
-    "Kongo Jungle",
-    "Brinstar",
-    "Coneria",
-    "Yoshi's Story",
-    "Onett",
-    "Mute City",
-    "Rainbow Cruise",
-    "Jungle Japes",
-    "Great Bay",
-    "Hyrule Temple",
-    "Brinstar Depths",
-    "Yoshi's Island",
-    "Green Greens",
-    "Fourside",
-    "Mushroom Kingdom I",
-    "Mushroom Kingdom II",
-    "Impossible",
-    "Venom",
-    "Poké Floats",
-    "Big Blue",
-    "Icicle Mountain",
-    "Icetop",
-    "Flatzone",
-    "Dream Land N64",
-    "Yoshi's Island N64",
-    "Kongo Jungle N64",
-    "Battlefield",
-    "Final Destination",
-  ];
   const rep = replayDir();
   const uname = store.get("username");
 

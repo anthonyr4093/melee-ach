@@ -9,7 +9,10 @@
         :items="[...filteredItems]"
       >
         <template #default="{ item }">
-          <v-list-item :key="item.FileName">
+          <v-list-item
+            :key="item.FileName"
+            :to="'gamefileviewer/' + item.FileName"
+          >
             <v-list-item-content>
               <v-list-item-title>
                 {{ item.names[0] }} vs {{ item.names[1] }}
@@ -41,9 +44,9 @@ export default {
   data() {
     return {
       search: "",
+      gamefile: "",
       snackbarS: false,
       File_list: [],
-      route: [{}],
     };
   },
   computed: {
