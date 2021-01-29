@@ -823,12 +823,16 @@ let stageid = [
 function didiwin(gamefile, Uname) {
     let rep = replayDir();
     let game = new slippi_js_1.default(path_1.join(rep, gamefile));
-    if (game.getLatestFrame().players[name(gamefile, Uname)].post.stocksRemaining !=
-        0) {
-        return true;
+    try {
+        if (game.getLatestFrame().players[name(gamefile, store.get("username"))].post.stocksRemaining != 0) {
+            return true;
+        }
+        else
+            return false;
     }
-    else
+    catch (err) {
         return false;
+    }
 }
 electron_1.default.ipcMain.handle("CheckThisFile", (event, args) => {
     let rep = replayDir();
@@ -840,6 +844,7 @@ electron_1.default.ipcMain.handle("CheckThisFile", (event, args) => {
     altobj["name1"] = game.getMetadata().players[0].names.netplay;
     altobj["name2"] = game.getMetadata().players[1].names.netplay;
     altobj["stage"] = stageid[game.getSettings().stageId];
+    altobj["win"] = didiwin(args, store.get("username"));
     return { slpparse: slpcheck, alt: altobj };
 });
 electron_1.default.ipcMain.handle("GetFileArray", (event, args) => {
@@ -871,6 +876,7 @@ electron_1.default.ipcMain.handle("GetFileArray", (event, args) => {
                     names,
                     Stage: stageid[game.getSettings().stageId],
                     oppName: opponentname,
+                    win: didiwin(slippiFilesToArray[i], store.get("username")),
                 });
             }
         }

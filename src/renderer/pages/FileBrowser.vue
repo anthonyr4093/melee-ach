@@ -10,10 +10,15 @@
           :items="[...filteredItems]"
         >
           <template #default="{ item }">
-            <v-list-item :key="item.FileName" :to="item.FileName" exact>
+            <v-list-item :key="item.FileName" @click="showAlert(item.FileName)">
               <v-list-item-content>
                 <v-list-item-title>
-                  {{ item.names[0] }} vs {{ item.names[1] }}
+                  <v-icon
+                    >{{
+                      item.win ? "mdi-trophy" : "mdi-trophy-broken"
+                    }}
+                    ></v-icon
+                  >{{ item.names[0] }} vs {{ item.names[1] }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ item.Stage }}
@@ -23,9 +28,25 @@
           </template>
         </v-virtual-scroll>
       </v-card>
-      <v-dialog>
-        <v-card> <v-card-title> </v-card-title> </v-card>
-      </v-dialog>
+      <div v-if="showgamefileAlert">
+        <v-dialog v-model="showgamefileAlert">
+          <v-card
+            ><v-card-title
+              ><v-icon left>{{
+                fileinfo.alt.win ? "mdi-trophy" : "mdi-trophy-broken"
+              }}</v-icon
+              >{{ fileinfo.alt.name1 }} vs.
+              {{ fileinfo.alt.name2 }}</v-card-title
+            >
+            <v-card-subtitle>{{ fileinfo.alt.stage }} </v-card-subtitle>
+            <v-card-text>
+              Kills This Game: {{ fileinfo.slpparse.stock }} <n />
+
+              Damage This Game: {{ fileinfo.slpparse.dama }}
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+      </div>
     </div>
 
     <v-alert v-else type="error" prominent>
@@ -55,9 +76,11 @@ export default {
     return {
       isLoaded: false,
       showGamefile: false,
+      showgamefileAlert: false,
       search: "",
       gamefile: "",
       File_list: [],
+      fileinfo: null,
     };
   },
   computed: {
@@ -71,12 +94,20 @@ export default {
     this.getFileList();
   },
   methods: {
+    showAlert(gamefile) {
+      electron.ipcRenderer.invoke("CheckThisFile", gamefile).then(
+        (result) => (
+          (this.fileinfo = result),
+          console.log(result),
+          (this.showgamefileAlert = true)
+        ),
+        (reason) => console.log(reason)
+      );
+    },
     async getFileList() {
       this.File_list = await electron.ipcRenderer
         .invoke("GetFileArray")
-        .catch(() => {
-          return [];
-        });
+        .catch(() => {});
 
       this.isLoaded = true;
     },

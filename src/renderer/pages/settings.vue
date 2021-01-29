@@ -98,7 +98,7 @@ export default {
         .then((result) => {
           if (result === true) {
             this.loading = false;
-
+            store.openInEditor();
             this.btncolor = "success";
             this.btntext = "Saved";
             this.Sicon = "mdi-check-outline";
@@ -113,6 +113,7 @@ export default {
         });
     },
     opendir() {
+      this.Replay_Directory = "";
       electron.ipcRenderer.invoke("OpenDialog").then((result) => {
         this.Replay_Directory ||= result;
       });

@@ -1,18 +1,20 @@
-// TODO: #4 Figure out how to go backwards in routing. This should not be hard.
+// TODO: #4 Figure out how to go backwards in routing. should not be hard.
 <template>
   <div>
     <v-card>
       <v-card-title
-        >{{ this.fileinfo.alt.name1 }} vs.
-        {{ this.fileinfo.alt.name2 }}</v-card-title
+        ><v-icon left>{{
+          fileinfo.alt.win ? "mdi-trophy" : "mdi-trophy-broken"
+        }}</v-icon
+        >{{ fileinfo.alt.name1 }} vs. {{ fileinfo.alt.name2 }}</v-card-title
       >
-      <v-card-subtitle>{{ this.fileinfo.alt.stage }}</v-card-subtitle>
-      <v-card-text>
-        Kills This Game: {{ this.fileinfo.slpparse.stock }}
-      </v-card-text>
-      <v-card-text>
-        Damage This Game: {{ this.fileinfo.slpparse.dama }}</v-card-text
-      >
+      <v-card-subtitle
+        >{{ fileinfo.alt.stage }}
+
+        Kills This Game: {{ fileinfo.slpparse.stock }}
+
+        Damage This Game: {{ fileinfo.slpparse.dama }}
+      </v-card-subtitle>
     </v-card>
   </div>
 </template>
@@ -25,12 +27,10 @@ export default {
     };
   },
   beforeMount() {
-    electron.ipcRenderer
-      .invoke("CheckThisFile", this.$route.params.Gamefile)
-      .then(
-        (result) => ((this.fileinfo = result), console.log(result)),
-        (reason) => console.log(reason)
-      );
+    electron.ipcRenderer.invoke("Checkile", $route.params.Gamefile).then(
+      (result) => ((fileinfo = result), console.log(result)),
+      (reason) => console.log(reason)
+    );
   },
 };
 </script>

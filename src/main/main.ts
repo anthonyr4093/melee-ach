@@ -1355,12 +1355,17 @@ let stageid = [
 function didiwin(gamefile, Uname) {
   let rep = replayDir();
   let game = new SlippiGame(join(rep, gamefile));
-  if (
-    game.getLatestFrame().players[name(gamefile, Uname)].post.stocksRemaining !=
-    0
-  ) {
-    return true;
-  } else return false;
+  try {
+    if (
+      game.getLatestFrame().players[
+        name(gamefile, store.get("username") as string)
+      ].post.stocksRemaining != 0
+    ) {
+      return true;
+    } else return false;
+  } catch (err) {
+    return false;
+  }
 }
 electron.ipcMain.handle("CheckThisFile", (event, args) => {
   let rep = replayDir();
@@ -1372,6 +1377,7 @@ electron.ipcMain.handle("CheckThisFile", (event, args) => {
   altobj["name1"] = game.getMetadata().players[0].names.netplay;
   altobj["name2"] = game.getMetadata().players[1].names.netplay;
   altobj["stage"] = stageid[game.getSettings().stageId];
+  altobj["win"] = didiwin(args, store.get("username"));
   return { slpparse: slpcheck, alt: altobj };
 });
 electron.ipcMain.handle("GetFileArray", (event, args) => {
@@ -1408,6 +1414,7 @@ electron.ipcMain.handle("GetFileArray", (event, args) => {
           names,
           Stage: stageid[game.getSettings().stageId as number],
           oppName: opponentname,
+          win: didiwin(slippiFilesToArray[i], store.get("username") as string),
         });
       }
     }
