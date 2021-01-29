@@ -1,34 +1,44 @@
 <template>
-  <div>
-    <v-text-field v-model="search" label="Opponent Name" />
-    <v-card>
-      <v-card-title>Slippi Files</v-card-title>
-      <v-virtual-scroll
-        item-height="50"
-        height="300"
-        :items="[...filteredItems]"
-      >
-        <template #default="{ item }">
-          <v-list-item
-            :key="item.FileName"
-            :to="'gamefileviewer/' + item.FileName"
-          >
-            <v-list-item-content>
-              <v-list-item-title>
-                {{ item.names[0] }} vs {{ item.names[1] }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ item.Stage }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </template>
-      </v-virtual-scroll>
-    </v-card>
-    <v-snackbar v-model="snackbarS" type="error"
-      >Couldn't load Files</v-snackbar
-    >
+  <div v-if="isLoaded">
+    <div v-if="filteredItems[0]">
+      <v-text-field v-model="search" label="Opponent Name" />
+      <v-card>
+        <v-card-title>Slippi Files</v-card-title>
+        <v-virtual-scroll
+          item-height="50"
+          height="300"
+          :items="[...filteredItems]"
+        >
+          <template #default="{ item }">
+            <v-list-item :key="item.FileName" :to="item.FileName" exact>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ item.names[0] }} vs {{ item.names[1] }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ item.Stage }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
+        </v-virtual-scroll>
+      </v-card>
+      <v-dialog>
+        <v-card> <v-card-title> </v-card-title> </v-card>
+      </v-dialog>
+    </div>
+
+    <v-alert v-else type="error" prominent>
+      <v-row align="center">
+        <v-col class="grow"> Couldn't load Files, Double Check Settings </v-col>
+        <v-col class="shrink">
+          <v-btn outlined to="settings">Settings</v-btn>
+        </v-col>
+      </v-row>
+    </v-alert>
   </div>
+
+  <v-skeleton-loader v-else type="list-item, divider , list-item@9" />
 </template>
 
 <script>
@@ -43,9 +53,10 @@ electron.ipcRenderer.on("clearCache", (event) => {
 export default {
   data() {
     return {
+      isLoaded: false,
+      showGamefile: false,
       search: "",
       gamefile: "",
-      snackbarS: false,
       File_list: [],
     };
   },
@@ -60,16 +71,14 @@ export default {
     this.getFileList();
   },
   methods: {
-    getFileList() {
-      electron.ipcRenderer.invoke("GetFileArray").then(
-        (result) => {
-          this.File_list = result;
-          console.log(this.filteredItems);
-        },
-        (result) => {
-          this.snackbarS = true;
-        }
-      );
+    async getFileList() {
+      this.File_list = await electron.ipcRenderer
+        .invoke("GetFileArray")
+        .catch(() => {
+          return [];
+        });
+
+      this.isLoaded = true;
     },
   },
 };
