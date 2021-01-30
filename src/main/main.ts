@@ -15,6 +15,7 @@ import SlippiGame, { ItemUpdateType, MetadataType } from "@slippi/slippi-js";
 
 import achievementsJson from "./achievements.json";
 import achievementKeys from "./keys.json";
+import info from "./info.json";
 
 type Achievements = Record<
   string,
@@ -43,8 +44,10 @@ interface MetadataTypePlayers extends MetadataType {
 const store = new Store();
 const datastoredata = { name: "Data" };
 const Achstoredata = { name: "Ach" };
+const StatsStoreData = { name: "Stats" };
 const datastore = new Store(datastoredata);
 const achstore = new Store(Achstoredata);
+const statstore = new Store(StatsStoreData);
 
 const replayDir = () =>
   (store.get("Replay_Directory") as string).replace(/\\\\/g, "\\");
@@ -231,11 +234,15 @@ function name(gamefile: string, name: string) {
 }
 function charintGet(gamefile: string, uname: string) {
   const rep = replayDir();
-
-  let game = new SlippiGame(join(rep, gamefile));
-  let int = game.getSettings().players[name(gamefile, uname)].characterId;
-
-  return int;
+  try {
+    let game = new SlippiGame(join(rep, gamefile));
+    let int = game.getSettings().players[name(gamefile, uname)].characterId;
+    return int;
+  } catch (err) {
+    let game = new SlippiGame(join(rep, gamefile));
+    console.log(err);
+    console.log(name(gamefile, uname));
+  }
 }
 
 function CheckMoveKill(gamefile: string, AttackID: number, Uname: string) {
@@ -245,18 +252,21 @@ function CheckMoveKill(gamefile: string, AttackID: number, Uname: string) {
   const frames = game.getFrames();
   let count = 0;
   for (let i = 0; i in stats.conversions; i++) {
-    if (stats.conversions[i].didKill) {
-      if (stats.conversions[i].playerIndex === name(gamefile, Uname)) {
-        // console.log(frames[stats.conversions[i].endFrame].players[name(gamefile)].post.lastAttackLanded)
-        if (
-          (frames[stats.conversions[i].endFrame as number].players[
-            name(gamefile, Uname)
-          ]?.post.lastAttackLanded as number) === AttackID
-        )
-          count += 1;
+    if (
+      stats.conversions[i].didKill &&
+      stats.conversions[i].playerIndex === name(gamefile, Uname)
+    ) {
+      // console.log(frames[stats.conversions[i].endFrame].players[name(gamefile)].post.lastAttackLanded)
+      if (
+        (frames[stats.conversions[i].endFrame as number].players[
+          name(gamefile, Uname)
+        ]?.post.lastAttackLanded as number) === AttackID
+      ) {
+        count += 1;
       }
     }
   }
+
   return count;
 }
 /**
@@ -305,10 +315,7 @@ function ItemIDCheck(gamefile: string, itemid: number, Uname: string) {
     if (frames[n].items != undefined) {
       for (let i = 0; i in (frames[n].items as ItemUpdateType[]); i++) {
         for (let z = 0; z in UniqueItemId; z++) {
-          if (
-            UniqueItemId.includes(frames[n].items?.[i].spawnId as number) ===
-            false
-          ) {
+          if (!UniqueItemId.includes(frames[n].items?.[i].spawnId as number)) {
             UniqueItemId.push(frames[n].items?.[i].spawnId as number);
             if (
               frames[n].items?.[i].owner === name(gamefile, Uname) &&
@@ -322,6 +329,7 @@ function ItemIDCheck(gamefile: string, itemid: number, Uname: string) {
       }
     }
   }
+
   return Count;
 }
 /**
@@ -818,6 +826,306 @@ function CheckFileAch(gamefile, uname): void {
         break;
     }
     if (temp.comp) AddToStore("Game_Total", 1);
+  }
+}
+function characterConditionalParse(gamefile, uname) {
+  switch (charintGet(gamefile, uname)) {
+    case 0:
+      let Falcon = FalconParse(gamefile, uname);
+      return {
+        char: 0,
+        Stat1: Falcon.fp,
+        Stat2: Falcon.kn,
+        Stat1Text: "Hit Falcon Punches This Game: ",
+        Stat2Text: "Hit Knees This Game: ",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+
+      break;
+    case 1:
+      let DK = DonkeyParse(gamefile, uname);
+      return {
+        char: 1,
+        Stat1: DK.CT,
+        Stat2: DK.DP,
+        Stat1Text: "Cargo Throw Kill(s) This Game: ",
+        Stat2Text: "Donkey Punch Kill(s) This Game: ",
+      };
+
+      break;
+    case 2:
+      let fox = foxParse(gamefile, uname);
+      return {
+        char: 2,
+        Stat1: fox.Shine,
+        Stat2: fox.ShineSpike,
+        Stat1Text: "Shine(s) This Game: ",
+        Stat2Text: "Shine Spikes(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 3:
+      let GNW = GameAndWatchParse(gamefile, uname);
+      return {
+        char: 3,
+        Stat1: GNW.GN,
+        Stat2: GNW.GK,
+        Stat1Text: "Nair Kill(s) This Game: ",
+        Stat2Text: "Dair Kill(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 4:
+      let Kirby = KirbyParse(gamefile, uname);
+      return {
+        char: 4,
+        Stat1: Kirby.KC,
+        Stat2: Kirby.KN,
+        Stat1Text: "Kirbycide Kill(s) This Game: ",
+        Stat2Text: "Nair Hit(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 5:
+      let Bowser = BowserParse(gamefile, uname);
+      return {
+        char: 5,
+        Stat1: Bowser.BN,
+        Stat2: Bowser.BUB,
+        Stat1Text: "Bowser Nair Hit(s) This Game: ",
+        Stat2Text: "Bowser UpB Hit(s) This Game: ",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 6:
+      let Link = linkParse(gamefile, uname);
+      return {
+        char: 6,
+        Stat1: Link.LinkN,
+        Stat2: Link.LinkB,
+        Stat1Text: "Link Nair(s) This Game:",
+        Stat2Text: "Link Bomb(s) This Game:",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 7:
+      let Luigi = LuigiParse(gamefile, uname);
+      return {
+        char: 7,
+        Stat1: Luigi.wd,
+        Stat2: Luigi.Mis,
+        Stat1Text: "Luigi Wavedash's This Game: ",
+        Stat2Text: "Luigi Misfire(s) This Game",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 8:
+      let Mario = marioParse(gamefile, uname);
+      return {
+        char: 8,
+        Stat1: Mario.fb,
+        Stat2: Mario.fs,
+        Stat1Text: "Fireball(s) This Game: ",
+        Stat2Text: "Fair Spike(s) This Game: ",
+      };
+    //console.log("Checking This Char..." + charintGet(gamefile, uname));
+    case 9:
+      let Marth = MarthParse(gamefile, uname);
+      return {
+        char: 9,
+        Stat1: Marth.mg,
+        Stat2: Marth.ms,
+        Stat1Text: "Grab(s) This Game: ",
+        Stat2Text: "Spike Kill(s) This Game: ",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 10:
+      let Mewtwo = MewtwoParse(gamefile, uname);
+      return {
+        char: 10,
+        Stat1: Mewtwo.MF,
+        Stat2: Mewtwo.MB,
+        Stat1Text: "Fair Kill(s) This Game: ",
+        Stat2Text: "Shadow Ball(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 11:
+      let Ness = NessParse(gamefile, uname);
+      return {
+        char: 11,
+        Stat1: Ness.ND,
+        Stat2: Ness.NUB,
+        Stat1Text: "Ness Dair Kill(s) This Game:  ",
+        Stat2Text: "Up-B Kill(s) This Game: ",
+      };
+      break;
+    case 12:
+      let Peach = PeachParse(gamefile, uname);
+      return {
+        char: 12,
+        Stat1: Peach.PF,
+        Stat2: Peach.PS,
+        Stat1Text: "Peach Fair Kill(s) This Game: ",
+        Stat2Text: "Peach Stich Face(s) This Game: ",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 13:
+      let Pikachu = PikachuParse(gamefile, uname);
+      return {
+        char: 13,
+        Stat1: Pikachu.ts,
+        Stat2: Pikachu.tj,
+        Stat1Text: "Pikachu Tailspike Kill(s) This Game: ",
+        Stat2Text: "Pikachu Thunderjolt(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 14:
+      let Ice_Climbers = IceClimbersParse(gamefile, uname);
+      return {
+        char: 14,
+        Stat1: Ice_Climbers.DS,
+        Stat2: Ice_Climbers.FS,
+        Stat1Text: "Downsmash Kill(s) This Game: ",
+        Stat2Text: "Forward Smash Kill(s) This Game",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 15:
+      let Jigglypuff = JigglypuffParse(gamefile, uname);
+      return {
+        char: 15,
+        Stat1: Jigglypuff.bair,
+        Stat2: Jigglypuff.Rest,
+        Stat1Text: "Jigglypuff Bair Hit(s) This Game: ",
+        Stat2Text: "Jigglypuff Rest Kill(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 16:
+      let Samus = SamusParse(gamefile, uname);
+      return {
+        char: 16,
+        Stat1: Samus.cs,
+        Stat2: Samus.ms,
+        Stat1Text: "Samus Chargeshot Kill(s) This Game: ",
+        Stat2Text: "Samus Missile(s) This Game: ",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 17:
+      let Yoshi = YoshiParse(gamefile, uname);
+      return {
+        char: 17,
+        Stat1: Yoshi.YN,
+        Stat2: Yoshi.YDS,
+        Stat1Text: "Yoshi Nair Hit(s) This Game: ",
+        Stat2Text: "Yoshi Downsmash Kill(s) This Game: ",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 18:
+      let Zelda = ZeldaParse(gamefile, uname);
+      return {
+        char: 18,
+        Stat1: Zelda.ZFI,
+        Stat2: Zelda.ZFI,
+        Stat1Text: "Zelda Din's Fire(s) This Game: ",
+        Stat2Text: "Zelda Fair Kill(s) This Game",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 19:
+      let Shiek = ShiekParse(gamefile, uname);
+      return {
+        char: 19,
+        Stat1: Shiek.SN,
+        Stat2: Shiek.SNEED,
+        Stat1Text: "Sheik Nair Kill(s) This Game: ",
+        Stat2Text: "Sheik Needle(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 20:
+      let Falco = FalcoParse(gamefile, uname);
+      return {
+        char: 20,
+        Stat1: Falco.FL,
+        Stat2: Falco.FD,
+        Stat1Text: "Falco Laser(s) This Game",
+        Stat2Text: "Falco Dair(s) This Game",
+      };
+
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 21:
+      let Young_Link = YoungLinkParse(gamefile, uname);
+      return {
+        char: 21,
+        Stat1: Young_Link.YLA,
+        Stat2: Young_Link.YLDS,
+        Stat1Text: "Young Link Arrow(s) This Game: ",
+        Stat2Text: "Young Link Downsmash Kill(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 22:
+      let Dr_Mario = DrMParse(gamefile, uname);
+      return {
+        char: 22,
+        Stat1: Dr_Mario.DRMF,
+        Stat2: Dr_Mario.DRMP,
+        Stat1Text: "Doctor Mario Fair Kill(s) This Game: ",
+        Stat2Text: "Dr Mario Pill(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 23:
+      let Roy = RoyParse(gamefile, uname);
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      return {
+        char: 23,
+        Stat1: Roy.RB,
+        Stat2: Roy.RS,
+        Stat1Text: "Roy Neutral Special Kill(s) This Game: ",
+        Stat2Text: "Roy Forward Smash Kill(s) This Game",
+      };
+    case 24:
+      let Pichu = PichuParse(gamefile, uname);
+      return {
+        char: 24,
+        Stat1: Pichu.PB,
+        Stat2: Pichu.PTJ,
+        Stat1Text: "Pichu Bair Kill(s) This Game: ",
+        Stat2Text: "Pichu Thunderjolt(s) This Game: ",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 25:
+      let Gannnondorf = GannonParse(gamefile, uname);
+      return {
+        char: 25,
+        Stat1: Gannnondorf.GP,
+        Stat2: Gannnondorf.GS,
+        Stat1Text: "Gannondorf Warlock Punch Hit(s) This Game: ",
+        Stat2Text: "Gannondorf Spike Kill(s) This Game:",
+      };
+      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      break;
+    case 26:
+      break;
   }
 }
 function CheckAch(GamefileArray, uname): void {
@@ -1317,42 +1625,65 @@ electron.ipcMain.handle("CheckAch", async (event, args) => {
     return false;
   }
 });
-let stageid = [
-  "Impossible",
-  "Impossible",
-  "Fountain of Dream",
-  "Pokemon Stadium",
-  "Princess Peach's Castle",
-  "Kongo Jungle",
-  "Brinstar",
-  "Coneria",
-  "Yoshi's Story",
-  "Onett",
-  "Mute City",
-  "Rainbow Cruise",
-  "Jungle Japes",
-  "Great Bay",
-  "Hyrule Temple",
-  "Brinstar Depths",
-  "Yoshi's Island",
-  "Green Greens",
-  "Fourside",
-  "Mushroom Kingdom I",
-  "Mushroom Kingdom II",
-  "Impossible",
-  "Venom",
-  "Poké Floats",
-  "Big Blue",
-  "Icicle Mountain",
-  "Icetop",
-  "Flatzone",
-  "Dream Land N64",
-  "Yoshi's Island N64",
-  "Kongo Jungle N64",
-  "Battlefield",
-  "Final Destination",
-];
-function didiwin(gamefile, Uname) {
+// let stageId = [
+//   "impossible",
+//   "Impossible",
+//   "Fountain of Dreams",
+//   "Pokemon Stadium",
+//   "Princess Peach's Castle",
+//   "Kongo Jungle",
+//   "Brinstar",
+//   "Corneria",
+//   "Yoshi's Story",
+//   "Onett",
+//   "Mute City",
+//   "Rainbow Cruise",
+//   "Great Bay",
+//   "Hyrule Temple",
+//   "Brinstar Depths",
+//   "Yoshi's Island",
+//   "Green Greens",
+//   "Fourside",
+//   "Mushroom Kingdom I",
+//   "Mushroom Kingdom II",
+//   "Impossible",
+//   "Venom",
+//   "Poke Floats",
+//   "Dream Land N64",
+//   "Yoshi's Island N64",
+//   "Kongo Jungle N64",
+//   "Battlefield",
+//   "Final Destination",
+// ];
+// let charid = [
+//   "Captain Falcon",
+//   "Donkey Kong",
+//   "Fox",
+//   "Mr. Game & Watch",
+//   "Kirby",
+//   "Bowser",
+//   "Link",
+//   "Luigi",
+//   "Mario",
+//   "Marth",
+//   "Mewtwo",
+//   "Ness",
+//   "Peach",
+//   "Pikachu",
+//   "Ice Climbers",
+//   "Jigglypuff",
+//   "Samus",
+//   "Yoshi",
+//   "Zelda",
+//   "Sheik",
+//   "Falco",
+//   "Young Link",
+//   "Dr. Mario",
+//   "Roy",
+//   "Pichu",
+//   "Gannondorf",
+// ];
+function didiwin(gamefile) {
   let rep = replayDir();
   let game = new SlippiGame(join(rep, gamefile));
   try {
@@ -1367,17 +1698,33 @@ function didiwin(gamefile, Uname) {
     return false;
   }
 }
+function didIWinStore(gamefile) {
+  if (!store.has(parse(gamefile).name + ".win")) {
+    store.set(parse(gamefile).name + ".win", didiwin(gamefile));
+    return store.get(parse(gamefile).name + ".win");
+  } else {
+    return store.get(parse(gamefile).name + ".win");
+  }
+}
 electron.ipcMain.handle("CheckThisFile", (event, args) => {
   let rep = replayDir();
   let uname = name(args, store.get("username") as string);
   let slpcheck = checkSlippiFiles(args, store.get("username", null) as string);
   let game = new SlippiGame(join(rep, args));
   let filename = parse(args).name;
+  let charparse = characterConditionalParse(args, store.get("username"));
   let altobj = {};
   altobj["name1"] = game.getMetadata().players[0].names.netplay;
   altobj["name2"] = game.getMetadata().players[1].names.netplay;
-  altobj["stage"] = stageid[game.getSettings().stageId];
-  altobj["win"] = didiwin(args, store.get("username"));
+  altobj["stage"] = info.StageNames[game.getSettings().stageId];
+  altobj["char"] = info.CharacterNames[charparse.char];
+  altobj["Stats"] = [
+    charparse.Stat1,
+    charparse.Stat1Text,
+    charparse.Stat2,
+    charparse.Stat2Text,
+  ];
+
   return { slpparse: slpcheck, alt: altobj };
 });
 electron.ipcMain.handle("GetFileArray", (event, args) => {
@@ -1412,14 +1759,69 @@ electron.ipcMain.handle("GetFileArray", (event, args) => {
         ReturnArray.push({
           FileName: slippiFilesToArray[i],
           names,
-          Stage: stageid[game.getSettings().stageId as number],
+          Stage: info.StageNames[game.getSettings().stageId as number],
           oppName: opponentname,
-          win: didiwin(slippiFilesToArray[i], store.get("username") as string),
+          win: didIWinStore(slippiFilesToArray[i]),
         });
       }
     }
 
     return ReturnArray;
+  }
+});
+// TODO Configue AddToStore to support diffrent store names
+function AddToStoreStats(storename: string, addint: number) {
+  statstore.set(storename, statstore.get(storename, 0) + addint);
+}
+electron.ipcMain.handle("GetGeneralStats", (event, args) => {
+  const rep = replayDir();
+  if (fs.existsSync(rep)) {
+    const files = fs.readdirSync(rep, "utf-8");
+    let largest = 0;
+    let largestname = "";
+    let largestalt = 0;
+    let largestaltname = "";
+    files.forEach((file) => {
+      if (extname(file) === ".slp") slippiFilesToArray.push(file);
+    });
+    for (let i = 0; i in slippiFilesToArray; i++) {
+      if (!store.get(parse(slippiFilesToArray[i]).name + ".Stats", false)) {
+        if (
+          name(slippiFilesToArray[i], store.get("username") as string) != -1
+        ) {
+          store.set(parse(slippiFilesToArray[i]).name + ".Stats", true);
+          let game = new SlippiGame(join(rep, slippiFilesToArray[i]));
+          AddToStoreStats(info.StageNames[game.getSettings().stageId], 1);
+          AddToStoreStats(
+            info.CharacterNames[
+              charintGet(slippiFilesToArray[i], store.get("username") as string)
+            ],
+            1
+          );
+        }
+      }
+    }
+    for (let i = 0; i in info.StageNames; i++) {
+      if (statstore.get(info.StageNames[i]) > largest) {
+        largest = statstore.get(info.StageNames[i]) as number;
+        largestname = info.StageNames[i];
+        continue;
+      } else continue;
+    }
+    for (let i = 0; i in info.CharacterNames; i++) {
+      if (statstore.get(info.CharacterNames[i]) > largestalt) {
+        largestalt = statstore.get(info.CharacterNames[i]) as number;
+        largestaltname = info.CharacterNames[i];
+
+        continue;
+      } else continue;
+    }
+    return {
+      stage: largestname,
+      char: largestaltname,
+      stagenum: largest,
+      charnum: largestalt,
+    };
   }
 });
 

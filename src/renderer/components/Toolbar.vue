@@ -48,6 +48,7 @@ export default {
           icon: "mdi-cog",
         },
         { route: "Filebrowser", title: "Slippi Files", icon: "mdi-folder" },
+        { route: "Stats", title: "Stats", icon: "mdi-clipboard" },
         // { route: "catagory", title: "Catagory", icon: "mdi-trophy-variant" },
 
         // { route: "schedule", title: "Schedule", icon: "mdi-calendar" }, // ? -clock

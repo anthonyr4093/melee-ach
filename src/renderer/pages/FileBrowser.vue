@@ -29,7 +29,11 @@
         </v-virtual-scroll>
       </v-card>
       <div v-if="showgamefileAlert">
-        <v-dialog v-model="showgamefileAlert">
+        <v-dialog
+          width="66%"
+          v-model="showgamefileAlert"
+          v-on="showgamefileAlert"
+        >
           <v-card
             ><v-card-title
               ><v-icon left>{{
@@ -40,9 +44,20 @@
             >
             <v-card-subtitle>{{ fileinfo.alt.stage }} </v-card-subtitle>
             <v-card-text>
-              Kills This Game: {{ fileinfo.slpparse.stock }} <n />
-
+              Kills This Game: {{ fileinfo.slpparse.stock }}
+            </v-card-text>
+            <v-card-text>
               Damage This Game: {{ fileinfo.slpparse.dama }}
+            </v-card-text>
+            <v-card-text>
+              Because you Played: {{ fileinfo.alt.char }} These Are The Stats We
+              Calculated:
+            </v-card-text>
+            <v-card-text>
+              {{ fileinfo.alt.Stats[1] }} {{ fileinfo.alt.Stats[0] }}
+            </v-card-text>
+            <v-card-text>
+              {{ fileinfo.alt.Stats[3] }} {{ fileinfo.alt.Stats[2] }}
             </v-card-text>
           </v-card>
         </v-dialog>
@@ -94,6 +109,9 @@ export default {
     this.getFileList();
   },
   methods: {
+    logthis(logged) {
+      console.log(logged);
+    },
     showAlert(gamefile) {
       electron.ipcRenderer.invoke("CheckThisFile", gamefile).then(
         (result) => (

@@ -50,8 +50,10 @@ const Store = require("electron-store");
 const store = new Store();
 const datastoredata = { name: "Data" };
 const Achstoredata = { name: "Ach" };
+const StatsStoreData = { name: "Stats" };
 const datastore = new Store(datastoredata);
 const achstore = new Store(Achstoredata);
+const statstore = new Store(StatsStoreData);
 export default {
   data() {
     return {
@@ -79,6 +81,7 @@ export default {
       store.clear();
       datastore.clear();
       achstore.clear();
+      statstore.clear();
       this.dialog = false;
       console.log("Data Wiped Clean!");
       this.nuke_icon = "mdi-nuke";
