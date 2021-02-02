@@ -1,5 +1,5 @@
 /* globals INCLUDE_RESOURCES_PATH */
-import { app } from "electron";
+import { app, ipcMain, dialog, remote } from "electron";
 
 /**
  * Set `__resources` path to resources files in renderer process
@@ -19,7 +19,13 @@ app.on("window-all-closed", function () {
   if (process.platform !== "darwin") app.quit();
 });
 
+const options = {
+  title: "Open Slippi Directory",
+  properties: ["openDirectory"],
+};
+ipcMain.handle("OpenDialog", (event, args) => {
+  return dialog.showOpenDialogSync(null, options);
+});
 // Load here all startup windows
 require("./mainWindow");
 require("./WorkerWinHandler");
-

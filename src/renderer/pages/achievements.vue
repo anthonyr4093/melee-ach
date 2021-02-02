@@ -1,6 +1,13 @@
 <template>
   <div>
     <div>
+      <div v-if="loading">
+        Checking This File: {{ currentGamefile }}
+        <v-progress-linear :value="value" :active="loading" height="20">
+          {{ value }} / 100%
+        </v-progress-linear>
+      </div>
+
       <v-select
         v-model="selectedItem"
         append-icon="mdi-trophy"
@@ -46,6 +53,7 @@
 </template>
 
 <script>
+import { ipcRenderer } from "electron";
 // TODO: Alert user when bad file is parsed.
 const electron = require("electron");
 const Store = require("electron-store");
@@ -58,6 +66,8 @@ export default {
       snackbarS: false,
       error: "The Achievement Parser Failed. Double Check Settings",
       loading: false,
+      value: null,
+      currentGamefile: null,
       CurrentAch: null,
       selectedItem: null,
       achs: [],
@@ -93,29 +103,41 @@ export default {
     };
   },
   methods: {
-    onChange() {
-      console.log(this.selectedItem);
-      electron.ipcRenderer
-        .invoke("GetAch", this.selectedItem)
-        .then((result) => {
-          console.log(result);
-          this.achs = result;
-        });
+    async onChange() {
+      ipcRenderer.send("message-from-page", {
+        message: "getAch",
+        data: this.selectedItem,
+      });
+      await ipcRenderer.on("message-from-worker", (event, args) => {
+        console.log(args);
+        if (args.command == "getAchResult") this.achs = args.payload;
+      });
     },
     CheckAch() {
+      ipcRenderer.send("message-from-page", {
+        message: "checkAch",
+        data: null,
+      });
       this.loading = true;
-      console.log("Checking Ach");
-      electron.ipcRenderer.invoke("CheckAch").then((result) => {
-        console.log(result);
-        if (result === false) {
-          console.log("false");
-          console.log(store.get("Replay_Directory"));
-          this.loading = false;
-          this.snackbarE = true;
-        } else {
-          console.log("result true i guess");
-          this.loading = false;
-          this.snackbarS = true;
+      ipcRenderer.on("message-from-worker", (event, args) => {
+        if (args.command == "checkAchLoading") {
+          console.log(args);
+          this.value = args.payload.value;
+          this.currentGamefile = args.payload.Gamefile;
+        }
+      });
+      ipcRenderer.on("message-from-worker", (event, args) => {
+        if (args.command == "checkAchResult") {
+          if (args.payload === false) {
+            console.log("false");
+            console.log(store.get("Replay_Directory"));
+            this.loading = false;
+            this.snackbarE = true;
+          } else {
+            console.log("result true i guess");
+            this.loading = false;
+            this.snackbarS = true;
+          }
         }
       });
     },

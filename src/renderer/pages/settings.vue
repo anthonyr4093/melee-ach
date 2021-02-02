@@ -44,6 +44,7 @@
 <script>
 import Vue from "vue";
 import Vuelidate from "vuelidate";
+import { ipcRenderer } from "electron";
 Vue.use(Vuelidate);
 const electron = require("electron");
 const Store = require("electron-store");
@@ -54,6 +55,10 @@ const StatsStoreData = { name: "Stats" };
 const datastore = new Store(datastoredata);
 const achstore = new Store(Achstoredata);
 const statstore = new Store(StatsStoreData);
+electron.ipcRenderer.on("pingReplay", (event, args) => {
+  console.log(args);
+});
+
 export default {
   data() {
     return {
@@ -71,6 +76,7 @@ export default {
       btntext: "Save",
     };
   },
+  beforeMount() {},
   methods: {
     defaultbtn() {
       this.btntext = "Save";
@@ -95,13 +101,11 @@ export default {
         username: this.Username,
         Replay_Directory: this.Replay_Directory,
       };
-
-      electron.ipcRenderer
-        .invoke("IsSettingsValid?", userdata)
-        .then((result) => {
+      ipcRenderer.on("message-from-worker", (event, args) => {
+        if (args.command === "resultCheckSettings") {
+          const result = args.payload;
           if (result === true) {
             this.loading = false;
-            store.openInEditor();
             this.btncolor = "success";
             this.btntext = "Saved";
             this.Sicon = "mdi-check-outline";
@@ -113,7 +117,12 @@ export default {
             this.Sicon = "mdi-alert-circle-outline";
             setTimeout(() => this.defaultbtn(), 3000);
           }
-        });
+        }
+      });
+      ipcRenderer.send("message-from-page", {
+        message: "checkSettings",
+        data: userdata,
+      });
     },
     opendir() {
       this.Replay_Directory = "";

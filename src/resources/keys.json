@@ -1,0 +1,226 @@
+{
+  "General": [
+    "kill1",
+    "kill2",
+    "kill3",
+    "kill4",
+    "kill5",
+    "kill6",
+    "kill7",
+    "kill8",
+    "kill9",
+    "kill10",
+    "Game1",
+    "Game2",
+    "Game3",
+    "Game4",
+    "Game5",
+    "Game6",
+    "Game7",
+    "Game8",
+    "Game9",
+    "Game10"
+  ],
+  "Misc": ["AATW", "Specialist"],
+  "Mario": [
+    "Fire1",
+    "Fire2",
+    "Fire3",
+    "MarioSpike1",
+    "MarioSpike2",
+    "MarioSpike3"
+  ],
+  "Fox": [
+    "shine1",
+    "shine2",
+    "shine3",
+    "ShineSpike1",
+    "ShineSpike2",
+    "ShineSpike3"
+  ],
+  "Falcon": [
+    "Knee1",
+    "Knee2",
+    "Knee3",
+    "FalconPunch1",
+    "FalconPunch2",
+    "FalconPunch3"
+  ],
+  "DonkeyKong": [
+    "CargoThrow1",
+    "CargoThrow2",
+    "CargoThrow3",
+    "DonkeyP1",
+    "DonkeyP2",
+    "DonkeyP3"
+  ],
+  "Roy": [
+    "RoyNeutralB1",
+    "RoyNeutralB2",
+    "RoyNeutralB3",
+    "RoySideSmash1",
+    "RoySideSmash2",
+    "RoySideSmash3"
+  ],
+  "Kirby": [
+    "Kirbycide1",
+    "Kirbycide2",
+    "Kirbycide3",
+    "KirbyNair1",
+    "KirbyNair2",
+    "KirbyNair3"
+  ],
+  "Bowser": [
+    "BowserNair1",
+    "BowserNair2",
+    "BowserNair3",
+    "BowserUpB1",
+    "BowserUpB2",
+    "BowserUpB3"
+  ],
+  "Link": [
+    "LinkNair1",
+    "LinkNair2",
+    "LinkNair3",
+    "LinkBomb1",
+    "LinkBomb2",
+    "LinkBomb3"
+  ],
+  "Shiek": [
+    "ShiekNair1",
+    "ShiekNair2",
+    "ShiekNair3",
+    "ShiekNeedle1",
+    "ShiekNeedle2",
+    "ShiekNeedle3"
+  ],
+  "Ness": [
+    "NessDair1",
+    "NessDair2",
+    "NessDair3",
+    "NessUpb1",
+    "NessUpb2",
+    "NessUpb3"
+  ],
+  "Peach": [
+    "PeachStich1",
+    "PeachStich2",
+    "PeachStich3",
+    "PeachFair1",
+    "PeachFair2",
+    "PeachFair3"
+  ],
+  "IceClimbers": [
+    "IceClimbersFS1",
+    "IceClimbersFS2",
+    "IceClimbersFS3",
+    "IceClimbersDS1",
+    "IceClimbersDS2",
+    "IceClimbersDS3"
+  ],
+  "Pikachu": [
+    "TailSpike1",
+    "TailSpike2",
+    "TailSpike3",
+    "Thunderjolt1",
+    "Thunderjolt2",
+    "Thunderjolt3"
+  ],
+  "Samus": [
+    "Missile1",
+    "Missile2",
+    "Missile3",
+    "Chargeshot1",
+    "Chargeshot2",
+    "Chargeshot3"
+  ],
+  "Yoshi": [
+    "YoshiNair1",
+    "YoshiNair2",
+    "YoshiNair3",
+    "YoshiDownSmash1",
+    "YoshiDownSmash2",
+    "YoshiDownSmash3"
+  ],
+  "Jigglypuff": [
+    "JigBackair1",
+    "JigBackair2",
+    "JigBackair3",
+    "RestKill1",
+    "RestKill2",
+    "RestKill3"
+  ],
+  "Mewtwo": [
+    "MewtwoSB1",
+    "MewtwoSB2",
+    "MewtwoSB3",
+    "MewtwoFair1",
+    "MewtwoFair2",
+    "MewtwoFair3"
+  ],
+  "Luigi": [
+    "LuigiSlippery1",
+    "LuigiSlippery2",
+    "LuigiSlippery3",
+    "Misfire1",
+    "Misfire2",
+    "Misfire3"
+  ],
+  "Marth": [
+    "MarthSpike1",
+    "MarthSpike2",
+    "MarthSpike3",
+    "MarthGrab1",
+    "MarthGrab2",
+    "MarthGrab3"
+  ],
+  "Zelda": [
+    "ZeldaFair1",
+    "ZeldaFair2",
+    "ZeldaFair3",
+    "ZeldaFlame1",
+    "ZeldaFlame2",
+    "ZeldaFlame3"
+  ],
+  "YoungLink": [
+    "YinkArrow1",
+    "YinkArrow2",
+    "YinkArrow3",
+    "YinkDownSmash1",
+    "YinkDownSmash2",
+    "YinkDownSmash3"
+  ],
+  "Falco": [
+    "FalcoDair1",
+    "FalcoDair2",
+    "FalcoDair3",
+    "FalcoLaser1",
+    "FalcoLaser2",
+    "FalcoLaser3"
+  ],
+  "Pichu": [
+    "PichuTJolt1",
+    "PichuTJolt2",
+    "PichuTJolt3",
+    "PichuBair1",
+    "PichuBair2",
+    "PichuBair3"
+  ],
+  "GNW": ["GNWNair1", "GNWNair2", "GNWNair3", "GNWKey1", "GNWKey2", "GNWKey3"],
+  "Gannon": [
+    "GannonP1",
+    "GannonP2",
+    "GannonP3",
+    "GannonS1",
+    "GannonS2",
+    "GannonS3"
+  ],
+  "DrMario": [
+    "DRMPills1",
+    "DRMPills2",
+    "DRMPills3",
+    "DRMFair1",
+    "DRMFair2",
+    "DRMFair3"
+  ]
+}

@@ -5,9 +5,10 @@ TODO: Test storing only individual player frame data, and only post frames, this
 TODO: Setup inputs for user data like usernames.
 TODO: put todos in more relevant places.
 */
+
 import fs from "fs";
 import { basename, extname, join, parse } from "path";
-import electron, { ipcRenderer } from "electron";
+import electron from "electron";
 import Store from "electron-store";
 
 import SlippiGame, { ItemUpdateType, MetadataType } from "@slippi/slippi-js";
@@ -24,6 +25,7 @@ type Achievements = Record<
     unlocked?: boolean;
   }
 >;
+console.log("cmom");
 
 const achievements: Achievements = achievementsJson;
 let message2UI = (command, payload) => {
@@ -32,50 +34,11 @@ let message2UI = (command, payload) => {
     payload: payload,
   });
 };
-function getPercentage(array, int) {
-  return Math.round(100 * (int / array.length));
-}
-// message2UI("helloWorld", { myParam: 1337, anotherParam: 42 });
+
+message2UI("helloWorld", { myParam: 1337, anotherParam: 42 });
 
 electron.ipcRenderer.on("message-from-page", (event, args) => {
   console.log(args);
-  console.log("NotYourFriend");
-
-  let arg = args.data;
-  if (args.message == "checkSettings") {
-    console.log("correct message");
-
-    try {
-      const rep = arg.Replay_Directory.toString().replace(/\\\\/g, "\\");
-      console.log("we set rep");
-
-      // console.log(typeof rep);
-      if (fs.existsSync(rep)) {
-        console.log("rep Exists");
-
-        // console.log("Settings Are Valid");
-        store.delete("Replay_Directory");
-        store.set("username", arg.username);
-        store.set("Replay_Directory", rep.replace(/\\\\/g, "\\"));
-        console.log("returning true");
-
-        message2UI("resultCheckSettings", true);
-      } else {
-        console.log("rep Exists");
-        //console.log("Settings Are Not Valid");
-        //console.log(rep);\
-        console.log("returning false");
-        message2UI("resultCheckSettings", false);
-      }
-    } catch (err) {
-      console.log(err);
-      message2UI("resultCheckSettings", false);
-    }
-  } else {
-    console.log(
-      "not checkSettings for some reason fuck this stupid shit i hate it so much like jesus christ"
-    );
-  }
 });
 console.log("Sent Message to Main");
 interface MetadataTypePlayers extends MetadataType {
@@ -101,6 +64,23 @@ const statstore = new Store(StatsStoreData);
 
 const replayDir = () =>
   (store.get("Replay_Directory") as string).replace(/\\\\/g, "\\");
+// ! FORMAT THIS TO SUPPORT WORKER WINDOWS
+// electron.ipcMain.handle("IsSettingsValid?", function (event, args) {
+//   //console.log("Checking...");
+//   const rep = args.Replay_Directory.toString().replace(/\\\\/g, "\\");
+//   // console.log(typeof rep);
+//   if (fs.existsSync(rep)) {
+//     // console.log("Settings Are Valid");
+//     store.delete("Replay_Directory");
+//     store.set("username", args.username);
+//     store.set("Replay_Directory", rep.replace(/\\\\/g, "\\"));
+//     return true;
+//   } else {
+//     //console.log("Settings Are Not Valid");
+//     //console.log(rep);
+//     return false;
+//   }
+// });
 
 // Initialize Variables For Later use, Later figure out how to load values from json.
 // This is probably when we figure out ui.
@@ -861,7 +841,6 @@ function CheckFileAch(gamefile, uname): void {
     if (temp.comp) AddToStore("Game_Total", 1);
   }
 }
-
 function characterConditionalParse(gamefile, uname) {
   switch (charintGet(gamefile, uname)) {
     case 0:
@@ -1359,320 +1338,306 @@ function Thisisstupid(ClassBaseName, ArrrValues, ArrName) {
   }
   return ArrName;
 }
-electron.ipcRenderer.on("message-from-page", (event, args) => {
-  if (args.message == "getAch") {
-    let keys = achievementKeys[args.data];
-    let returnindex = [];
-    for (let i = 0; i in keys; i++) {
-      achievementsJson[keys[i]].unlocked = achstore.get(keys[i], false);
+// ! FORMAT THIS TO SUPPORT WORKER WINDOWS
+// electron.ipcMain.handle("GetAch", (_event, args) => {
+//   let keys = achievementKeys[args];
+//   let returnindex = [];
+//   for (let i = 0; i in keys; i++) {
+//     achievementsJson[keys[i]].unlocked = achstore.get(keys[i], false);
 
-      returnindex.push(achievementsJson[keys[i]]);
-    }
-    message2UI("getAchResult", returnindex);
-  }
-});
+//     returnindex.push(achievementsJson[keys[i]]);
+//   }
+//   // return Object.keys(achievementKeys).map((key) => achievements[key]); // ? Dont really know what you were trying to do here'
+//   return returnindex;
+// });
 
-electron.ipcRenderer.on("message-from-page", async (event, args) => {
-  if (args.message == "checkAch") {
-    const rep = replayDir();
-    let slippiFilesToArray = [];
-    if (fs.existsSync(rep)) {
-      const files = fs.readdirSync(rep, "utf-8");
-      files.forEach((file) => {
-        if (extname(file) === ".slp") slippiFilesToArray.push(file);
-      });
+// electron.ipcMain.handle("CheckAch", async (event, args) => {
+//   const rep = replayDir();
 
-      let uname = store.get("username");
-      try {
-        for (let i = 0; i in slippiFilesToArray; i++) {
-          /*
-        if (i === 250) {
-          return true;
-        } else {
-          console.log(i);
-        }
-        */
-          //console.log("Checking this file: " + slippiFilesToArray[i]);
-          let gamefile = slippiFilesToArray[i];
-          if (
-            store.get(gamefile, false) === false &&
-            name(gamefile, uname) !== -1
-          ) {
-            try {
-              CheckFileAch(gamefile, store.get("username"));
-              message2UI("checkAchLoading", {
-                value: getPercentage(slippiFilesToArray, i),
-                Gamefile: gamefile,
-              });
-            } catch (err) {
-              console.log("Program ran into an error at gamefile: " + gamefile);
-              console.log(err);
-            }
-            //console.log("File Check Went Ok");
-            event.sender.send("clearCache");
-            store.set(gamefile, true);
-          } else {
-            //console.log("Skipping this file" + slippiFilesToArray[i]);
+//   if (fs.existsSync(rep)) {
+//     const files = fs.readdirSync(rep, "utf-8");
+//     files.forEach((file) => {
+//       if (extname(file) === ".slp") slippiFilesToArray.push(file);
+//     });
 
-            continue;
-          }
-        }
-        // Chump Checks Down Here (HAVE FUN :))))
-        AchievementUnlock("kill", killCheckArray, datastore.get("stocks", 0));
-        AchievementUnlock(
-          "Game",
-          GameCheckArray,
-          datastore.get("Game_Total", 0)
-        );
-        AchievementUnlock("Fire", FireCheckArray, datastore.get("Fireball", 0));
-        AchievementUnlock(
-          "MarioSpike",
-          marSpikeCheckArray,
-          datastore.get("Mario_Spike", 0)
-        );
-        AchievementUnlock("shine", ShineCheckArray, datastore.get("Shine", 0));
-        AchievementUnlock(
-          "ShineSpike",
-          ShineSpikeCheckArray,
-          datastore.get("Shine_Spike", 0)
-        );
-        AchievementUnlock(
-          "Knee",
-          KneeCheckArray,
-          datastore.get("Falcon_Punch", 0)
-        );
-        AchievementUnlock(
-          "FalconPunch",
-          FalconPunchArray,
-          datastore.get("Falcon_Knee", 0)
-        );
-        AchievementUnlock(
-          "CargoThrow",
-          CargoThrowArray,
-          datastore.get("Cargo_Throw", 0)
-        );
-        AchievementUnlock(
-          "DonkeyP",
-          DonkeyPArray,
-          datastore.get("Donkey_Punch", 0)
-        );
-        AchievementUnlock(
-          "RoyNeutralB",
-          RoyNeutralBArray,
-          datastore.get("Roy_B", 0)
-        );
-        AchievementUnlock(
-          "RoySideSmash",
-          RoySideSmashArray,
-          datastore.get("Roy_Fsmash", 0)
-        );
-        AchievementUnlock(
-          "Kirbycide",
-          KirbycideArray,
-          datastore.get("Kirbycide", 0)
-        );
-        AchievementUnlock(
-          "KirbyNair",
-          KirbyNairArray,
-          datastore.get("Kirby_Nair", 0)
-        );
-        AchievementUnlock(
-          "BowserNair",
-          BowserNairArray,
-          datastore.get("Bowser_Nair", 0)
-        );
-        AchievementUnlock(
-          "BowserUpB",
-          BowserUpBArray,
-          datastore.get("BowserUpB")
-        );
-        AchievementUnlock(
-          "LinkNair",
-          LinkNairArray,
-          datastore.get("LinkNair", 0)
-        );
-        AchievementUnlock(
-          "LinkBomb",
-          LinkBombArray,
-          datastore.get("LinkBomb", 0)
-        );
-        AchievementUnlock(
-          "ShiekNair",
-          ShiekNairArray,
-          datastore.get("Sheik_Nair", 0)
-        );
-        AchievementUnlock(
-          "ShiekNeedle",
-          ShiekNeedleArray,
-          datastore.get("Shiek_Needle", 0)
-        );
-        AchievementUnlock(
-          "NessDair",
-          NessdairArray,
-          datastore.get("Ness_Dair", 0)
-        );
-        AchievementUnlock(
-          "NessUpb",
-          NessUpbArray,
-          datastore.get("Ness_Upb", 0)
-        );
-        AchievementUnlock(
-          "PeachStich",
-          PeachStickArray,
-          datastore.get("Peach_Stitch", 0)
-        );
-        AchievementUnlock(
-          "PeachFair",
-          PeachFairArray,
-          datastore.get("Peach_Fair", 0)
-        );
-        AchievementUnlock(
-          "IceClimbersFS",
-          IceClimbersFSArray,
-          datastore.get("ICFS", 0)
-        );
-        AchievementUnlock(
-          "IceClimbersDS",
-          IceClimbersDSArray,
-          datastore.get("ICDS", 0)
-        );
-        AchievementUnlock(
-          "TailSpike",
-          TailSpikeArray,
-          datastore.get("Pikachu_Tailspike", 0)
-        );
-        AchievementUnlock(
-          "Thunderjolt",
-          ThunderJoltArray,
-          datastore.get("Pikachu_Tjolt", 0)
-        );
-        AchievementUnlock(
-          "Missile",
-          MissileArray,
-          datastore.get("Samus_Missile", 0)
-        );
-        AchievementUnlock(
-          "Chargeshot",
-          ChargeShotArray,
-          datastore.get("Samus_Chargeshot", 0)
-        );
-        AchievementUnlock(
-          "YoshiNair",
-          YoshiNairArray,
-          datastore.get("Yoshi_Nair", 0)
-        );
-        AchievementUnlock(
-          "YoshiDownSmash",
-          YoshiDownSmashArray,
-          datastore.get("Yoshi_Downsmash", 0)
-        );
-        AchievementUnlock(
-          "JigBackair",
-          JigBackAirArray,
-          datastore.get("Jigglypuff_Bair", 0)
-        );
-        AchievementUnlock(
-          "RestKill",
-          RestKillArray,
-          datastore.get("Jigglypuff_Rest", 0)
-        );
-        AchievementUnlock(
-          "MewtwoSB",
-          MewtwoArray,
-          datastore.get("Mewtwo_ShadowBall", 0)
-        );
-        AchievementUnlock(
-          "MewtwoFair",
-          MewtwoArray,
-          datastore.get("Mewtwo_Fair", 0)
-        );
-        AchievementUnlock(
-          "LuigiSlippery",
-          LuigiSlipperyArray,
-          datastore.get("Luigi_Wavedash", 0)
-        );
-        AchievementUnlock("Misfire", MisfireArray, datastore.get("Misfire", 0));
-        AchievementUnlock(
-          "MarthSpike",
-          MarthSpikeArray,
-          datastore.get("Marth_Spike", 0)
-        );
-        AchievementUnlock(
-          "MarthGrab",
-          MarthGrabArray,
-          datastore.get("Marth_Grab", 0)
-        );
-        AchievementUnlock(
-          "ZeldaFair",
-          ZeldaFairArray,
-          datastore.get("Zelda_Fair", 0)
-        );
-        AchievementUnlock(
-          "ZeldaFlame",
-          ZeldaFireArray,
-          datastore.get("Zelda_Fire", 0)
-        );
-        AchievementUnlock(
-          "YinkArrow",
-          YinkArrowArray,
-          datastore.get("Yink_Arrow", 0)
-        );
-        AchievementUnlock(
-          "YinkDownSmash",
-          YinkDownSmashArray,
-          datastore.get("Yink_Downsmash", 0)
-        );
-        AchievementUnlock(
-          "FalcoDair",
-          FalcoDairArray,
-          datastore.get("Falco_Dair", 0)
-        );
-        AchievementUnlock(
-          "FalcoLaser",
-          FalcoLaserArray,
-          datastore.get("Falco_Laser", 0)
-        );
-        AchievementUnlock(
-          "PichuTJolt",
-          PichuTJoltArray,
-          datastore.get("Pichu_Tjolt", 0)
-        );
-        AchievementUnlock(
-          "PichuBair",
-          PichuBairArray,
-          datastore.get("Pichu_Bair", 0)
-        );
-        AchievementUnlock("GNWNair", GNWNairArray, datastore.get("GNWN", 0));
-        AchievementUnlock("GNWKey", GNWKeyArray, datastore.get("GNWK", 0));
-        AchievementUnlock(
-          "GannonP",
-          GannonPArray,
-          datastore.get("Gannon_Punch", 0)
-        );
-        AchievementUnlock(
-          "GannonS",
-          GannonSArray,
-          datastore.get("Gannon_Spike", 0)
-        );
-        AchievementUnlock("DRMPills", DRMPillsArray, datastore.get("DRMP", 0));
-        AchievementUnlock("DRMFair", DRMFairArray, datastore.get("DRMF", 0));
+//     let uname = store.get("username");
+//     try {
+//       for (let i = 0; i in slippiFilesToArray; i++) {
+//         /*
+//         if (i === 250) {
+//           return true;
+//         } else {
+//           console.log(i);
+//         }
+//         */
+//         //console.log("Checking this file: " + slippiFilesToArray[i]);
+//         let gamefile = slippiFilesToArray[i];
+//         if (
+//           store.get(gamefile, false) === false &&
+//           name(gamefile, uname) !== -1
+//         ) {
+//           try {
+//             CheckFileAch(gamefile, store.get("username"));
+//           } catch (err) {
+//             console.log("Program ran into an error at gamefile: " + gamefile);
+//             console.log(err);
+//           }
+//           //console.log("File Check Went Ok");
+//           event.sender.send("clearCache");
+//           store.set(gamefile, true);
+//         } else {
+//           //console.log("Skipping this file" + slippiFilesToArray[i]);
 
-        message2UI("checkAchResult", true);
-      } catch (err) {
-        console.log("Achievement Parser Failed");
-        console.log(err);
+//           continue;
+//         }
+//       }
+//       // Chump Checks Down Here (HAVE FUN :))))
+//       AchievementUnlock("kill", killCheckArray, datastore.get("stocks", 0));
+//       AchievementUnlock("Game", GameCheckArray, datastore.get("Game_Total", 0));
+//       AchievementUnlock("Fire", FireCheckArray, datastore.get("Fireball", 0));
+//       AchievementUnlock(
+//         "MarioSpike",
+//         marSpikeCheckArray,
+//         datastore.get("Mario_Spike", 0)
+//       );
+//       AchievementUnlock("shine", ShineCheckArray, datastore.get("Shine", 0));
+//       AchievementUnlock(
+//         "ShineSpike",
+//         ShineSpikeCheckArray,
+//         datastore.get("Shine_Spike", 0)
+//       );
+//       AchievementUnlock(
+//         "Knee",
+//         KneeCheckArray,
+//         datastore.get("Falcon_Punch", 0)
+//       );
+//       AchievementUnlock(
+//         "FalconPunch",
+//         FalconPunchArray,
+//         datastore.get("Falcon_Knee", 0)
+//       );
+//       AchievementUnlock(
+//         "CargoThrow",
+//         CargoThrowArray,
+//         datastore.get("Cargo_Throw", 0)
+//       );
+//       AchievementUnlock(
+//         "DonkeyP",
+//         DonkeyPArray,
+//         datastore.get("Donkey_Punch", 0)
+//       );
+//       AchievementUnlock(
+//         "RoyNeutralB",
+//         RoyNeutralBArray,
+//         datastore.get("Roy_B", 0)
+//       );
+//       AchievementUnlock(
+//         "RoySideSmash",
+//         RoySideSmashArray,
+//         datastore.get("Roy_Fsmash", 0)
+//       );
+//       AchievementUnlock(
+//         "Kirbycide",
+//         KirbycideArray,
+//         datastore.get("Kirbycide", 0)
+//       );
+//       AchievementUnlock(
+//         "KirbyNair",
+//         KirbyNairArray,
+//         datastore.get("Kirby_Nair", 0)
+//       );
+//       AchievementUnlock(
+//         "BowserNair",
+//         BowserNairArray,
+//         datastore.get("Bowser_Nair", 0)
+//       );
+//       AchievementUnlock(
+//         "BowserUpB",
+//         BowserUpBArray,
+//         datastore.get("BowserUpB")
+//       );
+//       AchievementUnlock(
+//         "LinkNair",
+//         LinkNairArray,
+//         datastore.get("LinkNair", 0)
+//       );
+//       AchievementUnlock(
+//         "LinkBomb",
+//         LinkBombArray,
+//         datastore.get("LinkBomb", 0)
+//       );
+//       AchievementUnlock(
+//         "ShiekNair",
+//         ShiekNairArray,
+//         datastore.get("Sheik_Nair", 0)
+//       );
+//       AchievementUnlock(
+//         "ShiekNeedle",
+//         ShiekNeedleArray,
+//         datastore.get("Shiek_Needle", 0)
+//       );
+//       AchievementUnlock(
+//         "NessDair",
+//         NessdairArray,
+//         datastore.get("Ness_Dair", 0)
+//       );
+//       AchievementUnlock("NessUpb", NessUpbArray, datastore.get("Ness_Upb", 0));
+//       AchievementUnlock(
+//         "PeachStich",
+//         PeachStickArray,
+//         datastore.get("Peach_Stitch", 0)
+//       );
+//       AchievementUnlock(
+//         "PeachFair",
+//         PeachFairArray,
+//         datastore.get("Peach_Fair", 0)
+//       );
+//       AchievementUnlock(
+//         "IceClimbersFS",
+//         IceClimbersFSArray,
+//         datastore.get("ICFS", 0)
+//       );
+//       AchievementUnlock(
+//         "IceClimbersDS",
+//         IceClimbersDSArray,
+//         datastore.get("ICDS", 0)
+//       );
+//       AchievementUnlock(
+//         "TailSpike",
+//         TailSpikeArray,
+//         datastore.get("Pikachu_Tailspike", 0)
+//       );
+//       AchievementUnlock(
+//         "Thunderjolt",
+//         ThunderJoltArray,
+//         datastore.get("Pikachu_Tjolt", 0)
+//       );
+//       AchievementUnlock(
+//         "Missile",
+//         MissileArray,
+//         datastore.get("Samus_Missile", 0)
+//       );
+//       AchievementUnlock(
+//         "Chargeshot",
+//         ChargeShotArray,
+//         datastore.get("Samus_Chargeshot", 0)
+//       );
+//       AchievementUnlock(
+//         "YoshiNair",
+//         YoshiNairArray,
+//         datastore.get("Yoshi_Nair", 0)
+//       );
+//       AchievementUnlock(
+//         "YoshiDownSmash",
+//         YoshiDownSmashArray,
+//         datastore.get("Yoshi_Downsmash", 0)
+//       );
+//       AchievementUnlock(
+//         "JigBackair",
+//         JigBackAirArray,
+//         datastore.get("Jigglypuff_Bair", 0)
+//       );
+//       AchievementUnlock(
+//         "RestKill",
+//         RestKillArray,
+//         datastore.get("Jigglypuff_Rest", 0)
+//       );
+//       AchievementUnlock(
+//         "MewtwoSB",
+//         MewtwoArray,
+//         datastore.get("Mewtwo_ShadowBall", 0)
+//       );
+//       AchievementUnlock(
+//         "MewtwoFair",
+//         MewtwoArray,
+//         datastore.get("Mewtwo_Fair", 0)
+//       );
+//       AchievementUnlock(
+//         "LuigiSlippery",
+//         LuigiSlipperyArray,
+//         datastore.get("Luigi_Wavedash", 0)
+//       );
+//       AchievementUnlock("Misfire", MisfireArray, datastore.get("Misfire", 0));
+//       AchievementUnlock(
+//         "MarthSpike",
+//         MarthSpikeArray,
+//         datastore.get("Marth_Spike", 0)
+//       );
+//       AchievementUnlock(
+//         "MarthGrab",
+//         MarthGrabArray,
+//         datastore.get("Marth_Grab", 0)
+//       );
+//       AchievementUnlock(
+//         "ZeldaFair",
+//         ZeldaFairArray,
+//         datastore.get("Zelda_Fair", 0)
+//       );
+//       AchievementUnlock(
+//         "ZeldaFlame",
+//         ZeldaFireArray,
+//         datastore.get("Zelda_Fire", 0)
+//       );
+//       AchievementUnlock(
+//         "YinkArrow",
+//         YinkArrowArray,
+//         datastore.get("Yink_Arrow", 0)
+//       );
+//       AchievementUnlock(
+//         "YinkDownSmash",
+//         YinkDownSmashArray,
+//         datastore.get("Yink_Downsmash", 0)
+//       );
+//       AchievementUnlock(
+//         "FalcoDair",
+//         FalcoDairArray,
+//         datastore.get("Falco_Dair", 0)
+//       );
+//       AchievementUnlock(
+//         "FalcoLaser",
+//         FalcoLaserArray,
+//         datastore.get("Falco_Laser", 0)
+//       );
+//       AchievementUnlock(
+//         "PichuTJolt",
+//         PichuTJoltArray,
+//         datastore.get("Pichu_Tjolt", 0)
+//       );
+//       AchievementUnlock(
+//         "PichuBair",
+//         PichuBairArray,
+//         datastore.get("Pichu_Bair", 0)
+//       );
+//       AchievementUnlock("GNWNair", GNWNairArray, datastore.get("GNWN", 0));
+//       AchievementUnlock("GNWKey", GNWKeyArray, datastore.get("GNWK", 0));
+//       AchievementUnlock(
+//         "GannonP",
+//         GannonPArray,
+//         datastore.get("Gannon_Punch", 0)
+//       );
+//       AchievementUnlock(
+//         "GannonS",
+//         GannonSArray,
+//         datastore.get("Gannon_Spike", 0)
+//       );
+//       AchievementUnlock("DRMPills", DRMPillsArray, datastore.get("DRMP", 0));
+//       AchievementUnlock("DRMFair", DRMFairArray, datastore.get("DRMF", 0));
 
-        message2UI("checkAchResult", false);
-      }
-    } else {
-      //console.log(exist(rep));
-      console.log("Couldn't Find Replay Dir");
-      //console.log(rep);
+//       return true;
+//     } catch (err) {
+//       console.log("Achievement Parser Failed");
+//       console.log(err);
 
-      message2UI("checkAchResult", false);
-    }
-  }
-});
+//       return false;
+//     }
+//   } else {
+//     //console.log(exist(rep));
+//     console.log("Couldn't Find Replay Dir");
+//     //console.log(rep);
+
+//     return false;
+//   }
+// });
 // let stageId = [
 //   "impossible",
 //   "Impossible",
@@ -1754,86 +1719,70 @@ function didIWinStore(gamefile) {
     return store.get(parse(gamefile).name + ".win");
   }
 }
+// ! FORMAT THIS TO SUPPORT WORKER WINDOWS
+// electron.ipcMain.handle("CheckThisFile", (event, args) => {
+//   let rep = replayDir();
+//   let uname = name(args, store.get("username") as string);
+//   let slpcheck = checkSlippiFiles(args, store.get("username", null) as string);
+//   let game = new SlippiGame(join(rep, args));
+//   let filename = parse(args).name;
+//   let charparse = characterConditionalParse(args, store.get("username"));
+//   let altobj = {};
+//   altobj["name1"] = game.getMetadata().players[0].names.netplay;
+//   altobj["name2"] = game.getMetadata().players[1].names.netplay;
+//   altobj["stage"] = info.StageNames[game.getSettings().stageId];
+//   altobj["char"] = info.CharacterNames[charparse.char];
+//   altobj["Stats"] = [
+//     charparse.Stat1,
+//     charparse.Stat1Text,
+//     charparse.Stat2,
+//     charparse.Stat2Text,
+//   ];
 
-electron.ipcRenderer.on("message-from-page", (event, args) => {
-  if (args.message == "checkThisFile") {
-    let gamefile = args.data;
-    let rep = replayDir();
-    let uname = name(gamefile, store.get("username") as string);
-    let slpcheck = checkSlippiFiles(
-      gamefile,
-      store.get("username", null) as string
-    );
-    let game = new SlippiGame(join(rep, gamefile));
-    let filename = parse(gamefile).name;
-    let charparse = characterConditionalParse(gamefile, store.get("username"));
-    let altobj = {};
-    altobj["name1"] = game.getMetadata().players[0].names.netplay;
-    altobj["name2"] = game.getMetadata().players[1].names.netplay;
-    altobj["stage"] = info.StageNames[game.getSettings().stageId];
-    altobj["char"] = info.CharacterNames[charparse.char];
-    altobj["Stats"] = [
-      charparse.Stat1,
-      charparse.Stat1Text,
-      charparse.Stat2,
-      charparse.Stat2Text,
-    ];
+//   return { slpparse: slpcheck, alt: altobj };
+// });
+// electron.ipcMain.handle("GetFileArray", (event, args) => {
+//   const rep = replayDir();
+//   const uname = store.get("username");
 
-    message2UI("checkThisFileResult", { slpparse: slpcheck, alt: altobj });
-  }
-});
-electron.ipcRenderer.on("message-from-page", (event, args) => {
-  if (args.message == "getFileArray") {
-    try {
-      console.log("Working on getFileArray...");
-      let slippiFilesToArray = [];
-      const rep = replayDir();
-      const uname = store.get("username");
+//   if (fs.existsSync(rep)) {
+//     const ReturnArray = [];
+//     const files = fs.readdirSync(rep, "utf-8");
+//     const slippiFilesToArray: string[] = [];
+//     let opponentname;
 
-      if (fs.existsSync(rep)) {
-        const ReturnArray = [];
-        const files = fs.readdirSync(rep, "utf-8");
-        const slippiFilesToArray: string[] = [];
-        let opponentname;
+//     files.forEach((file) => {
+//       if (extname(file) === ".slp") slippiFilesToArray.push(file);
+//     });
 
-        files.forEach((file) => {
-          if (extname(file) === ".slp") slippiFilesToArray.push(file);
-        });
+//     for (let i = 0; i in slippiFilesToArray; i++) {
+//       if (
+//         name(slippiFilesToArray[i], store.get("username")) !== -1 &&
+//         name(slippiFilesToArray[i], store.get("username")) !== undefined
+//       ) {
+//         const game = new SlippiGame(join(rep, slippiFilesToArray[i]));
+//         const { players } = game.getMetadata() as MetadataTypePlayers;
 
-        for (let i = 0; i in slippiFilesToArray; i++) {
-          if (
-            name(slippiFilesToArray[i], store.get("username")) !== -1 &&
-            name(slippiFilesToArray[i], store.get("username")) !== undefined
-          ) {
-            const game = new SlippiGame(join(rep, slippiFilesToArray[i]));
-            const { players } = game.getMetadata() as MetadataTypePlayers;
+//         const names = [];
+//         for (let i = 0; i in players; i++) names.push(players[i].names.netplay);
 
-            const names = [];
-            for (let i = 0; i in players; i++)
-              names.push(players[i].names.netplay);
+//         if (name(slippiFilesToArray[i], store.get("username")) === 0)
+//           opponentname = players[1].names.netplay;
+//         else opponentname = players[0].names.netplay;
 
-            if (name(slippiFilesToArray[i], store.get("username")) === 0)
-              opponentname = players[1].names.netplay;
-            else opponentname = players[0].names.netplay;
+//         ReturnArray.push({
+//           FileName: slippiFilesToArray[i],
+//           names,
+//           Stage: info.StageNames[game.getSettings().stageId as number],
+//           oppName: opponentname,
+//           win: didIWinStore(slippiFilesToArray[i]),
+//         });
+//       }
+//     }
 
-            ReturnArray.push({
-              FileName: slippiFilesToArray[i],
-              names,
-              Stage: info.StageNames[game.getSettings().stageId as number],
-              oppName: opponentname,
-              win: didIWinStore(slippiFilesToArray[i]),
-            });
-          }
-        }
-
-        message2UI("getFileArrayResult", ReturnArray);
-      }
-    } catch (err) {
-      console.log(err);
-      message2UI("getFileArrayError", null);
-    }
-  }
-});
+//     return ReturnArray;
+//   }
+// });
 function nameflip(int) {
   if (int == 1) {
     return 0;
@@ -1847,279 +1796,151 @@ function nameflip(int) {
 function AddToStoreStats(storename: string, addint: number) {
   statstore.set(storename, statstore.get(storename, 0) + addint);
 }
-electron.ipcRenderer.on("message-from-page", (event, args) => {
-  if (args.message == "getGeneralStats") {
-    const rep = replayDir();
-    if (fs.existsSync(rep)) {
-      let slippiFilesToArray = [];
-      const files = fs.readdirSync(rep, "utf-8");
-      let largest = 0;
-      let largestname = "";
-      let largestalt = 0;
-      let largestaltname = "";
-      let opparray = [];
-      let largestopponent = 0;
-      let largestopponentname = "";
-      let largestopponentloss = 0;
-      let largestopponentlossname = "";
-      let worstmu = "";
-      let worstmunum = 0;
-      let bestmu = "";
-      let bestmunum = 0;
-      let beststage = "";
-      let beststagenum = 0;
-      let worststage = "";
-      let worststagenum = 0;
-      files.forEach((file) => {
-        if (extname(file) === ".slp") slippiFilesToArray.push(file);
-      });
-      for (let i = 0; i in slippiFilesToArray; i++) {
-        try {
-          let game = new SlippiGame(join(rep, slippiFilesToArray[i]));
-          if (!store.get(parse(slippiFilesToArray[i]).name + ".Stats", false)) {
-            store.set(parse(slippiFilesToArray[i]).name + ".Stats", true);
-            if (
-              name(slippiFilesToArray[i], store.get("username") as string) != -1
-            ) {
-              console.log(slippiFilesToArray[i]);
+// ! FORMAT THIS TO SUPPORT WORKER WINDOWS
+// electron.ipcMain.handle("GetGeneralStats", (event, args) => {
+//   const rep = replayDir();
+//   if (fs.existsSync(rep)) {
+//     const files = fs.readdirSync(rep, "utf-8");
+//     let largest = 0;
+//     let largestname = "";
+//     let largestalt = 0;
+//     let largestaltname = "";
+//     let opparray = [];
+//     let largestopponent = 0;
+//     let largestopponentname = "";
+//     let largestopponentloss = 0;
+//     let largestopponentlossname = "";
+//     files.forEach((file) => {
+//       if (extname(file) === ".slp") slippiFilesToArray.push(file);
+//     });
+//     for (let i = 0; i in slippiFilesToArray; i++) {
+//       try {
+//         let game = new SlippiGame(join(rep, slippiFilesToArray[i]));
+//         if (!store.get(parse(slippiFilesToArray[i]).name + ".Stats", false)) {
+//           if (
+//             name(slippiFilesToArray[i], store.get("username") as string) != -1
+//           ) {
+//             let parse1 = checkSlippiFiles(
+//               slippiFilesToArray[i],
+//               store.get("username") as string
+//             );
+//             let opponentname = "";
+//             if (
+//               name(slippiFilesToArray[i], store.get("username") as string) === 0
+//             ) {
+//               opponentname = game.getMetadata().players[1].names.netplay;
+//             } else {
+//               opponentname = game.getMetadata().players[0].names.netplay;
+//             }
+//             console.log(opponentname);
 
-              let parse1 = checkSlippiFiles(
-                slippiFilesToArray[i],
-                store.get("username") as string
-              );
-              let opponentname = "";
-              if (
-                name(slippiFilesToArray[i], store.get("username") as string) ===
-                0
-              ) {
-                opponentname = game.getMetadata().players[1].names.netplay;
-              } else {
-                opponentname = game.getMetadata().players[0].names.netplay;
-              }
+//             if (!opparray.includes(opponentname)) {
+//               opparray.push(opponentname);
+//             }
 
-              if (!opparray.includes(opponentname)) {
-                opparray.push(opponentname);
-              }
+//             AddToStoreStats("Game_Total", 1);
+//             AddToStoreStats("TotalDamage", parse1.dama);
+//             AddToStoreStats("TotalStocks", parse1.stock);
+//             if (didiwin(slippiFilesToArray[i])) {
+//               AddToStoreStats("TotalWins", 1);
+//             }
+//             store.set(parse(slippiFilesToArray[i]).name + ".Stats", true);
+//             //let game = new SlippiGame(join(rep, slippiFilesToArray[i]));
+//             AddToStoreStats(info.StageNames[game.getSettings().stageId], 1);
+//             AddToStoreStats(
+//               info.CharacterNames[
+//                 charintGet(
+//                   slippiFilesToArray[i],
+//                   store.get("username") as string
+//                 )
+//               ],
+//               1
+//             );
+//           }
+//         }
+//       } catch (err) {
+//         console.log(err);
+//         console.log(slippiFilesToArray[i]);
 
-              AddToStoreStats("Game_Total", 1);
-              AddToStoreStats("TotalDamage", parse1.dama);
-              AddToStoreStats("TotalStocks", parse1.stock);
-              AddToStoreStats(
-                "TotalDeaths",
-                game.getStats().overall[
-                  nameflip(
-                    name(slippiFilesToArray[i], store.get("username") as string)
-                  )
-                ].killCount
-              );
-              if (
-                game.getGameEnd().lrasInitiatorIndex ===
-                name(slippiFilesToArray[i], store.get("username") as string)
-              ) {
-                AddToStoreStats("ILRAS", 1);
-              } else if (
-                game.getGameEnd().lrasInitiatorIndex ===
-                nameflip(
-                  name(slippiFilesToArray[i], store.get("username") as string)
-                )
-              ) {
-                AddToStoreStats("OppLRAS", 1);
-              }
-              if (didiwin(slippiFilesToArray[i])) {
-                AddToStoreStats("TotalWins", 1);
-                AddToStoreStats(
-                  info.CharacterNames[
-                    game.getSettings().players[
-                      nameflip(
-                        name(
-                          slippiFilesToArray[i],
-                          store.get("username") as string
-                        )
-                      )
-                    ].characterId
-                  ] + ".wins",
-                  1
-                );
-                AddToStoreStats(
-                  info.StageNames[game.getSettings().stageId] + ".wins",
-                  1
-                );
-              } else {
-                AddToStoreStats(
-                  info.CharacterNames[
-                    game.getSettings().players[
-                      nameflip(
-                        name(
-                          slippiFilesToArray[i],
-                          store.get("username") as string
-                        )
-                      )
-                    ].characterId
-                  ] + ".loss",
-                  1
-                );
-                AddToStoreStats(
-                  info.StageNames[game.getSettings().stageId] + ".loss",
-                  1
-                );
-              }
+//         continue;
+//       }
+//     }
+//     for (let i = 0; i in info.StageNames; i++) {
+//       if (statstore.get(info.StageNames[i]) > largest) {
+//         largest = statstore.get(info.StageNames[i]) as number;
+//         largestname = info.StageNames[i];
+//         continue;
+//       } else continue;
+//     }
+//     for (let i = 0; i in info.CharacterNames; i++) {
+//       if (statstore.get(info.CharacterNames[i]) > largestalt) {
+//         largestalt = statstore.get(info.CharacterNames[i]) as number;
+//         largestaltname = info.CharacterNames[i];
 
-              //let game = new SlippiGame(join(rep, slippiFilesToArray[i]));
-              AddToStoreStats(
-                info.StageNames[game.getSettings().stageId] + ".played",
-                1
-              );
-              if (!didiwin(slippiFilesToArray[i], store.get("username"))) {
-                AddToStoreStats(opponentname + ".win", 1);
-              } else {
-                AddToStoreStats(opponentname + ".loss", 1);
-              }
-              AddToStoreStats(
-                info.CharacterNames[
-                  charintGet(
-                    slippiFilesToArray[i],
-                    store.get("username") as string
-                  )
-                ] + ".played",
-                1
-              );
-            }
-          }
-          console.log(i);
+//         continue;
+//       } else continue;
+//     }
+//     for (let i = 0; i in opparray; i++) {
+//       let filteredarray = slippiFilesToArray.filter((item) => {
+//         try {
+//           let game = new SlippiGame(join(replayDir(), item));
+//           return (
+//             game.getMetadata().players[
+//               nameflip(name(item, store.get("username") as string))
+//             ].names.netplay == opparray[i]
+//           );
+//         } catch (err) {
+//           console.log(err);
+//           return false;
+//         }
+//       });
+//       console.log(filteredarray);
+//       console.log(opparray);
 
-          message2UI("StatsLoadingBar", {
-            task: "Stealing Stats From Files",
-            progress: Math.ceil(100 * (i / slippiFilesToArray.length)),
-            total: slippiFilesToArray.length,
-          });
-        } catch (err) {
-          console.log(err);
-          console.log(slippiFilesToArray[i]);
+//       for (let e = 0; e in filteredarray; e++) {
+//         if (didiwin(filteredarray[e])) {
+//           AddToStoreStats(opparray[i] + ".win", 1);
+//         } else {
+//           AddToStoreStats(opparray[i] + ".loss", 1);
+//         }
+//       }
+//       for (let i = 0; i in opparray; i++) {
+//         if (statstore.get(opparray[i] + ".win") > largestopponent) {
+//           largestopponent = statstore.get(opparray[i] + ".win") as number;
+//           largestopponentname = opparray[i];
+//           statstore.set("DomOpp" + ".name", largestopponentname);
+//           statstore.set("DomOpp" + ".num", largestopponent);
 
-          continue;
-        }
-      }
-      for (let i = 0; i in info.StageNames; i++) {
-        if (statstore.get(info.StageNames[i] + ".played", 0) > largest) {
-          largest = statstore.get(info.StageNames[i] + ".played") as number;
-          largestname = info.StageNames[i];
-        }
-        if (statstore.get(info.StageNames[i] + ".wins", 0) > beststagenum) {
-          beststagenum = statstore.get(info.StageNames[i] + ".wins") as number;
-          beststage = info.StageNames[i];
-        } else
-          console.log(
-            "Stage Store: " + statstore.get(info.StageNames[i] + ".wins")
-          );
-        if (statstore.get(info.StageNames[i] + ".loss", 0) > worststagenum) {
-          worststagenum = statstore.get(info.StageNames[i] + ".loss") as number;
-          worststage = info.StageNames[i];
-        }
-        message2UI("StatsLoadingBar", {
-          task: "Checking " + info.StageNames[i] + " Right Now",
-          progress: Math.ceil(100 * (i / info.StageNames.length)),
-          total: info.StageNames.length,
-        });
-      }
-      for (let i = 0; i in info.CharacterNames; i++) {
-        if (statstore.get(info.CharacterNames[i] + ".played", 0) > largestalt) {
-          largestalt = statstore.get(
-            info.CharacterNames[i] + ".played",
-            0
-          ) as number;
-          largestaltname = info.CharacterNames[i];
-        }
-        if (statstore.get(info.CharacterNames[i] + ".loss", 0) > worstmunum) {
-          worstmunum = statstore.get(
-            info.CharacterNames[i] + ".loss"
-          ) as number;
-          worstmu = info.CharacterNames[i];
-        }
-        if (statstore.get(info.CharacterNames[i] + ".wins", 0) > bestmunum) {
-          bestmunum = statstore.get(info.CharacterNames[i] + ".wins") as number;
-          bestmu = info.CharacterNames[i];
-        } else
-          console.log(
-            "Character Wins:" + statstore.get(info.CharacterNames[i] + ".wins")
-          );
+//           continue;
+//         } else continue;
+//       }
+//       for (let i = 0; i in opparray; i++) {
+//         if (statstore.get(opparray[i] + ".loss") > largestopponentloss) {
+//           largestopponentloss = statstore.get(opparray[i] + ".loss") as number;
+//           largestopponentlossname = opparray[i];
+//           statstore.set("DomOppLoss" + ".name", largestopponentlossname);
+//           statstore.set("DomOppLoss" + ".num", largestopponentloss);
 
-        message2UI("StatsLoadingBar", {
-          task: "Checking " + info.CharacterNames[i] + " Right Now",
-          progress: Math.ceil(100 * (i / info.CharacterNames.length)),
-          total: info.CharacterNames.length,
-        });
-      }
-      for (let i = 0; i in opparray; i++) {
-        if (statstore.get(opparray[i] + ".win") > largestopponent) {
-          largestopponent = statstore.get(opparray[i] + ".win") as number;
-          largestopponentname = opparray[i];
-          statstore.set("DomOpp" + ".name", largestopponentname);
-          statstore.set("DomOpp" + ".num", largestopponent);
-          message2UI("StatsLoadingBar", {
-            task: "Checking Games Against This Opponent: " + opparray[i],
-            progress: Math.ceil(100 * (i / opparray.length)),
-            total: opparray.length,
-          });
-          continue;
-        } else {
-          message2UI("StatsLoadingBar", {
-            task: "Checking Wins Against This Opponent: " + opparray[i],
-            progress: Math.ceil(100 * (i / opparray.length)),
-            total: opparray.length,
-          });
-          continue;
-        }
-      }
-      for (let i = 0; i in opparray; i++) {
-        if (statstore.get(opparray[i] + ".loss") > largestopponentloss) {
-          largestopponentloss = statstore.get(opparray[i] + ".loss") as number;
-          largestopponentlossname = opparray[i];
-          statstore.set("DomOppLoss" + ".name", largestopponentlossname);
-          statstore.set("DomOppLoss" + ".num", largestopponentloss);
-          message2UI("StatsLoadingBar", {
-            task: "Checking Losses Against This Opponent: " + opparray[i],
-            progress: Math.ceil(100 * (i / opparray.length)),
-            total: opparray.length,
-          });
-          continue;
-        } else {
-          message2UI("StatsLoadingBar", {
-            task: "Checking Losses Against This Opponent: " + opparray[i],
-            progress: Math.ceil(100 * (i / opparray.length)),
-            total: opparray.length,
-          });
-          continue;
-        }
-      }
-      let returnobj = {
-        stage: largestname,
-        char: largestaltname,
-        stagenum: largest,
-        charnum: largestalt,
-        beststage: beststage,
-        beststagenum: beststagenum,
-        bestmu: bestmu,
-        bestmunum: bestmunum,
-        worstmu: worstmu,
-        worstmunum: worstmunum,
-        worststage: worststage,
-        worststagenum: worststagenum,
-        wlratio: (
-          (statstore.get("TotalWins", 0) as number) /
-          statstore.get("Game_Total", 0)
-        ).toFixed(2),
+//           continue;
+//         } else continue;
+//       }
+//     }
+//     console.log({
+//       stage: largestname,
+//       char: largestaltname,
+//       stagenum: largest,
+//       charnum: largestalt,
+//     });
+//     let returnobj = {
+//       stage: largestname,
+//       char: largestaltname,
+//       stagenum: largest,
+//       charnum: largestalt,
+//     };
 
-        kdratio: (
-          statstore.get("TotalStocks") / statstore.get("TotalDeaths")
-        ).toFixed(2),
-        lrasratio: (statstore.get("ILRAS") / statstore.get("OppLRAS")).toFixed(
-          2
-        ),
-      };
-      message2UI("getGeneralStatsResult", returnobj);
-    }
-  }
-});
+//     return returnobj;
+//   }
+// });
 //i really dont feel like thinking right now
 // Depreciated for AchivementCheck Function. This was stupid and im happy i could come up with a function.
 /*

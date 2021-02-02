@@ -1,7 +1,7 @@
 <template>
   <div v-if="isLoaded">
+    <v-text-field v-model="search" label="Opponent Name" />
     <div v-if="filteredItems[0]">
-      <v-text-field v-model="search" label="Opponent Name" />
       <v-card>
         <v-card-title>Slippi Files</v-card-title>
         <v-virtual-scroll
@@ -30,8 +30,8 @@
       </v-card>
       <div v-if="showgamefileAlert">
         <v-dialog
-          width="66%"
           v-model="showgamefileAlert"
+          width="66%"
           v-on="showgamefileAlert"
         >
           <v-card
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <v-alert v-else type="error" prominent>
+    <v-alert v-else-if="error" type="error" prominent>
       <v-row align="center">
         <v-col class="grow"> Couldn't load Files, Double Check Settings </v-col>
         <v-col class="shrink">
@@ -92,6 +92,7 @@ export default {
       isLoaded: false,
       showGamefile: false,
       showgamefileAlert: false,
+      error: false,
       search: "",
       gamefile: "",
       File_list: [],
@@ -112,20 +113,30 @@ export default {
     logthis(logged) {
       console.log(logged);
     },
-    showAlert(gamefile) {
-      electron.ipcRenderer.invoke("CheckThisFile", gamefile).then(
-        (result) => (
-          (this.fileinfo = result),
-          console.log(result),
-          (this.showgamefileAlert = true)
-        ),
-        (reason) => console.log(reason)
-      );
+    async showAlert(gamefile) {
+      electron.ipcRenderer.send("message-from-page", {
+        message: "checkThisFile",
+        data: gamefile,
+      });
+      await electron.ipcRenderer.on("message-from-worker", (event, args) => {
+        if (args.command == "checkThisFileResult") {
+          this.fileinfo = args.payload;
+          this.showgamefileAlert = true;
+        }
+      });
     },
     async getFileList() {
-      this.File_list = await electron.ipcRenderer
-        .invoke("GetFileArray")
-        .catch(() => {});
+      electron.ipcRenderer.send("message-from-page", {
+        message: "getFileArray",
+        data: null,
+      });
+      electron.ipcRenderer.on("message-from-worker", (event, args) => {
+        if (args.command == "getFileArrayErr") this.error = true;
+      });
+
+      await electron.ipcRenderer.on("message-from-worker", (event, args) => {
+        if (args.command == "getFileArrayResult") this.File_list = args.payload;
+      });
 
       this.isLoaded = true;
     },

@@ -1,0 +1,62 @@
+{
+  "facts": [
+    {
+      "Catagory": "General",
+      "text": "KoopaBackDashWaveSlide Hoverwalkmoonland Extends the length of a wavedash back (For Certain Characters)"
+    },
+    {
+      "Catagory": "General",
+      "text": "Invisibe Ceiling Glitch (ICG) Is a Glitch That Cancels All Vertical Momentum. The glitch occurs when an attacker hits a shield, and get hit before the recoil is over"
+    },
+    {
+      "Catagory": "Samus",
+      "text": "All of Samus's aerials have the same ammount of end lag. This Means Dair is +1 on Shield"
+    },
+    { "Catagory": "Captain", "text": "Captain Falcons Nipples Can Meteor" },
+    {
+      "Catagory": "Captain",
+      "text": "Falcons Alternative Costumes Have Very minor ECB Changes"
+    },
+    {
+      "Catagory": "DK",
+      "text": "If You Hit DK Out Of up-b, He Loses His Charged Punch"
+    },
+    {
+      "Catagory": "General",
+      "text": "If You Are Losing, The Base Grab Hold Time Is Reduced"
+    },
+    {
+      "Catagory": "Link",
+      "text": "Link Can Act Out Of CliffCatch Faster Then Anyone Else. He has 3 frames of CliffCatch While Others Have 7"
+    },
+    {
+      "Catagory": "Roy",
+      "text": "Roy Can Reverse Up-B Jigglypuff For a One-Hit KO On Certain Stages"
+    },
+    {
+      "Catagory": "General",
+      "text": "V-Canceling is a Technique that can reduce Knockback Velocity if you Input L/R With in 3 Frames"
+    },
+    {
+      "Catagory": "General",
+      "text": "Dreamland's Platform's have Varying Lenghts and Heights"
+    },
+    {
+      "Catagory": "Marth",
+      "text": "Marths Nair Has No Diffrence When Tippered, in Knockback Or Damage"
+    },
+    {
+      "Catagory": "General",
+      "text": "You Could Play As Master Hand By Performing The Name Entry Glitch"
+    },
+
+    {
+      "Catagory": "Captain",
+      "text": "Captain Falcon Has Two Taunts, Depending On Which Way Hes Facing"
+    },
+    {
+      "Catagory": "Pichu",
+      "text": "Pichu Has Two Taunts, Depending On Which Way Hes Facing"
+    }
+  ]
+}

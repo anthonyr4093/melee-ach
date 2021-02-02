@@ -10,10 +10,7 @@
   </v-container>
 </template>
 //todo: add colorful image
-<script>
-// import { remote } from "electron";
-// import SystemInformation from "@/components/SystemInformation.vue"
-</script>
+<script></script>
 
 <style>
 .e-nuxt-container {
