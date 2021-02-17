@@ -1,5 +1,6 @@
 /* globals INCLUDE_RESOURCES_PATH */
 import { app, ipcMain, dialog, remote } from "electron";
+import username from "username";
 
 /**
  * Set `__resources` path to resources files in renderer process
@@ -18,10 +19,11 @@ app.on("window-all-closed", function () {
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== "darwin") app.quit();
 });
-
+console.log(username);
 const options = {
   title: "Open Slippi Directory",
   properties: ["openDirectory"],
+  defaultPath: app.getPath("documents"),
 };
 ipcMain.handle("OpenDialog", (event, args) => {
   return dialog.showOpenDialogSync(null, options);

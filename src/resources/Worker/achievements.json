@@ -231,7 +231,7 @@
     "unlocked": false
   },
   "RoyNeutralB2": {
-    "name": null,
+    "name": "Dont Quiz Me...",
     "desc": "Kill with Roys Neutral B 10 Times",
     "unlocked": false
   },
@@ -239,7 +239,10 @@
     "name": "Dont Test Me...",
     "desc": "Kill with Roys Neutral B 100 Times"
   },
-  "RoySideSmash1": { "name": null, "desc": "Kill With Roys Side Smash" },
+  "RoySideSmash1": {
+    "name": "The other move that kills",
+    "desc": "Kill With Roys Side Smash"
+  },
   "RoySideSmash2": {
     "name": null,
     "desc": "Kill With Roys Side Smash 10 Times",
@@ -316,23 +319,27 @@
     "unlocked": false
   },
   "LinkNair2": {
-    "name": null,
+    "name": "Spacie Nightmare",
     "desc": "Kill with Nair 10 Times",
     "unlocked": false
   },
   "LinkNair3": {
-    "name": "",
+    "name": "Now This Is Cheesy",
     "desc": "Kill with Nair 100 Times",
     "unlocked": false
   },
-  "LinkBomb1": { "name": null, "desc": "Spawn a bomb", "unlocked": false },
+  "LinkBomb1": {
+    "name": "Mortar Support",
+    "desc": "Spawn a bomb",
+    "unlocked": false
+  },
   "LinkBomb2": {
-    "name": null,
+    "name": "Air Strike",
     "desc": "Spawn a bomb 100 Times",
     "unlocked": false
   },
   "LinkBomb3": {
-    "name": null,
+    "name": "Carpet Bomber",
     "desc": "Spawn a bomb 10000 Times",
     "unlocked": false
   },
@@ -372,7 +379,7 @@
     "unlocked": false
   },
   "NessDair2": {
-    "name": null,
+    "name": "Ness is Best",
     "desc": "Kill with Ness Dair 10 Times",
     "unlocked": false
   },
@@ -472,17 +479,17 @@
     "unlocked": false
   },
   "Thunderjolt1": {
-    "name": null,
+    "name": "Mobile EMP",
     "desc": "Spawn Thunder Jolt",
     "unlocked": false
   },
   "Thunderjolt2": {
-    "name": null,
+    "name": "Pika Pika",
     "desc": "Spawn 10 Thunder Jolt",
     "unlocked": false
   },
   "Thunderjolt3": {
-    "name": null,
+    "name": "Zeus",
     "desc": "Spawn 100 Thunder Jolts",
     "unlocked": false
   },
@@ -542,18 +549,22 @@
     "unlocked": false
   },
   "YoshiDownSmash3": {
-    "name": null,
+    "name": "Ain't you gotta baby to save",
     "desc": "Kill WIth Yoshi's Downsmash 100 Times",
     "unlocked": false
   },
-  "JigBackair1": { "name": null, "desc": "Hit Backair", "unlocked": false },
+  "JigBackair1": {
+    "name": "Wait, That Hit",
+    "desc": "Hit Backair",
+    "unlocked": false
+  },
   "JigBackair2": {
-    "name": null,
+    "name": "Disjoints are the best!",
     "desc": "Hit 100 Backairs",
     "unlocked": false
   },
   "JigBackair3": {
-    "name": null,
+    "name": "Bair, Rest, Repeat",
     "desc": "Hit 10000 Backairs",
     "unlocked": false
   },
@@ -563,7 +574,7 @@
     "unlocked": false
   },
   "RestKill2": {
-    "name": null,
+    "name": "Slept Well?",
     "desc": "Kill with 10 Rests",
     "unlocked": false
   },

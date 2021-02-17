@@ -1,14 +1,39 @@
 <template>
-  <div v-if="isLoaded">
-    <v-text-field v-model="search" label="Opponent Name" />
+  <div>
+    <v-progress-linear
+      v-if="isLoaded"
+      :active="loading"
+      :value="value"
+      height="20"
+    >
+      {{ progressgamefile }}
+    </v-progress-linear>
+
+    <!-- <v-text-field v-model="search" label="Opponent Name" /> -->
+    <v-checkbox v-model="didWin" label="Won?"></v-checkbox>
+    <v-autocomplete
+      v-model="search"
+      :items="File_list"
+      item-text="oppName"
+      label="Opponent Name"
+      filled
+      clearable
+    >
+    </v-autocomplete>
+    <v-autocomplete
+      v-model="search1"
+      :items="filteredItems"
+      item-text="Stage"
+      label="Stage Name"
+      filled
+      clearable
+    >
+    </v-autocomplete>
     <div v-if="filteredItems[0]">
       <v-card>
         <v-card-title>Slippi Files</v-card-title>
-        <v-virtual-scroll
-          item-height="50"
-          height="300"
-          :items="[...filteredItems]"
-        >
+
+        <v-virtual-scroll item-height="50" height="300" :items="[...Didwin_()]">
           <template #default="{ item }">
             <v-list-item :key="item.FileName" @click="showAlert(item.FileName)">
               <v-list-item-content>
@@ -72,9 +97,9 @@
         </v-col>
       </v-row>
     </v-alert>
-  </div>
 
-  <v-skeleton-loader v-else type="list-item, divider , list-item@9" />
+    <v-skeleton-loader v-else type="list-item, divider , list-item@9" />
+  </div>
 </template>
 
 <script>
@@ -89,11 +114,17 @@ electron.ipcRenderer.on("clearCache", (event) => {
 export default {
   data() {
     return {
+      search1: null,
+      fetchinginfo: false,
       isLoaded: false,
       showGamefile: false,
+      loading: false,
+      value: null,
       showgamefileAlert: false,
       error: false,
-      search: "",
+      search: null,
+      didWin: false,
+      progressgamefile: null,
       gamefile: "",
       File_list: [],
       fileinfo: null,
@@ -102,7 +133,23 @@ export default {
   computed: {
     filteredItems() {
       return this.File_list.filter((item) => {
-        return item.oppName.toLowerCase().includes(this.search.toLowerCase());
+        return (
+          !this.search ||
+          item.oppName.toLowerCase().includes(this.search.toLowerCase())
+        );
+      });
+    },
+    filteredWins() {
+      return this.filteredStage.filter((item) => {
+        return item.win === true;
+      });
+    },
+    filteredStage() {
+      return this.filteredItems.filter((item) => {
+        return (
+          !this.search1 ||
+          item.Stage.toLowerCase().includes(this.search1.toLowerCase())
+        );
       });
     },
   },
@@ -110,22 +157,33 @@ export default {
     this.getFileList();
   },
   methods: {
+    Didwin_() {
+      if (this.didWin) return this.filteredWins;
+      else return this.filteredStage;
+    },
+    clearinput() {
+      this.search = "";
+    },
     logthis(logged) {
       console.log(logged);
     },
     async showAlert(gamefile) {
+      this.fetchinginfo = true;
       electron.ipcRenderer.send("message-from-page", {
         message: "checkThisFile",
         data: gamefile,
       });
+
       await electron.ipcRenderer.on("message-from-worker", (event, args) => {
         if (args.command == "checkThisFileResult") {
           this.fileinfo = args.payload;
           this.showgamefileAlert = true;
+          this.fetchinginfo = false;
         }
       });
     },
     async getFileList() {
+      this.loading = true;
       electron.ipcRenderer.send("message-from-page", {
         message: "getFileArray",
         data: null,
@@ -133,9 +191,18 @@ export default {
       electron.ipcRenderer.on("message-from-worker", (event, args) => {
         if (args.command == "getFileArrayErr") this.error = true;
       });
+      electron.ipcRenderer.on("message-from-worker", (event, args) => {
+        if (args.command == "fileArrayProgress") {
+          this.value = args.payload.value;
+          this.progressgamefile = args.payload.gamefile;
+        }
+      });
 
       await electron.ipcRenderer.on("message-from-worker", (event, args) => {
-        if (args.command == "getFileArrayResult") this.File_list = args.payload;
+        if (args.command == "getFileArrayResult") {
+          this.File_list = args.payload;
+          this.loading = false;
+        }
       });
 
       this.isLoaded = true;

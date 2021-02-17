@@ -69,7 +69,7 @@ export default {
       value: null,
       currentGamefile: null,
       CurrentAch: null,
-      selectedItem: null,
+      selectedItem: "General",
       achs: [],
       catas: [
         { text: "Misc Achievements", value: "Misc" },
@@ -101,6 +101,16 @@ export default {
         { text: "Roy", value: "Roy" },
       ],
     };
+  },
+  mounted() {
+    ipcRenderer.send("message-from-page", {
+      message: "getAch",
+      data: "General",
+    });
+    ipcRenderer.on("message-from-worker", (event, args) => {
+      console.log(args);
+      if (args.command == "getAchResult") this.achs = args.payload;
+    });
   },
   methods: {
     async onChange() {

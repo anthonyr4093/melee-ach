@@ -1,9 +1,10 @@
 import path from "path";
+import { on } from "process";
 import { electron } from "webpack";
-import BrowserWinHandler from "./BrowserWinHandler";
-const isDev = process.env.NODE_ENV === "development";
 import { app, ipcMain } from "electron";
+import BrowserWinHandler from "./BrowserWinHandler";
 import WorkWindow from "./WorkerWinHandler";
+const isDev = process.env.NODE_ENV === "development";
 require("./WorkerWinHandler");
 const INDEX_PATH = path.join(__dirname, "..", "renderer", "index.html");
 const DEV_SERVER_URL = process.env.DEV_SERVER_URL; // eslint-disable-line prefer-destructuring
@@ -26,6 +27,9 @@ function sendWindowMessage(targetWindow, message, payload) {
   }
   targetWindow.webContents.send(message, payload);
 }
+app.whenReady(() => {
+  app.allowRendererProcessReuse = true;
+});
 app.on("ready", async () => {
   ipcMain.on("message-from-worker", (event, arg) => {
     sendWindowMessage(winHandler.browserWindow, "message-from-worker", arg);

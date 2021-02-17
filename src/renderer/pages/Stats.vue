@@ -105,7 +105,7 @@
           <v-card v-if="result" :width="cardwidth" :height="cardheight">
             <v-card-title class="justify-center"> Worst Matchup </v-card-title>
             <v-card-subtitle class="text-center">
-              {{ result.worstmu }} Lost {{ result.worstmunum }} Times to you
+              {{ result.worstmu }} Won {{ result.worstmunum }} Games over you
             </v-card-subtitle>
             <v-card-text>
               <v-img

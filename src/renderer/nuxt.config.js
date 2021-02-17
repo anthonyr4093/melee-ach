@@ -30,4 +30,12 @@ module.exports = {
       },
     },
   },
+  // build: {
+  //   extend(config, { isDev, isClient }) {
+  //     config.module.rules.push({
+  //       test: /\.html$/i,
+  //       loader: "html-loader",
+  //     });
+  //   },
+  // },
 };

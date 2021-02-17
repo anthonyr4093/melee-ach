@@ -9,6 +9,7 @@ const slippi_js_1 = tslib_1.__importDefault(require("@slippi/slippi-js"));
 const achievements_json_1 = tslib_1.__importDefault(require("./achievements.json"));
 const keys_json_1 = tslib_1.__importDefault(require("./keys.json"));
 const info_json_1 = tslib_1.__importDefault(require("./info.json"));
+console.log("i cant spleel", electron_1.default);
 const achievements = achievements_json_1.default;
 let message2UI = (command, payload) => {
     electron_1.default.ipcRenderer.send("message-from-worker", {
@@ -412,7 +413,8 @@ function PeachParse(gamefile, Uname) {
         if (frames[n].items != undefined) {
             for (let i = 0; i in frames[n].items; i++) {
                 if (frames[n].items[i].spawnId != UniqueItemId) {
-                    UniqueItemId = frames[n].items[i].spawnId;
+                    if (frames[n].items[i].typeId == 100)
+                        UniqueItemId = frames[n].items[i].spawnId;
                     if (frames[n].items[i].owner === name(gamefile, Uname) &&
                         frames[n].items[i].typeId === 99 &&
                         frames[n].frame[i].turnipFace === 7)
@@ -514,8 +516,9 @@ function AddToStore(storename, addint) {
 }
 function CheckFileAch(gamefile, uname) {
     if (store.get(gamefile, false) === false) {
-        let temp = checkSlippiFiles(gamefile, uname);
-        datastore.set("stocks", datastore.get("stocks", 0) + temp.stock);
+        let game = new slippi_js_1.default(path_1.join(replayDir(), gamefile));
+        datastore.set("stocks", datastore.get("stocks", 0) +
+            game.getStats().overall[name(gamefile, store.get("username"))].killCount);
         switch (charintGet(gamefile, uname)) {
             case 0:
                 let Falcon = FalconParse(gamefile, uname);
@@ -649,8 +652,7 @@ function CheckFileAch(gamefile, uname) {
             case 26:
                 break;
         }
-        if (temp.comp)
-            AddToStore("Game_Total", 1);
+        AddToStore("Game_Total", 1);
     }
 }
 function characterConditionalParse(gamefile, uname) {
@@ -1000,6 +1002,8 @@ electron_1.default.ipcRenderer.on("message-from-page", async (event, args) => {
         const rep = replayDir();
         let slippiFilesToArray = [];
         if (fs_1.default.existsSync(rep)) {
+            let stagecount = 0;
+            let charcount = 0;
             const files = fs_1.default.readdirSync(rep, "utf-8");
             files.forEach((file) => {
                 if (path_1.extname(file) === ".slp")
@@ -1012,7 +1016,15 @@ electron_1.default.ipcRenderer.on("message-from-page", async (event, args) => {
                     if (store.get(gamefile, false) === false &&
                         name(gamefile, uname) !== -1) {
                         try {
+                            let game = new slippi_js_1.default(path_1.join(replayDir(), slippiFilesToArray[i]));
                             CheckFileAch(gamefile, store.get("username"));
+                            if (info_json_1.default.CharacterNames[game.getSettings().players[name(slippiFilesToArray[i], store.get("username"))].characterId]) {
+                                datastore.set("Char." +
+                                    info_json_1.default.CharacterNames[game.getSettings().players[name(slippiFilesToArray[i], store.get("username"))].characterId], true);
+                            }
+                            if (info_json_1.default.StageNames[game.getSettings().stageId]) {
+                                datastore.set("stage." + info_json_1.default.StageNames[game.getSettings().stageId], true);
+                            }
                             message2UI("checkAchLoading", {
                                 value: getPercentage(slippiFilesToArray, i),
                                 Gamefile: gamefile,
@@ -1083,6 +1095,24 @@ electron_1.default.ipcRenderer.on("message-from-page", async (event, args) => {
                 AchievementUnlock("GannonS", GannonSArray, datastore.get("Gannon_Spike", 0));
                 AchievementUnlock("DRMPills", DRMPillsArray, datastore.get("DRMP", 0));
                 AchievementUnlock("DRMFair", DRMFairArray, datastore.get("DRMF", 0));
+                for (let i = 0; i in info_json_1.default.CharacterNames; i++) {
+                    if (statstore.get(info_json_1.default.CharacterNames[i], false)) {
+                        charcount += 1;
+                    }
+                }
+                for (let i = 0; i in info_json_1.default.StageNames; i++) {
+                    if (statstore.get(info_json_1.default.StageNames[i], false)) {
+                        stagecount += 1;
+                    }
+                }
+                if (charcount > info_json_1.default.CharacterNames.length) {
+                    achstore.set("Specialist", true);
+                }
+                if (stagecount > 29) {
+                    achstore.set("AATW", true);
+                }
+                console.log("stagecount: " + stagecount);
+                console.log("charcount: " + charcount);
                 message2UI("checkAchResult", true);
             }
             catch (err) {
@@ -1160,6 +1190,7 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                         slippiFilesToArray.push(file);
                 });
                 for (let i = 0; i in slippiFilesToArray; i++) {
+                    let stagename;
                     if (name(slippiFilesToArray[i], store.get("username")) !== -1 &&
                         name(slippiFilesToArray[i], store.get("username")) !== undefined) {
                         const game = new slippi_js_1.default(path_1.join(rep, slippiFilesToArray[i]));
@@ -1171,14 +1202,25 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                             opponentname = players[1].names.netplay;
                         else
                             opponentname = players[0].names.netplay;
+                        if (info_json_1.default.StageNames[game.getSettings().stageId] !==
+                            undefined) {
+                            stagename = info_json_1.default.StageNames[game.getSettings().stageId];
+                        }
+                        else {
+                            stagename = "Unknown";
+                        }
                         ReturnArray.push({
                             FileName: slippiFilesToArray[i],
                             names,
-                            Stage: info_json_1.default.StageNames[game.getSettings().stageId],
+                            Stage: stagename,
                             oppName: opponentname,
                             win: didIWinStore(slippiFilesToArray[i]),
                         });
                     }
+                    message2UI("fileArrayProgress", {
+                        value: getPercentage(slippiFilesToArray, i),
+                        gamefile: slippiFilesToArray[i],
+                    });
                 }
                 message2UI("getFileArrayResult", ReturnArray);
             }
@@ -1225,6 +1267,10 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
             let beststagenum = 0;
             let worststage = "";
             let worststagenum = 0;
+            let murder = statstore.get("TotalStocks", 0);
+            let damage = statstore.get("TotalDamage", 0);
+            console.log(damage);
+            console.log(murder);
             files.forEach((file) => {
                 if (path_1.extname(file) === ".slp")
                     slippiFilesToArray.push(file);
@@ -1234,63 +1280,71 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                     let game = new slippi_js_1.default(path_1.join(rep, slippiFilesToArray[i]));
                     if (!store.get(path_1.parse(slippiFilesToArray[i]).name + ".Stats", false)) {
                         store.set(path_1.parse(slippiFilesToArray[i]).name + ".Stats", true);
-                        if (name(slippiFilesToArray[i], store.get("username")) != -1) {
-                            console.log(slippiFilesToArray[i]);
-                            let parse1 = checkSlippiFiles(slippiFilesToArray[i], store.get("username"));
-                            let opponentname = "";
-                            if (name(slippiFilesToArray[i], store.get("username")) ===
-                                0) {
-                                opponentname = game.getMetadata().players[1].names.netplay;
+                        if (game.getSettings().stageId !== 294) {
+                            if (name(slippiFilesToArray[i], store.get("username")) !=
+                                -1) {
+                                console.log(slippiFilesToArray[i]);
+                                let opponentname = "";
+                                if (name(slippiFilesToArray[i], store.get("username")) === 0) {
+                                    opponentname = game.getMetadata().players[1].names.netplay;
+                                }
+                                else {
+                                    opponentname = game.getMetadata().players[0].names.netplay;
+                                }
+                                if (!opparray.includes(opponentname)) {
+                                    opparray.push(opponentname);
+                                }
+                                AddToStoreStats("Game_Total", 1);
+                                damage += Math.ceil(game.getStats().overall[name(slippiFilesToArray[i], store.get("username"))].totalDamage);
+                                murder += game.getStats().overall[name(slippiFilesToArray[i], store.get("username"))].killCount;
+                                console.log(damage);
+                                console.log(murder);
+                                AddToStoreStats("TotalDeaths", game.getStats().overall[nameflip(name(slippiFilesToArray[i], store.get("username")))].killCount);
+                                if (game.getGameEnd() !== null) {
+                                    if (game.getGameEnd().lrasInitiatorIndex ===
+                                        name(slippiFilesToArray[i], store.get("username"))) {
+                                        AddToStoreStats("ILRAS", 1);
+                                    }
+                                    else if (game.getGameEnd().lrasInitiatorIndex ===
+                                        nameflip(name(slippiFilesToArray[i], store.get("username")))) {
+                                        AddToStoreStats("OppLRAS", 1);
+                                    }
+                                }
+                                if (didiwin(slippiFilesToArray[i])) {
+                                    AddToStoreStats("TotalWins", 1);
+                                    AddToStoreStats(info_json_1.default.CharacterNames[game.getSettings().players[nameflip(name(slippiFilesToArray[i], store.get("username")))].characterId] + ".wins", 1);
+                                    AddToStoreStats(info_json_1.default.StageNames[game.getSettings().stageId] + ".wins", 1);
+                                }
+                                else {
+                                    AddToStoreStats(info_json_1.default.CharacterNames[game.getSettings().players[nameflip(name(slippiFilesToArray[i], store.get("username")))].characterId] + ".loss", 1);
+                                    AddToStoreStats(info_json_1.default.StageNames[game.getSettings().stageId] + ".loss", 1);
+                                }
+                                AddToStoreStats(info_json_1.default.StageNames[game.getSettings().stageId] + ".played", 1);
+                                if (didiwin(slippiFilesToArray[i], store.get("username"))) {
+                                    AddToStoreStats(opponentname + ".win", 1);
+                                }
+                                else {
+                                    AddToStoreStats(opponentname + ".loss", 1);
+                                }
+                                AddToStoreStats(info_json_1.default.CharacterNames[charintGet(slippiFilesToArray[i], store.get("username"))] + ".played", 1);
                             }
-                            else {
-                                opponentname = game.getMetadata().players[0].names.netplay;
-                            }
-                            if (!opparray.includes(opponentname)) {
-                                opparray.push(opponentname);
-                            }
-                            AddToStoreStats("Game_Total", 1);
-                            AddToStoreStats("TotalDamage", parse1.dama);
-                            AddToStoreStats("TotalStocks", parse1.stock);
-                            AddToStoreStats("TotalDeaths", game.getStats().overall[nameflip(name(slippiFilesToArray[i], store.get("username")))].killCount);
-                            if (game.getGameEnd().lrasInitiatorIndex ===
-                                name(slippiFilesToArray[i], store.get("username"))) {
-                                AddToStoreStats("ILRAS", 1);
-                            }
-                            else if (game.getGameEnd().lrasInitiatorIndex ===
-                                nameflip(name(slippiFilesToArray[i], store.get("username")))) {
-                                AddToStoreStats("OppLRAS", 1);
-                            }
-                            if (didiwin(slippiFilesToArray[i])) {
-                                AddToStoreStats("TotalWins", 1);
-                                AddToStoreStats(info_json_1.default.CharacterNames[game.getSettings().players[nameflip(name(slippiFilesToArray[i], store.get("username")))].characterId] + ".wins", 1);
-                                AddToStoreStats(info_json_1.default.StageNames[game.getSettings().stageId] + ".wins", 1);
-                            }
-                            else {
-                                AddToStoreStats(info_json_1.default.CharacterNames[game.getSettings().players[nameflip(name(slippiFilesToArray[i], store.get("username")))].characterId] + ".loss", 1);
-                                AddToStoreStats(info_json_1.default.StageNames[game.getSettings().stageId] + ".loss", 1);
-                            }
-                            AddToStoreStats(info_json_1.default.StageNames[game.getSettings().stageId] + ".played", 1);
-                            if (!didiwin(slippiFilesToArray[i], store.get("username"))) {
-                                AddToStoreStats(opponentname + ".win", 1);
-                            }
-                            else {
-                                AddToStoreStats(opponentname + ".loss", 1);
-                            }
-                            AddToStoreStats(info_json_1.default.CharacterNames[charintGet(slippiFilesToArray[i], store.get("username"))] + ".played", 1);
                         }
+                        console.log(statstore.get("TotalStocks"));
+                        message2UI("StatsLoadingBar", {
+                            task: "Stealing Stats From Files, Stock Count: " +
+                                statstore.get("TotalStocks"),
+                            progress: Math.ceil(100 * (i / slippiFilesToArray.length)),
+                            total: slippiFilesToArray.length,
+                        });
                     }
-                    console.log(i);
-                    message2UI("StatsLoadingBar", {
-                        task: "Stealing Stats From Files",
-                        progress: Math.ceil(100 * (i / slippiFilesToArray.length)),
-                        total: slippiFilesToArray.length,
-                    });
                 }
                 catch (err) {
                     console.log(err);
                     console.log(slippiFilesToArray[i]);
                     continue;
                 }
+                statstore.set("TotalStocks", murder);
+                statstore.set("TotalDamage", damage);
             }
             for (let i = 0; i in info_json_1.default.StageNames; i++) {
                 if (statstore.get(info_json_1.default.StageNames[i] + ".played", 0) > largest) {

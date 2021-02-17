@@ -10,7 +10,9 @@
   </v-container>
 </template>
 //todo: add colorful image
-<script></script>
+<script>
+console.log(__resources);
+</script>
 
 <style>
 .e-nuxt-container {
