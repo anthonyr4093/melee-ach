@@ -16,8 +16,6 @@ import achievementsJson from "./achievements.json";
 import achievementKeys from "./keys.json";
 import info from "./info.json";
 
-console.log("i cant spleel", electron);
-
 type Achievements = Record<
   string,
   {
@@ -1793,6 +1791,9 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
         files.forEach((file) => {
           if (extname(file) === ".slp") slippiFilesToArray.push(file);
         });
+        if (slippiFilesToArray == null) {
+          message2UI("getFileArrayResult", null);
+        }
 
         for (let i = 0; i in slippiFilesToArray; i++) {
           let stagename;

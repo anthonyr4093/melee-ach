@@ -249,7 +249,7 @@
     "unlocked": false
   },
   "RoySideSmash3": {
-    "name": null,
+    "name": "A Skilled Roy Can Beat Anyone?",
     "desc": "Kill With Roys Side Smash 100 Times",
     "unlocked": false
   },
@@ -539,12 +539,12 @@
     "unlocked": false
   },
   "YoshiDownSmash1": {
-    "name": null,
+    "name": "Yoshi, Yoshi",
     "desc": "Kill With Yoshi's Downsmash",
     "unlocked": false
   },
   "YoshiDownSmash2": {
-    "name": null,
+    "name": "TriHard",
     "desc": "Kill With Yoshi's Downsmash 10 Times",
     "unlocked": false
   },
@@ -584,32 +584,32 @@
     "unlocked": false
   },
   "MewtwoSB1": {
-    "name": null,
+    "name": "Starting Your Pokemon Adventure",
     "desc": "Shoot a Shadow Ball",
     "unlocked": false
   },
   "MewtwoSB2": {
-    "name": null,
+    "name": "Leveling Up",
     "desc": "Shoot 10 Shadow Balls",
     "unlocked": false
   },
   "MewtwoSB3": {
-    "name": null,
+    "name": "The Perfect Pokemon",
     "desc": "Shoot 100 Shadow Balls",
     "unlocked": false
   },
   "MewtwoFair1": {
-    "name": null,
+    "name": "TO THE MOON YOU GO",
     "desc": "Kill With Mewtwo Fair",
     "unlocked": false
   },
   "MewtwoFair2": {
-    "name": null,
+    "name": "Evolving",
     "desc": "Kill With Mewtwo Fair 10 Times",
     "unlocked": false
   },
   "MewtwoFair3": {
-    "name": null,
+    "name": "The Ultimate Pokemon",
     "desc": "Kill With Mewtwo Fair 100 Times",
     "unlocked": false
   },
@@ -697,7 +697,6 @@
   "ZeldaFlame3": {
     "name": "Din's Rage",
     "desc": "Spawn Din's Fire 10000 Times",
-    "unlocked": false,
     "unlocked": false
   },
   "YinkArrow1": {
@@ -716,17 +715,17 @@
     "unlocked": false
   },
   "YinkDownSmash1": {
-    "name": null,
+    "name": "Yung Hero",
     "desc": "Kill With Young Link Down Smash",
     "unlocked": false
   },
   "YinkDownSmash2": {
-    "name": null,
+    "name": "",
     "desc": "Kill With Young Link Down Smash 10 Times",
     "unlocked": false
   },
   "YinkDownSmash3": {
-    "name": null,
+    "name": "The Hero Of Time",
     "desc": "Kill With Young Link Down Smash 100 Times",
     "unlocked": false
   },
@@ -811,7 +810,7 @@
     "unlocked": false
   },
   "GNWKey2": {
-    "name": null,
+    "name": " The Key To Victory",
     "desc": "Kill with Game And Watch Dair 10 Times",
     "unlocked": false
   },

@@ -9,7 +9,6 @@ const slippi_js_1 = tslib_1.__importDefault(require("@slippi/slippi-js"));
 const achievements_json_1 = tslib_1.__importDefault(require("./achievements.json"));
 const keys_json_1 = tslib_1.__importDefault(require("./keys.json"));
 const info_json_1 = tslib_1.__importDefault(require("./info.json"));
-console.log("i cant spleel", electron_1.default);
 const achievements = achievements_json_1.default;
 let message2UI = (command, payload) => {
     electron_1.default.ipcRenderer.send("message-from-worker", {
@@ -1189,6 +1188,9 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                     if (path_1.extname(file) === ".slp")
                         slippiFilesToArray.push(file);
                 });
+                if (slippiFilesToArray == null) {
+                    message2UI("getFileArrayResult", null);
+                }
                 for (let i = 0; i in slippiFilesToArray; i++) {
                     let stagename;
                     if (name(slippiFilesToArray[i], store.get("username")) !== -1 &&

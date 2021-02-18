@@ -2,9 +2,13 @@
   <div>
     <div>
       <div v-if="loading">
-        Checking This File: {{ currentGamefile }}
-        <v-progress-linear :value="value" :active="loading" height="20">
-          {{ value }} / 100%
+        <v-progress-linear
+          v-if="loading"
+          :active="loading"
+          :value="value"
+          height="20"
+        >
+          {{ progressgamefile }}
         </v-progress-linear>
       </div>
 
