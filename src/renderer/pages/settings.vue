@@ -24,6 +24,14 @@
         @click:prepend="opendir"
       >
       </v-text-field>
+      <v-switch v-model="autoProcess" label="Auto Process Data"></v-switch>
+      <v-switch
+        v-model="ShineSound"
+        append-icon="mdi-play"
+        label="Play Shine Sound When Done"
+        @click:append="playshine"
+      >
+      </v-switch>
       <v-btn
         :loading="loading"
         :color="btncolor"
@@ -62,6 +70,9 @@ electron.ipcRenderer.on("pingReplay", (event, args) => {
 export default {
   data() {
     return {
+      ShineSound: null,
+      autoProcess: null,
+      shineaudio: null,
       file: "",
       nuke_icon: "mdi-trash-can-outline",
       dialog: false,
@@ -76,8 +87,15 @@ export default {
       btntext: "Save",
     };
   },
-  beforeMount() {},
+  beforeMount() {
+    this.autoProcess = store.get("AutoProcess", true);
+    this.ShineSound = store.get("ShineSound", false);
+    this.shineaudio = new Audio(__resources + "/sound/shine.mp3");
+  },
   methods: {
+    playshine() {
+      this.shineaudio.play();
+    },
     defaultbtn() {
       this.btntext = "Save";
       this.Sicon = "mdi-content-save-outline";
@@ -97,6 +115,8 @@ export default {
     },
     submit() {
       this.loading = true;
+      store.set("AutoProcess", this.autoProcess);
+      store.set("ShineSound", this.ShineSound);
       const userdata = {
         username: this.Username,
         Replay_Directory: this.Replay_Directory,

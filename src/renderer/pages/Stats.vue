@@ -18,6 +18,19 @@
     </v-carousel> -->
     <div v-if="firstTime & !loaded">
       <h1>Melee Total Stats.</h1>
+      <div v-if="!SettingsValid">
+        <v-alert type="error" prominent>
+          <v-row align="center">
+            <v-col class="grow">
+              Please make sure your settings are valid before you process your
+              stats
+            </v-col>
+            <v-col class="shrink">
+              <v-btn outlined to="settings">Settings</v-btn>
+            </v-col>
+          </v-row>
+        </v-alert>
+      </div>
       <p>
         Hiya! I can see this is the first time you are opening this stats tab.
         This takes the data from slippi files and shows you various fun stats
@@ -26,7 +39,19 @@
         do the initial stat check, please click the button down below, after
         that the file checks will all be automatic
       </p>
-      <v-btn @click="GetStats()">Process Files</v-btn>
+      <v-btn v-if="SettingsValid" @click="GetStats()">Process Stats</v-btn>
+      <v-switch v-model="showExample" label="Show Example Data"> </v-switch>
+      <v-img v-if="showExample" :src="examplePath"></v-img>
+    </div>
+    <div v-else-if="!firstTime & !loaded & !AutoProcess">
+      <v-alert>
+        <v-col class="grow">
+          Hey, click this button to process data. (Or turn on Auto Process)
+        </v-col>
+        <v-col class="shrink">
+          <v-btn @click="GetStats()">Process Data</v-btn>
+        </v-col>
+      </v-alert>
     </div>
     <div v-else>
       <v-flex>
@@ -202,13 +227,16 @@ import { ipcRenderer } from "electron";
 
 const statsstoredata = { name: "Stats" };
 const store = new Store(statsstoredata);
+const genstore = new Store();
 
 export default {
   data() {
     return {
+      showExample: false,
       result: null,
       loaded: false,
       loading: false,
+      shineaudio: null,
       value: 0,
       dirname: __dirname,
       cardwidth: 500,
@@ -218,22 +246,38 @@ export default {
     };
   },
   computed: {
+    examplePath() {
+      return __resources + "/exampleData.PNG";
+    },
     firstTime() {
-      return store.get("firstTimeStats", true);
+      return genstore.get("firstTimeStats", true);
+    },
+    AutoProcess() {
+      return genstore.get("AutoProcess");
+    },
+    SettingsValid() {
+      if (
+        genstore.get("username", null) == null ||
+        genstore.get("Replay_Directory", null) == null
+      )
+        return false;
+      else return true;
     },
   },
   beforeMount() {
-    if (this.firstTime === false) this.GetStats();
+    if (!this.firstTime && this.AutoProcess) this.GetStats();
+    this.shineaudio = new Audio(__resources + "/sound/shine.mp3");
   },
   methods: {
     async GetStats() {
-      store.set("firstTimeStats", false);
+      genstore.set("firstTimeStats", false);
       ipcRenderer.send("message-from-page", {
         message: "getGeneralStats",
         data: null,
       });
       ipcRenderer.on("message-from-worker", (event, args) => {
-        if (args.command == "StatsLoadingBar") {
+        if (args.command === "StatsLoadingBar") {
+          ipcRenderer.send("ChangeProgressBar", args.payload.progress / 100);
           this.loading = true;
           this.total = args.payload.total;
           this.value = args.payload.progress;
@@ -241,10 +285,17 @@ export default {
         }
       });
       ipcRenderer.on("message-from-worker", (event, args) => {
-        if (args.command == "getGeneralStatsResult") {
+        if (args.command === "getGeneralStatsResult") {
+          if (
+            genstore.get("ShineSound", false) &&
+            this.shineaudio.played.length === 0
+          )
+            this.shineaudio.play();
+
           this.result = args.payload;
           this.loaded = true;
           this.loading = false;
+          ipcRenderer.send("HideProgressBar");
         }
       });
     },

@@ -1,17 +1,43 @@
 <template>
   <div>
-    <div>
-      <div v-if="loading">
-        <v-progress-linear
-          v-if="loading"
-          :active="loading"
-          :value="value"
-          height="20"
-        >
-          {{ progressgamefile }}
-        </v-progress-linear>
-      </div>
+    <h1>Melee Achievements</h1>
 
+    <div v-if="loading">
+      <v-progress-linear
+        v-if="loading"
+        :active="loading"
+        :value="value"
+        height="20"
+      >
+        {{ currentGamefile }}
+      </v-progress-linear>
+    </div>
+    <div v-if="firstTime">
+      <v-alert v-if="!SettingsValid" type="error" prominent>
+        <v-row align="center">
+          <v-col class="grow">
+            Please make sure your settings are valid before you process your
+            Achievmenets
+          </v-col>
+          <v-col class="shrink">
+            <v-btn outlined to="settings">Settings</v-btn>
+          </v-col>
+        </v-row>
+      </v-alert>
+      <p>
+        Hiya! Welcome to Melee Achievemnts! We have noticed this ("might") be
+        your first time on this tab, so here is an explanation to this. This tab
+        takes your game data for all of your games and computes stats for them
+        and gives you Achievements. Try and aim for all achievemnts (Might Be
+        Impossible) But above all else, remember to have fun! Press the button
+        below to start your initial dump of your stats ("please stay on this
+        page") And after this initial dump, the achievement checking should go
+        way faster. PS - Please give the dumper time to process all of the data,
+        it might take a while,
+      </p>
+      <v-btn v-if="SettingsValid" @click="CheckAch()">Dump Achievemnets</v-btn>
+    </div>
+    <div v-else>
       <v-select
         v-model="selectedItem"
         append-icon="mdi-trophy"
@@ -22,36 +48,40 @@
         @change="onChange()"
       >
       </v-select>
-    </div>
-    <div>
-      <v-card>
-        <v-card-title>Melee Achievements</v-card-title>
-        <v-list>
-          <v-list-item v-for="{ unlocked, name, desc } of achs" :key="name">
-            <v-list-item-icon>
-              <v-icon :color="unlocked ? 'white' : 'grey'">
-                {{ "mdi-lock" + (unlocked ? "-open-variant" : "") }}</v-icon
-              >
-            </v-list-item-icon>
+      <div>
+        <v-card>
+          <v-card-title>Melee Achievements</v-card-title>
+          <v-list>
+            <v-list-item v-for="{ unlocked, name, desc } of achs" :key="name">
+              <v-list-item-icon>
+                <v-icon :color="unlocked ? 'white' : 'grey'">
+                  {{ "mdi-lock" + (unlocked ? "-open-variant" : "") }}</v-icon
+                >
+              </v-list-item-icon>
 
-            <v-list-item-content>
-              <v-list-item-title>
-                {{ name }}
-              </v-list-item-title>
-              <v-list-item-subtitle> {{ desc }}</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-card>
-      <v-btn :loading="loading" class="mt-2" @click="CheckAch()"
-        >Check Achievements</v-btn
-      >
-      <v-snackbar v-model="snackbarE" type="error"
-        >The Achievement Parser Failed. Double Check Settings</v-snackbar
-      >
-      <v-snackbar v-model="snackbarS" type="Success">
-        <span>The Achievement Parser Succeeded.</span>
-      </v-snackbar>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ name }}
+                </v-list-item-title>
+                <v-list-item-subtitle> {{ desc }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+        <v-btn
+          v-if="!AutoProcess"
+          :loading="loading"
+          class="mt-2"
+          @click="CheckAch()"
+          >Check Achievements</v-btn
+        >
+        <v-snackbar v-model="snackbarE" type="error"
+          >The Achievement Parser Failed. Double Check Settings</v-snackbar
+        >
+        <v-snackbar v-model="snackbarS" type="Success">
+          <span>The Achievement Parser Succeeded.</span>
+        </v-snackbar>
+      </div>
     </div>
   </div>
 </template>
@@ -59,21 +89,23 @@
 <script>
 import { ipcRenderer } from "electron";
 // TODO: Alert user when bad file is parsed.
-const electron = require("electron");
 const Store = require("electron-store");
 const store = new Store();
+
 export default {
   data() {
     return {
       repfile: store.get("Replay_Directory", null),
       snackbarE: false,
       snackbarS: false,
+      firstTime: store.get("firstTimeAch", true),
       error: "The Achievement Parser Failed. Double Check Settings",
       loading: false,
       value: null,
       currentGamefile: null,
       CurrentAch: null,
       selectedItem: "General",
+      shineaudio: null,
       achs: [],
       catas: [
         { text: "Misc Achievements", value: "Misc" },
@@ -106,6 +138,23 @@ export default {
       ],
     };
   },
+  computed: {
+    AutoProcess() {
+      return store.get("AutoProcess");
+    },
+    SettingsValid() {
+      if (
+        store.get("username", null) == null ||
+        store.get("Replay_Directory", null) == null
+      )
+        return false;
+      else return true;
+    },
+  },
+  beforeMount() {
+    if (!this.firstTime && this.AutoProcess) this.CheckAch();
+    this.shineaudio = new Audio(__resources + "/sound/shine.mp3");
+  },
   mounted() {
     ipcRenderer.send("message-from-page", {
       message: "getAch",
@@ -113,7 +162,7 @@ export default {
     });
     ipcRenderer.on("message-from-worker", (event, args) => {
       console.log(args);
-      if (args.command == "getAchResult") this.achs = args.payload;
+      if (args.command === "getAchResult") this.achs = args.payload;
     });
   },
   methods: {
@@ -124,7 +173,7 @@ export default {
       });
       await ipcRenderer.on("message-from-worker", (event, args) => {
         console.log(args);
-        if (args.command == "getAchResult") this.achs = args.payload;
+        if (args.command === "getAchResult") this.achs = args.payload;
       });
     },
     CheckAch() {
@@ -134,23 +183,36 @@ export default {
       });
       this.loading = true;
       ipcRenderer.on("message-from-worker", (event, args) => {
-        if (args.command == "checkAchLoading") {
-          console.log(args);
+        if (args.command === "checkAchLoading") {
+          ipcRenderer.send("ChangeProgressBar", args.payload.value / 100);
           this.value = args.payload.value;
           this.currentGamefile = args.payload.Gamefile;
         }
       });
       ipcRenderer.on("message-from-worker", (event, args) => {
-        if (args.command == "checkAchResult") {
+        if (args.command === "checkAchResult") {
+          this.firstTime = false;
+          store.set("firstTimeAch", false);
+          if (
+            store.get("ShineAudio", false) &&
+            this.shineaudio.played.length === 0
+          )
+            this.shineaudio.play();
+
           if (args.payload === false) {
             console.log("false");
             console.log(store.get("Replay_Directory"));
             this.loading = false;
             this.snackbarE = true;
+            setTimeout(() => {
+              ipcRenderer.send("HideProgressBar");
+            }, 5000);
           } else {
-            console.log("result true i guess");
             this.loading = false;
             this.snackbarS = true;
+            setTimeout(() => {
+              ipcRenderer.send("HideProgressBar");
+            }, 5000);
           }
         }
       });

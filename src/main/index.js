@@ -1,6 +1,7 @@
 /* globals INCLUDE_RESOURCES_PATH */
 import { app, ipcMain, dialog, remote } from "electron";
 import username from "username";
+import winHandler from "./mainWindow";
 
 /**
  * Set `__resources` path to resources files in renderer process
@@ -19,7 +20,7 @@ app.on("window-all-closed", function () {
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== "darwin") app.quit();
 });
-console.log(username);
+
 const options = {
   title: "Open Slippi Directory",
   properties: ["openDirectory"],
@@ -31,3 +32,10 @@ ipcMain.handle("OpenDialog", (event, args) => {
 // Load here all startup windows
 require("./mainWindow");
 require("./WorkerWinHandler");
+ipcMain.on("ChangeProgressBar", (event, args) => {
+  console.log(args);
+  winHandler.browserWindow.setProgressBar(args);
+});
+ipcMain.on("HideProgressBar", (event) => {
+  winHandler.browserWindow.setProgressBar(-1);
+});

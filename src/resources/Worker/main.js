@@ -514,7 +514,7 @@ function AddToStore(storename, addint) {
     datastore.set(storename, datastore.get(storename, 0) + addint);
 }
 function CheckFileAch(gamefile, uname) {
-    if (store.get(gamefile, false) === false) {
+    if (store.get("file." + gamefile, false) === false) {
         let game = new slippi_js_1.default(path_1.join(replayDir(), gamefile));
         datastore.set("stocks", datastore.get("stocks", 0) +
             game.getStats().overall[name(gamefile, store.get("username"))].killCount);
@@ -1012,7 +1012,7 @@ electron_1.default.ipcRenderer.on("message-from-page", async (event, args) => {
             try {
                 for (let i = 0; i in slippiFilesToArray; i++) {
                     let gamefile = slippiFilesToArray[i];
-                    if (store.get(gamefile, false) === false &&
+                    if (store.get("file." + gamefile, false) === false &&
                         name(gamefile, uname) !== -1) {
                         try {
                             let game = new slippi_js_1.default(path_1.join(replayDir(), slippiFilesToArray[i]));
@@ -1034,7 +1034,7 @@ electron_1.default.ipcRenderer.on("message-from-page", async (event, args) => {
                             console.log(err);
                         }
                         event.sender.send("clearCache");
-                        store.set(gamefile, true);
+                        store.set("file." + gamefile, true);
                     }
                     else {
                         continue;
@@ -1141,12 +1141,12 @@ function didiwin(gamefile) {
     }
 }
 function didIWinStore(gamefile) {
-    if (!store.has(path_1.parse(gamefile).name + ".win")) {
-        store.set(path_1.parse(gamefile).name + ".win", didiwin(gamefile));
-        return store.get(path_1.parse(gamefile).name + ".win");
+    if (!store.has("file." + path_1.parse(gamefile).name + ".win")) {
+        store.set("file." + path_1.parse(gamefile).name + ".win", didiwin(gamefile));
+        return store.get("file." + path_1.parse(gamefile).name + ".win");
     }
     else {
-        return store.get(path_1.parse(gamefile).name + ".win");
+        return store.get("file." + path_1.parse(gamefile).name + ".win");
     }
 }
 electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
@@ -1198,8 +1198,10 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                         const game = new slippi_js_1.default(path_1.join(rep, slippiFilesToArray[i]));
                         const { players } = game.getMetadata();
                         const names = [];
-                        for (let i = 0; i in players; i++)
+                        let chararray = [];
+                        for (let i = 0; i in players; i++) {
                             names.push(players[i].names.netplay);
+                        }
                         if (name(slippiFilesToArray[i], store.get("username")) === 0)
                             opponentname = players[1].names.netplay;
                         else
@@ -1280,8 +1282,8 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
             for (let i = 0; i in slippiFilesToArray; i++) {
                 try {
                     let game = new slippi_js_1.default(path_1.join(rep, slippiFilesToArray[i]));
-                    if (!store.get(path_1.parse(slippiFilesToArray[i]).name + ".Stats", false)) {
-                        store.set(path_1.parse(slippiFilesToArray[i]).name + ".Stats", true);
+                    if (!store.get("file." + path_1.parse(slippiFilesToArray[i]).name + ".Stats", false)) {
+                        store.set("file." + path_1.parse(slippiFilesToArray[i]).name + ".Stats", true);
                         if (game.getSettings().stageId !== 294) {
                             if (name(slippiFilesToArray[i], store.get("username")) !=
                                 -1) {

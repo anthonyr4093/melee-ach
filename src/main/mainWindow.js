@@ -33,11 +33,9 @@ app.whenReady(() => {
 app.on("ready", async () => {
   ipcMain.on("message-from-worker", (event, arg) => {
     sendWindowMessage(winHandler.browserWindow, "message-from-worker", arg);
-    console.log("Sent Message " + arg.command);
   });
   ipcMain.on("message-from-page", (event, args) => {
     WorkWindow.browserWindow.webContents.send("message-from-page", args);
-    console.log("Sent Message " + args.message);
   });
 });
 

@@ -5,17 +5,22 @@ import path from "path";
 // import worker from "html-loader!./worker.html";
 import BrowserWinHandler from "./BrowserWinHandler";
 
-import "./mainWindow";
+import winHandler from "./mainWindow";
 
 const isDev = process.env.NODE_ENV === "development";
 
 const WorkWindow = new BrowserWinHandler({
-  show: true,
+  show: isDev,
   webPreferences: { nodeIntegration: true, enableRemoteModule: true },
 });
 
 WorkWindow.onCreated((browserWindow) => {
-  console.log(__resources);
+  winHandler.onCreated(() => {
+    winHandler.browserWindow.on("closed", () => {
+      WorkWindow.browserWindow.close();
+    });
+  });
+
   browserWindow.loadURL(path.join(__resources, "/worker/worker.html"));
 });
 export default WorkWindow;

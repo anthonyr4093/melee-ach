@@ -5,7 +5,7 @@
     <v-app-bar color="blue-grey" fixed app>
       <v-app-bar-nav-icon @click.stop="setShowMenu(!showMenu)" />
 
-      <v-toolbar-title> Wow such Melee </v-toolbar-title>
+      <v-toolbar-title>Melee Achievemnets</v-toolbar-title>
     </v-app-bar>
 
     <v-main>
