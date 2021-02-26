@@ -1,6 +1,4 @@
 import path from "path";
-import { on } from "process";
-import { electron } from "webpack";
 import { app, ipcMain } from "electron";
 import BrowserWinHandler from "./BrowserWinHandler";
 import WorkWindow from "./WorkerWinHandler";
