@@ -33,7 +33,6 @@ ipcMain.handle("OpenDialog", (event, args) => {
 require("./mainWindow");
 require("./WorkerWinHandler");
 ipcMain.on("ChangeProgressBar", (event, args) => {
-  console.log(args);
   winHandler.browserWindow.setProgressBar(args);
 });
 ipcMain.on("HideProgressBar", (event) => {

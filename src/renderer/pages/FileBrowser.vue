@@ -25,7 +25,7 @@
         </v-alert>
       </div>
       <p>
-        Hiya, we can see that this is "probably" your first time in the file
+        Hiya, we can see that this ("might") your first time in the file
         browser. So I should explain what this is. This is a browser for all of
         your slippi files. You can filter games by the opponent name, stage
         name, and if you have won that game. You will need to process your files

@@ -32,12 +32,12 @@
         </v-alert>
       </div>
       <p>
-        Hiya! I can see this is the first time you are opening this stats tab.
-        This takes the data from slippi files and shows you various fun stats
-        from all of your games! Some examples would be like your favorite
-        character, or the character you lose to the most. If you would like to
-        do the initial stat check, please click the button down below, after
-        that the file checks will all be automatic
+        Hiya! I can see this ("might") be the first time you are opening this
+        stats tab. This takes the data from slippi files and shows you various
+        fun stats from all of your games! Some examples would be like your
+        favorite character, or the character you lose to the most. If you would
+        like to do the initial stat check, please click the button down below,
+        after that the file checks will all be automatic
       </p>
       <v-btn v-if="SettingsValid" @click="GetStats()">Process Stats</v-btn>
       <v-switch v-model="showExample" label="Show Example Data"> </v-switch>

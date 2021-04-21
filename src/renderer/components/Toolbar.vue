@@ -66,16 +66,5 @@ export default {
       },
     },
   },
-  // mounted() {
-  //   switch (os.platform()) {
-  //     case "win32":
-  //       console.log(
-  //         fs.readdirSync(`${os.homedir()}\\Documents\\Slippi`),
-  //         "utf8"
-  //       );
-
-  //       break;
-  //   }
-  // },
 };
 </script>

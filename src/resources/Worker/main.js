@@ -9,6 +9,27 @@ const slippi_js_1 = tslib_1.__importDefault(require("@slippi/slippi-js"));
 const achievements_json_1 = tslib_1.__importDefault(require("./achievements.json"));
 const keys_json_1 = tslib_1.__importDefault(require("./keys.json"));
 const info_json_1 = tslib_1.__importDefault(require("./info.json"));
+function isAkeniaOrDoubles(gamefile, uname) {
+    console.log("Function Called!");
+    console.log(gamefile);
+    let game = new slippi_js_1.default(path_1.join(replayDir(), gamefile));
+    console.log(name(gamefile, uname));
+    if (name(gamefile, uname) == -1) {
+        console.log("Name == -1");
+        return true;
+    }
+    else {
+        if (game.getSettings().isTeams == true ||
+            charintGet(gamefile, uname) == 26 ||
+            game.getSettings().stageId == 294 ||
+            charintGet(gamefile, uname) == 27) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}
 const achievements = achievements_json_1.default;
 let message2UI = (command, payload) => {
     electron_1.default.ipcRenderer.send("message-from-worker", {
@@ -34,7 +55,37 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                 store.set("username", arg.username);
                 store.set("Replay_Directory", rep.replace(/\\\\/g, "\\"));
                 console.log("returning true");
-                message2UI("resultCheckSettings", true);
+                const files = fs_1.default.readdirSync(rep, "utf-8");
+                const slippiFilesToArray = [];
+                files.forEach((file) => {
+                    if (path_1.extname(file) === ".slp")
+                        slippiFilesToArray.push(file);
+                });
+                let randomint = Math.floor(Math.random() * slippiFilesToArray.length);
+                let game = new slippi_js_1.default(path_1.join(replayDir(), slippiFilesToArray[randomint]));
+                if (isAkeniaOrDoubles(slippiFilesToArray[randomint], arg.username) ==
+                    false) {
+                    console.log("passed akenia check");
+                    if (game.getMetadata().players[0].names.netplay.toLowerCase() ==
+                        arg.username.toLowerCase()) {
+                        console.log("Returning True");
+                        message2UI("resultCheckSettings", true);
+                    }
+                    else if (game.getMetadata().players[1].names.netplay.toLowerCase() ==
+                        arg.username.toLowerCase()) {
+                        console.log("Returning True");
+                        message2UI("resultCheckSettings", true);
+                    }
+                    else {
+                        console.log("Names: " + game.getMetadata().players[0].names.netplay);
+                        console.log("Names: " + game.getMetadata().players[1].names.netplay.lower);
+                        console.log("Names: " + arg.username);
+                        message2UI("resultCheckSettings", false);
+                    }
+                }
+                else {
+                    message2UI("resultCheckSettings", false);
+                }
             }
             else {
                 console.log("rep Exists");
@@ -1258,7 +1309,7 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
             let largestname = "";
             let largestalt = 0;
             let largestaltname = "";
-            let opparray = [];
+            let opparray = store.get("opparray", []);
             let largestopponent = 0;
             let largestopponentname = "";
             let largestopponentloss = 0;
@@ -1436,6 +1487,7 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                     continue;
                 }
             }
+            store.set("opparray", opparray);
             let returnobj = {
                 stage: largestname,
                 char: largestaltname,
