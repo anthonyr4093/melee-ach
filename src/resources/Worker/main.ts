@@ -24,7 +24,29 @@ type Achievements = Record<
     unlocked?: boolean;
   }
 >;
+function isAkeniaOrDoubles(gamefile, uname) {
+  console.log("Function Called!");
+  console.log(gamefile);
+  let game = new SlippiGame(join(replayDir(), gamefile));
+  console.log(name(gamefile, uname));
 
+  if (name(gamefile, uname) == -1) {
+    console.log("Name == -1");
+
+    return true;
+  } else {
+    if (
+      game.getSettings().isTeams == true ||
+      charintGet(gamefile, uname) == 26 ||
+      game.getSettings().stageId == 294 ||
+      charintGet(gamefile, uname) == 27
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
 const achievements: Achievements = achievementsJson;
 let message2UI = (command, payload) => {
   electron.ipcRenderer.send("message-from-worker", {
@@ -35,8 +57,30 @@ let message2UI = (command, payload) => {
 function getPercentage(array, int) {
   return Math.round(100 * (int / array.length));
 }
-// message2UI("helloWorld", { myParam: 1337, anotherParam: 42 });
 
+function namecheck(game, uname) {
+  if (
+    game.getMetadata().players[0].names.netplay.toLowerCase() ==
+    uname.toLowerCase()
+  ) {
+    console.log("Returning True");
+
+    return true;
+  } else if (
+    game.getMetadata().players[1].names.netplay.toLowerCase() ==
+    uname.toLowerCase()
+  ) {
+    console.log("Returning True");
+    return true;
+  } else {
+    console.log("Names: " + game.getMetadata().players[0].names.netplay);
+    console.log("Names: " + game.getMetadata().players[1].names.netplay.lower);
+    console.log("Names: " + uname);
+
+    return false;
+  }
+}
+// message2UI("helloWorld", { myParam: 1337, anotherParam: 42 });
 electron.ipcRenderer.on("message-from-page", (event, args) => {
   console.log(args);
   console.log("NotYourFriend");
@@ -58,8 +102,33 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
         store.set("username", arg.username);
         store.set("Replay_Directory", rep.replace(/\\\\/g, "\\"));
         console.log("returning true");
+        const files = fs.readdirSync(rep, "utf-8");
+        const slippiFilesToArray: string[] = [];
 
-        message2UI("resultCheckSettings", true);
+        files.forEach((file) => {
+          if (extname(file) === ".slp") slippiFilesToArray.push(file);
+        });
+        function truenamecheck() {
+          let randomint = Math.floor(Math.random() * slippiFilesToArray.length);
+          let game = new SlippiGame(
+            join(replayDir(), slippiFilesToArray[randomint])
+          );
+          if (
+            isAkeniaOrDoubles(slippiFilesToArray[randomint], arg.username) ==
+            false
+          ) {
+            console.log("passed akenia check");
+            return namecheck(game, arg.username);
+          } else {
+            return false;
+          }
+        }
+
+        //! fix this when get chance, should re execute when done, too tired rn
+        if (truenamecheck() == true) {
+          message2UI("resultCheckSettings", true);
+        } else {
+        }
       } else {
         console.log("rep Exists");
         //console.log("Settings Are Not Valid");
@@ -1867,7 +1936,7 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
       let largestname = "";
       let largestalt = 0;
       let largestaltname = "";
-      let opparray = [];
+      let opparray = store.get("opparray", []);
       let largestopponent = 0;
       let largestopponentname = "";
       let largestopponentloss = 0;
@@ -2136,6 +2205,7 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
           continue;
         }
       }
+      store.set("opparray", opparray);
       let returnobj = {
         stage: largestname,
         char: largestaltname,
