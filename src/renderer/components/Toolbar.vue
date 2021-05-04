@@ -5,7 +5,7 @@
         <v-hover
           v-for="{ title, route, icon } in items"
           :key="title"
-          v-slot:default="{ hover }"
+          v-slot="{ hover }"
         >
           <v-list-item :to="route" router exact>
             <v-list-item-icon class="my-auto">
@@ -49,6 +49,11 @@ export default {
         },
         { route: "Filebrowser", title: "Slippi Files", icon: "mdi-folder" },
         { route: "Stats", title: "Stats", icon: "mdi-clipboard" },
+        {
+          route: "CharacterMU",
+          title: "Character MU",
+          icon: "mdi-medal",
+        },
         // { route: "catagory", title: "Catagory", icon: "mdi-trophy-variant" },
 
         // { route: "schedule", title: "Schedule", icon: "mdi-calendar" }, // ? -clock
