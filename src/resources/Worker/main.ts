@@ -25,10 +25,7 @@ type Achievements = Record<
   }
 >;
 function isAkeniaOrDoubles(gamefile, uname) {
-  console.log("Function Called!");
-  console.log(gamefile);
   let game = new SlippiGame(join(replayDir(), gamefile));
-  console.log(name(gamefile, uname));
 
   if (name(gamefile, uname) == -1) {
     console.log("Name == -1");
@@ -164,9 +161,11 @@ const store = new Store();
 const datastoredata = { name: "Data" };
 const Achstoredata = { name: "Ach" };
 const StatsStoreData = { name: "Stats" };
+const CharacterStoreData = { name: "CMU" };
 const datastore = new Store(datastoredata);
 const achstore = new Store(Achstoredata);
 const statstore = new Store(StatsStoreData);
+const charstore = new Store(CharacterStoreData);
 
 const replayDir = () =>
   (store.get("Replay_Directory") as string).replace(/\\\\/g, "\\");
@@ -2235,6 +2234,188 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
     }
   }
 });
+
+electron.ipcRenderer.on("message-from-page", (event, data) => {
+  if (data.message == "CharacterMUSpread") {
+    charstore.clear();
+    console.log("data: " + data.data);
+
+    let slippiFilesToArray = [];
+    const files = fs.readdirSync(replayDir(), "utf-8");
+    files.forEach((file) => {
+      if (extname(file) === ".slp") slippiFilesToArray.push(file);
+    });
+    let killsT = 0;
+    let damageT = 0;
+    let OppkillsT = 0;
+    let OppdamageT = 0;
+    let winsT = 0;
+    let lossT = 0;
+
+    for (let i = 0; i in slippiFilesToArray; i++) {
+      let uname = store.get("username", "null") as string;
+      let game = new SlippiGame(join(replayDir(), slippiFilesToArray[i]));
+      let gamefile = slippiFilesToArray[i];
+      if (!isAkeniaOrDoubles(gamefile, uname)) {
+        if (
+          info.CharacterNames[charintGet(gamefile, uname)] ==
+            data.data.PlayerChar &&
+          info.CharacterNames[
+            game.getSettings().players[nameflip(name(gamefile, uname))]
+              .characterId
+          ] == data.data.EnemyChar
+        ) {
+          charstore.set(
+            info.StageNames[game.getSettings().stageId] + ".win",
+            charstore.get(
+              info.StageNames[game.getSettings().stageId] + ".win",
+              0
+            ) + 1
+          );
+          if (didiwin(gamefile)) {
+            winsT += 1;
+            charstore.set(
+              info.StageNames[game.getSettings().stageId] + ".win",
+              charstore.get(
+                info.StageNames[game.getSettings().stageId] + ".win",
+                0
+              ) + 1
+            );
+          } else {
+            lossT += 1;
+            charstore.set(
+              info.StageNames[game.getSettings().stageId] + ".loss",
+              charstore.get(
+                info.StageNames[game.getSettings().stageId] + ".loss",
+                0
+              ) + 1
+            );
+          }
+          killsT += game.getStats().overall[name(gamefile, uname)].killCount;
+          OppkillsT += game.getStats().overall[nameflip(name(gamefile, uname))]
+            .killCount;
+          damageT += game.getStats().overall[name(gamefile, uname)].totalDamage;
+          OppdamageT += game.getStats().overall[nameflip(name(gamefile, uname))]
+            .totalDamage;
+        } else {
+          console.log(
+            "Characters: " +
+              info.CharacterNames[charintGet(gamefile, uname)] +
+              " and " +
+              info.CharacterNames[
+                game.getSettings().players[nameflip(name(gamefile, uname))]
+                  .characterId
+              ] +
+              " Do not Match: " +
+              data.data.PlayerChar +
+              " and " +
+              data.data.EnemyChar
+          );
+          continue;
+        }
+      }
+
+      //   console.log(
+      //     "Progress: " + i.toString() + "/" + slippiFilesToArray.length.toString()
+      //   );
+
+      //   let game = new SlippiGame(join(replayDir(), slippiFilesToArray[i]));
+      //   let gamefile = slippiFilesToArray[i];
+      //   let uname = store.get("username");
+      //   if (
+      //     isAkeniaOrDoubles(slippiFilesToArray[i], store.get("username")) == false
+      //   ) {
+      //     let kills = 0;
+      //     let damage = 0;
+      //     let Oppkills = 0;
+      //     let Oppdamage = 0;
+      //     console.log("killsT: " + killsT);
+      //     if (didiwin(gamefile)) {
+      //       winsT += 1;
+      //     } else {
+      //       lossT += 1;
+      //     }
+
+      //     if (
+      //       game.getMetadata().players[0].names.netplay.toLowerCase() ==
+      //       store.get("username").toLowerCase()
+      //     ) {
+      //       if (
+      //         info.CharacterNames[
+      //           game.getSettings().players[name(gamefile, uname)].characterId
+      //         ] == data.PCharacter &&
+      //         info.CharacterNames[
+      //           game.getSettings().players[nameflip(name(gamefile, uname))]
+      //             .characterId
+      //         ] == data.EnemyChar
+      //       ) {
+      //         //Get Stats Here, Assume 1 is Enemy
+      //         kills = game.getStats().overall[0].killCount;
+      //         damage = game.getStats().overall[0].totalDamage;
+      //         Oppkills = game.getStats().overall[1].killCount;
+      //         Oppdamage = game.getStats().overall[1].totalDamage;
+      //       }
+      //     } else if (
+      //       game.getMetadata().players[0].names.netplay.toLowerCase() ==
+      //       store.get("username").toLowerCase()
+      //     ) {
+      //       if (
+      //         info.CharacterNames[
+      //           game.getSettings().players[name(gamefile, uname)].characterId
+      //         ] == data.PCharacter &&
+      //         info.CharacterNames[
+      //           game.getSettings().players[nameflip(name(gamefile, uname))]
+      //             .characterId
+      //         ] == data.EnemyChar
+      //       ) {
+      //         //Get Stats Here, Assume 0 is Enemy
+      //         kills = game.getStats().overall[1].killCount;
+      //         damage = game.getStats().overall[1].totalDamage;
+      //         Oppkills = game.getStats().overall[0].killCount;
+      //         Oppdamage = game.getStats().overall[0].totalDamage;
+      //       }
+      //     }
+      //   } else {
+      //     console.log("Skipped");
+
+      //     continue;
+      //   }
+      // }
+    }
+    let beststage = null;
+    let beststageval = 0;
+    let worststage = null;
+    let worststageval = 0;
+    for (let i = 0; i in info.StageNames; i++) {
+      if (charstore.get(info.StageNames[i] + ".win") > beststageval) {
+        beststage = info.StageNames[i];
+        beststageval = charstore.get(info.StageNames[i] + ".win") as number;
+      }
+      if (charstore.get(info.StageNames[i] + ".loss") > worststageval) {
+        worststage = info.StageNames[i];
+        worststageval = charstore.get(info.StageNames[i] + ".loss") as number;
+      }
+    }
+    console.log("Sending Message To UI");
+
+    message2UI("CharacterMUSpreadResult", {
+      Kills: killsT,
+      Damage: Math.ceil(damageT),
+      Oppdamage: Math.ceil(OppdamageT),
+      Oppkills: OppkillsT,
+      Wins: winsT,
+      Loss: lossT,
+      WLRatio: (winsT / lossT).toFixed(2),
+      KDRatio: (killsT / OppkillsT).toFixed(2),
+      DamageRatio: (Math.ceil(damageT) / Math.ceil(OppdamageT)).toFixed(2),
+      beststage: beststage,
+      beststageval: beststageval,
+      worststage: worststage,
+      worststageval: worststageval,
+    });
+  }
+});
+
 //i really dont feel like thinking right now
 // Depreciated for AchivementCheck Function. This was stupid and im happy i could come up with a function.
 /*
@@ -2270,4 +2451,3 @@ if(Game_Total >= 1){
 }
 }}
 */
-// process achievements down here???

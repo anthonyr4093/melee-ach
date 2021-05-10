@@ -10,10 +10,7 @@ const achievements_json_1 = tslib_1.__importDefault(require("./achievements.json
 const keys_json_1 = tslib_1.__importDefault(require("./keys.json"));
 const info_json_1 = tslib_1.__importDefault(require("./info.json"));
 function isAkeniaOrDoubles(gamefile, uname) {
-    console.log("Function Called!");
-    console.log(gamefile);
     let game = new slippi_js_1.default(path_1.join(replayDir(), gamefile));
-    console.log(name(gamefile, uname));
     if (name(gamefile, uname) == -1) {
         console.log("Name == -1");
         return true;
@@ -40,6 +37,24 @@ let message2UI = (command, payload) => {
 function getPercentage(array, int) {
     return Math.round(100 * (int / array.length));
 }
+function namecheck(game, uname) {
+    if (game.getMetadata().players[0].names.netplay.toLowerCase() ==
+        uname.toLowerCase()) {
+        console.log("Returning True");
+        return true;
+    }
+    else if (game.getMetadata().players[1].names.netplay.toLowerCase() ==
+        uname.toLowerCase()) {
+        console.log("Returning True");
+        return true;
+    }
+    else {
+        console.log("Names: " + game.getMetadata().players[0].names.netplay);
+        console.log("Names: " + game.getMetadata().players[1].names.netplay.lower);
+        console.log("Names: " + uname);
+        return false;
+    }
+}
 electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
     console.log(args);
     console.log("NotYourFriend");
@@ -61,30 +76,22 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                     if (path_1.extname(file) === ".slp")
                         slippiFilesToArray.push(file);
                 });
-                let randomint = Math.floor(Math.random() * slippiFilesToArray.length);
-                let game = new slippi_js_1.default(path_1.join(replayDir(), slippiFilesToArray[randomint]));
-                if (isAkeniaOrDoubles(slippiFilesToArray[randomint], arg.username) ==
-                    false) {
-                    console.log("passed akenia check");
-                    if (game.getMetadata().players[0].names.netplay.toLowerCase() ==
-                        arg.username.toLowerCase()) {
-                        console.log("Returning True");
-                        message2UI("resultCheckSettings", true);
-                    }
-                    else if (game.getMetadata().players[1].names.netplay.toLowerCase() ==
-                        arg.username.toLowerCase()) {
-                        console.log("Returning True");
-                        message2UI("resultCheckSettings", true);
+                function truenamecheck() {
+                    let randomint = Math.floor(Math.random() * slippiFilesToArray.length);
+                    let game = new slippi_js_1.default(path_1.join(replayDir(), slippiFilesToArray[randomint]));
+                    if (isAkeniaOrDoubles(slippiFilesToArray[randomint], arg.username) ==
+                        false) {
+                        console.log("passed akenia check");
+                        return namecheck(game, arg.username);
                     }
                     else {
-                        console.log("Names: " + game.getMetadata().players[0].names.netplay);
-                        console.log("Names: " + game.getMetadata().players[1].names.netplay.lower);
-                        console.log("Names: " + arg.username);
-                        message2UI("resultCheckSettings", false);
+                        return false;
                     }
                 }
+                if (truenamecheck() == true) {
+                    message2UI("resultCheckSettings", true);
+                }
                 else {
-                    message2UI("resultCheckSettings", false);
                 }
             }
             else {
@@ -107,9 +114,11 @@ const store = new electron_store_1.default();
 const datastoredata = { name: "Data" };
 const Achstoredata = { name: "Ach" };
 const StatsStoreData = { name: "Stats" };
+const CharacterStoreData = { name: "CMU" };
 const datastore = new electron_store_1.default(datastoredata);
 const achstore = new electron_store_1.default(Achstoredata);
 const statstore = new electron_store_1.default(StatsStoreData);
+const charstore = new electron_store_1.default(CharacterStoreData);
 const replayDir = () => store.get("Replay_Directory").replace(/\\\\/g, "\\");
 const slippiFilesToArray = [];
 const killCheckArray = [
@@ -1508,5 +1517,92 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
             };
             message2UI("getGeneralStatsResult", returnobj);
         }
+    }
+});
+electron_1.default.ipcRenderer.on("message-from-page", (event, data) => {
+    if (data.message == "CharacterMUSpread") {
+        charstore.clear();
+        console.log("data: " + data.data);
+        let slippiFilesToArray = [];
+        const files = fs_1.default.readdirSync(replayDir(), "utf-8");
+        files.forEach((file) => {
+            if (path_1.extname(file) === ".slp")
+                slippiFilesToArray.push(file);
+        });
+        let killsT = 0;
+        let damageT = 0;
+        let OppkillsT = 0;
+        let OppdamageT = 0;
+        let winsT = 0;
+        let lossT = 0;
+        for (let i = 0; i in slippiFilesToArray; i++) {
+            let uname = store.get("username", "null");
+            let game = new slippi_js_1.default(path_1.join(replayDir(), slippiFilesToArray[i]));
+            let gamefile = slippiFilesToArray[i];
+            if (!isAkeniaOrDoubles(gamefile, uname)) {
+                if (info_json_1.default.CharacterNames[charintGet(gamefile, uname)] ==
+                    data.data.PlayerChar &&
+                    info_json_1.default.CharacterNames[game.getSettings().players[nameflip(name(gamefile, uname))]
+                        .characterId] == data.data.EnemyChar) {
+                    charstore.set(info_json_1.default.StageNames[game.getSettings().stageId] + ".win", charstore.get(info_json_1.default.StageNames[game.getSettings().stageId] + ".win", 0) + 1);
+                    if (didiwin(gamefile)) {
+                        winsT += 1;
+                        charstore.set(info_json_1.default.StageNames[game.getSettings().stageId] + ".win", charstore.get(info_json_1.default.StageNames[game.getSettings().stageId] + ".win", 0) + 1);
+                    }
+                    else {
+                        lossT += 1;
+                        charstore.set(info_json_1.default.StageNames[game.getSettings().stageId] + ".loss", charstore.get(info_json_1.default.StageNames[game.getSettings().stageId] + ".loss", 0) + 1);
+                    }
+                    killsT += game.getStats().overall[name(gamefile, uname)].killCount;
+                    OppkillsT += game.getStats().overall[nameflip(name(gamefile, uname))]
+                        .killCount;
+                    damageT += game.getStats().overall[name(gamefile, uname)].totalDamage;
+                    OppdamageT += game.getStats().overall[nameflip(name(gamefile, uname))]
+                        .totalDamage;
+                }
+                else {
+                    console.log("Characters: " +
+                        info_json_1.default.CharacterNames[charintGet(gamefile, uname)] +
+                        " and " +
+                        info_json_1.default.CharacterNames[game.getSettings().players[nameflip(name(gamefile, uname))]
+                            .characterId] +
+                        " Do not Match: " +
+                        data.data.PlayerChar +
+                        " and " +
+                        data.data.EnemyChar);
+                    continue;
+                }
+            }
+        }
+        let beststage = null;
+        let beststageval = 0;
+        let worststage = null;
+        let worststageval = 0;
+        for (let i = 0; i in info_json_1.default.StageNames; i++) {
+            if (charstore.get(info_json_1.default.StageNames[i] + ".win") > beststageval) {
+                beststage = info_json_1.default.StageNames[i];
+                beststageval = charstore.get(info_json_1.default.StageNames[i] + ".win");
+            }
+            if (charstore.get(info_json_1.default.StageNames[i] + ".loss") > worststageval) {
+                worststage = info_json_1.default.StageNames[i];
+                worststageval = charstore.get(info_json_1.default.StageNames[i] + ".loss");
+            }
+        }
+        console.log("Sending Message To UI");
+        message2UI("CharacterMUSpreadResult", {
+            Kills: killsT,
+            Damage: Math.ceil(damageT),
+            Oppdamage: Math.ceil(OppdamageT),
+            Oppkills: OppkillsT,
+            Wins: winsT,
+            Loss: lossT,
+            WLRatio: (winsT / lossT).toFixed(2),
+            KDRatio: (killsT / OppkillsT).toFixed(2),
+            DamageRatio: (Math.ceil(damageT) / Math.ceil(OppdamageT)).toFixed(2),
+            beststage: beststage,
+            beststageval: beststageval,
+            worststage: worststage,
+            worststageval: worststageval,
+        });
     }
 });
