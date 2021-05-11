@@ -1539,6 +1539,15 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, data) => {
             let uname = store.get("username", "null");
             let game = new slippi_js_1.default(path_1.join(replayDir(), slippiFilesToArray[i]));
             let gamefile = slippiFilesToArray[i];
+            message2UI("CharacterMUSpreadBar", {
+                Message: "Looking At File: " +
+                    gamefile +
+                    " | " +
+                    i +
+                    " / " +
+                    slippiFilesToArray.length,
+                Value: getPercentage(slippiFilesToArray, i),
+            });
             if (!isAkeniaOrDoubles(gamefile, uname)) {
                 if (info_json_1.default.CharacterNames[charintGet(gamefile, uname)] ==
                     data.data.PlayerChar &&
@@ -1561,15 +1570,6 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, data) => {
                         .totalDamage;
                 }
                 else {
-                    console.log("Characters: " +
-                        info_json_1.default.CharacterNames[charintGet(gamefile, uname)] +
-                        " and " +
-                        info_json_1.default.CharacterNames[game.getSettings().players[nameflip(name(gamefile, uname))]
-                            .characterId] +
-                        " Do not Match: " +
-                        data.data.PlayerChar +
-                        " and " +
-                        data.data.EnemyChar);
                     continue;
                 }
             }

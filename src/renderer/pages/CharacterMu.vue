@@ -3,6 +3,11 @@
   <div>
     <h1>Character Match Up</h1>
     <v-divider class="ma-3" />
+    <div v-if="loading" class="ma-2">
+      <v-progress-linear :value="value" height="15" striped>
+        {{ message }}</v-progress-linear
+      >
+    </div>
     <v-row>
       <v-col cols="5">
         <v-autocomplete
@@ -29,8 +34,8 @@
     <v-layout justify-center>
       <v-btn @click="submit"> Process </v-btn>
     </v-layout>
-    <v-divider class="ma-2" />
-    <div v-if="loaded">
+    <div v-if="loaded && ReturnedData">
+      <v-divider class="ma-2" />
       <v-row>
         <v-col cols="6">
           <v-card>
@@ -73,6 +78,7 @@
               <br />
               <p>Damage Ratio: {{ ReturnedData.DamageRatio }}</p>
               <br />
+              <p>Total Games: {{ ReturnedData.Wins + ReturnedData.Loss }}</p>
             </v-col>
           </v-row>
         </v-layout>
@@ -91,6 +97,9 @@ export default {
       ECharacter: null,
       loaded: false,
       ReturnedData: null,
+      message: null,
+      loading: false,
+      value: 0,
     };
   },
   computed: {
@@ -110,18 +119,28 @@ export default {
       if (this.PCharacter !== null || this.ECharacter !== null) {
         console.log("yo");
         this.loaded = false;
+        this.loading = true;
+        this.ReturnedData = null;
         electron.ipcRenderer.send("message-from-page", {
           message: "CharacterMUSpread",
           data: { PlayerChar: this.PCharacter, EnemyChar: this.ECharacter },
         });
+
+        electron.ipcRenderer.on("message-from-worker", (event, args) => {
+          if (args.command === "CharacterMUSpreadBar") {
+            this.message = args.payload.Message;
+            this.value = args.payload.Value;
+          }
+        });
+        await electron.ipcRenderer.on("message-from-worker", (event, args) => {
+          if (args.command === "CharacterMUSpreadResult") {
+            this.loaded = true;
+            this.loading = false;
+            console.log(args);
+            this.ReturnedData = args.payload;
+          }
+        });
       }
-      await electron.ipcRenderer.on("message-from-worker", (event, args) => {
-        this.loaded = true;
-        if (args.command === "CharacterMUSpreadResult") {
-          console.log(args);
-          this.ReturnedData = args.payload;
-        }
-      });
     },
   },
 };

@@ -7,7 +7,7 @@ TODO: put todos in more relevant places.
 */
 import fs, { stat } from "fs";
 import { basename, extname, join, parse } from "path";
-import electron from "electron";
+import electron, { ipcMain, ipcRenderer } from "electron";
 import Store from "electron-store";
 
 import SlippiGame, { ItemUpdateType, MetadataType } from "@slippi/slippi-js";
@@ -2256,6 +2256,16 @@ electron.ipcRenderer.on("message-from-page", (event, data) => {
       let uname = store.get("username", "null") as string;
       let game = new SlippiGame(join(replayDir(), slippiFilesToArray[i]));
       let gamefile = slippiFilesToArray[i];
+      message2UI("CharacterMUSpreadBar", {
+        Message:
+          "Looking At File: " +
+          gamefile +
+          " | " +
+          i +
+          " / " +
+          slippiFilesToArray.length,
+        Value: getPercentage(slippiFilesToArray, i),
+      });
       if (!isAkeniaOrDoubles(gamefile, uname)) {
         if (
           info.CharacterNames[charintGet(gamefile, uname)] ==
@@ -2298,19 +2308,19 @@ electron.ipcRenderer.on("message-from-page", (event, data) => {
           OppdamageT += game.getStats().overall[nameflip(name(gamefile, uname))]
             .totalDamage;
         } else {
-          console.log(
-            "Characters: " +
-              info.CharacterNames[charintGet(gamefile, uname)] +
-              " and " +
-              info.CharacterNames[
-                game.getSettings().players[nameflip(name(gamefile, uname))]
-                  .characterId
-              ] +
-              " Do not Match: " +
-              data.data.PlayerChar +
-              " and " +
-              data.data.EnemyChar
-          );
+          // console.log(
+          //   "Characters: " +
+          //     info.CharacterNames[charintGet(gamefile, uname)] +
+          //     " and " +
+          //     info.CharacterNames[
+          //       game.getSettings().players[nameflip(name(gamefile, uname))]
+          //         .characterId
+          //     ] +
+          //     " Do not Match: " +
+          //     data.data.PlayerChar +
+          //     " and " +
+          //     data.data.EnemyChar
+          // );
           continue;
         }
       }
