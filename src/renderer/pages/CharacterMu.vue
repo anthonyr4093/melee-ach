@@ -136,7 +136,7 @@ export default {
           if (args.command === "CharacterMUSpreadResult") {
             this.loaded = true;
             this.loading = false;
-            console.log(args);
+            this.value = 0;
             this.ReturnedData = args.payload;
           }
         });
