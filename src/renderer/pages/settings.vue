@@ -14,7 +14,7 @@
       </v-card>
     </v-dialog>
     <v-form>
-      <v-text-field ref="Username" v-model="Username" label="Username">
+      <v-text-field ref="Username" v-model="Username" label="Connect Code">
       </v-text-field>
       <v-text-field
         ref="Rep_Dir"

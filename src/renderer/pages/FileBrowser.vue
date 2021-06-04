@@ -28,10 +28,11 @@
         Hiya, we can see that this ("might") your first time in the file
         browser. So I should explain what this is. This is a browser for all of
         your slippi files. You can filter games by the opponent name, stage
-        name, and if you have won that game. You will need to process your files
-        for a first time so we can get the stats from your game file, In future
-        we will process any future files as we can see them. So when you are
-        ready, please click the button below and please stay on this page
+        name, and if you have won that game, you can also hover over names to
+        display connect tags. You will need to process your files for a first
+        time so we can get the stats from your game file, In future we will
+        process any future files as we can see them. So when you are ready,
+        please click the button below and please stay on this page
       </p>
       <div v-if="SettingsValid">
         <v-btn @click="getFileList()">Process Files</v-btn>
@@ -49,6 +50,7 @@
     </div>
     <div v-if="isLoaded">
       <v-switch v-model="didWin" label="Won?"></v-switch>
+
       <v-autocomplete
         v-model="search"
         :items="File_list"
@@ -88,7 +90,24 @@
                         item.win ? "mdi-trophy" : "mdi-trophy-broken"
                       }}
                       ></v-icon
-                    >{{ item.names[0] }} vs {{ item.names[1] }}
+                    >
+                    <v-tooltip bottom>
+                      <template #activator="{ on, attrs }">
+                        <span v-bind="attrs" v-on="on">{{
+                          item.names[0].name
+                        }}</span>
+                      </template>
+                      <span>{{ item.names[0].code }}</span>
+                    </v-tooltip>
+                    vs
+                    <v-tooltip bottom>
+                      <template #activator="{ on, attrs }">
+                        <span v-bind="attrs" v-on="on">{{
+                          item.names[1].name
+                        }}</span>
+                      </template>
+                      <span>{{ item.names[1].code }}</span>
+                    </v-tooltip>
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     {{ item.Stage }}

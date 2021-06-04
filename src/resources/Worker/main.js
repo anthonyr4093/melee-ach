@@ -38,19 +38,19 @@ function getPercentage(array, int) {
     return Math.round(100 * (int / array.length));
 }
 function namecheck(game, uname) {
-    if (game.getMetadata().players[0].names.netplay.toLowerCase() ==
+    if (game.getMetadata().players[0].names.code.toLowerCase() ==
         uname.toLowerCase()) {
         console.log("Returning True");
         return true;
     }
-    else if (game.getMetadata().players[1].names.netplay.toLowerCase() ==
+    else if (game.getMetadata().players[1].names.code.toLowerCase() ==
         uname.toLowerCase()) {
         console.log("Returning True");
         return true;
     }
     else {
-        console.log("Names: " + game.getMetadata().players[0].names.netplay);
-        console.log("Names: " + game.getMetadata().players[1].names.netplay.lower);
+        console.log("Names: " + game.getMetadata().players[0].names.code);
+        console.log("Names: " + game.getMetadata().players[1].names.code.lower);
         console.log("Names: " + uname);
         return false;
     }
@@ -85,6 +85,7 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                         return namecheck(game, arg.username);
                     }
                     else {
+                        console.log("failed somthing idk");
                         return false;
                     }
                 }
@@ -205,7 +206,7 @@ function name(gamefile, name) {
     try {
         for (let i = 0; i in settings.players; i++) {
             if (settings.players[i].type != 1 && metadata.players[i].names != null) {
-                if (metadata.players[i].names.netplay.toLowerCase() ==
+                if (metadata.players[i].names.code.toLowerCase() ==
                     name.toString().toLowerCase()) {
                     return i;
                 }
@@ -1260,7 +1261,10 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                         const names = [];
                         let chararray = [];
                         for (let i = 0; i in players; i++) {
-                            names.push(players[i].names.netplay);
+                            names.push({
+                                name: players[i].names.netplay,
+                                code: players[i].names.code,
+                            });
                         }
                         if (name(slippiFilesToArray[i], store.get("username")) === 0)
                             opponentname = players[1].names.netplay;
@@ -1348,12 +1352,14 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                             if (name(slippiFilesToArray[i], store.get("username")) !=
                                 -1) {
                                 console.log(slippiFilesToArray[i]);
-                                let opponentname = "";
+                                let opponentname = {};
                                 if (name(slippiFilesToArray[i], store.get("username")) === 0) {
-                                    opponentname = game.getMetadata().players[1].names.netplay;
+                                    opponentname = game.getMetadata().players[1].names.code;
+                                    statstore.set(game.getMetadata().players[1].names.code + ".name", game.getMetadata().players[1].names.netplay);
                                 }
                                 else {
-                                    opponentname = game.getMetadata().players[0].names.netplay;
+                                    opponentname = game.getMetadata().players[0].names.code;
+                                    statstore.set(game.getMetadata().players[0].names.code + ".name", game.getMetadata().players[0].names.netplay);
                                 }
                                 if (!opparray.includes(opponentname)) {
                                     opparray.push(opponentname);
@@ -1454,12 +1460,13 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
             }
             for (let i = 0; i in opparray; i++) {
                 if (statstore.get(opparray[i] + ".win") > largestopponent) {
-                    largestopponent = statstore.get(opparray[i] + ".win");
-                    largestopponentname = opparray[i];
+                    largestopponent = statstore.get(opparray[i] + ".win", 0);
+                    largestopponentname = statstore.get(opparray[i] + ".name");
                     statstore.set("DomOpp" + ".name", largestopponentname);
                     statstore.set("DomOpp" + ".num", largestopponent);
                     message2UI("StatsLoadingBar", {
-                        task: "Checking Games Against This Opponent: " + opparray[i],
+                        task: "Checking Games Against This Opponent: " +
+                            statstore.get(opparray[i]),
                         progress: Math.ceil(100 * (i / opparray.length)),
                         total: opparray.length,
                     });
@@ -1476,12 +1483,13 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
             }
             for (let i = 0; i in opparray; i++) {
                 if (statstore.get(opparray[i] + ".loss") > largestopponentloss) {
-                    largestopponentloss = statstore.get(opparray[i] + ".loss");
-                    largestopponentlossname = opparray[i];
+                    largestopponentloss = statstore.get(opparray[i] + ".loss", 0);
+                    largestopponentlossname = statstore.get(opparray[i] + ".name");
                     statstore.set("DomOppLoss" + ".name", largestopponentlossname);
                     statstore.set("DomOppLoss" + ".num", largestopponentloss);
                     message2UI("StatsLoadingBar", {
-                        task: "Checking Losses Against This Opponent: " + opparray[i],
+                        task: "Checking Losses Against This Opponent: " +
+                            statstore.get(opparray[i]),
                         progress: Math.ceil(100 * (i / opparray.length)),
                         total: opparray.length,
                     });
@@ -1489,7 +1497,8 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                 }
                 else {
                     message2UI("StatsLoadingBar", {
-                        task: "Checking Losses Against This Opponent: " + opparray[i],
+                        task: "Checking Losses Against This Opponent: " +
+                            statstore.get(opparray[i]),
                         progress: Math.ceil(100 * (i / opparray.length)),
                         total: opparray.length,
                     });

@@ -293,6 +293,7 @@ export default {
             this.shineaudio.play();
 
           this.result = args.payload;
+          console.log(args.payload);
           this.loaded = true;
           this.loading = false;
           ipcRenderer.send("HideProgressBar");
