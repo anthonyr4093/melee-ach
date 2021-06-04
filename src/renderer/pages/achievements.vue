@@ -202,6 +202,8 @@ export default {
           if (args.payload === false) {
             console.log("false");
             console.log(store.get("Replay_Directory"));
+            if (store.get(this.shineaudio, false) === false)
+              this.shineaudio.play();
             this.loading = false;
             this.snackbarE = true;
             setTimeout(() => {
@@ -210,7 +212,9 @@ export default {
           } else {
             this.loading = false;
             this.snackbarS = true;
-            this.CheckAch();
+            if (store.get(this.shineaudio, false) === false)
+              this.shineaudio.play();
+
             setTimeout(() => {
               ipcRenderer.send("HideProgressBar");
             }, 5000);

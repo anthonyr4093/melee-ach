@@ -5,3 +5,4 @@ build/*
 node_modules
 src/resources/Worker/mainbackup.js
 src/resources/Worker/mainbackup.ts
+src/SlippiFiles

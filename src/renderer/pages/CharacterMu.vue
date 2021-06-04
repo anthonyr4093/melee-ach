@@ -111,6 +111,9 @@ export default {
       return mydata.CharacterNames;
     },
   },
+  beforeMount() {
+    this.shineaudio = new Audio(__resources + "/sound/shine.mp3");
+  },
   methods: {
     test() {
       console.log(JSON.parse(fs.openSync(__resources + "/worker/info.Json")));
@@ -134,6 +137,8 @@ export default {
         });
         await electron.ipcRenderer.on("message-from-worker", (event, args) => {
           if (args.command === "CharacterMUSpreadResult") {
+            if (store.get(this.shineaudio, false) === false)
+              this.shineaudio.play();
             this.loaded = true;
             this.loading = false;
             this.value = 0;
