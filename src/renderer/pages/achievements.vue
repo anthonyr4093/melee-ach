@@ -210,6 +210,7 @@ export default {
           } else {
             this.loading = false;
             this.snackbarS = true;
+            this.CheckAch();
             setTimeout(() => {
               ipcRenderer.send("HideProgressBar");
             }, 5000);

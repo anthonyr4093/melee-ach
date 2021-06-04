@@ -40,8 +40,6 @@
         after that the file checks will all be automatic
       </p>
       <v-btn v-if="SettingsValid" @click="GetStats()">Process Stats</v-btn>
-      <v-switch v-model="showExample" label="Show Example Data"> </v-switch>
-      <v-img v-if="showExample" :src="examplePath"></v-img>
     </div>
     <div v-else-if="!firstTime & !loaded & !AutoProcess">
       <v-alert>

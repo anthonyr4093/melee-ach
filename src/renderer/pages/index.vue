@@ -2,11 +2,10 @@
   <v-container>
     <h1>Melee Achievements</h1>
     <p>
-      Hello, Welcome To Melee Achievements app. To get started click the sidebar
-      and enter your username and replay directory. Then head to the achievement
-      parser
+      Hiya! Welcome To Melee Achievements app. To get started click the sidebar
+      and enter your Connect code and replay directory. Feel free to check out
+      whatever page you like
     </p>
-    <v-img src="https://picsum.photos/536/354" />
   </v-container>
 </template>
 //todo: add colorful image
