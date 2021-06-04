@@ -24,6 +24,7 @@ type Achievements = Record<
     unlocked?: boolean;
   }
 >;
+//Function that takes a game and a name and returns true or false depending on if it contains akenia content/doubles match
 function isAkeniaOrDoubles(gamefile, uname) {
   let game = new SlippiGame(join(replayDir(), gamefile));
 
@@ -34,9 +35,9 @@ function isAkeniaOrDoubles(gamefile, uname) {
   } else {
     if (
       game.getSettings().isTeams == true ||
-      charintGet(gamefile, uname) == 26 ||
+      characterIntegerGet(gamefile, uname) == 26 ||
       game.getSettings().stageId == 294 ||
-      charintGet(gamefile, uname) == 27
+      characterIntegerGet(gamefile, uname) == 27
     ) {
       return true;
     } else {
@@ -45,17 +46,26 @@ function isAkeniaOrDoubles(gamefile, uname) {
   }
 }
 const achievements: Achievements = achievementsJson;
+//sets up the function so that the worker window and main window can communicate through ipc
 let message2UI = (command, payload) => {
   electron.ipcRenderer.send("message-from-worker", {
     command: command,
     payload: payload,
   });
 };
+//Simple Function used for progress bars
 function getPercentage(array, int) {
   return Math.round(100 * (int / array.length));
 }
-
-function namecheck(game, uname) {
+/**
+ * This Function Checks A Name from gamefile From A Name From Settings.
+ *
+ * @param game The gamefile to check
+ * @param uname The Username To Check
+ */
+function nameCheck(game, uname) {
+  //check both ports for name
+  //TODO: Change this to a for loop to support doubles/ffa games.
   if (
     game.getMetadata().players[0].names.code.toLowerCase() ==
     uname.toLowerCase()
@@ -77,23 +87,19 @@ function namecheck(game, uname) {
     return false;
   }
 }
-// message2UI("helloWorld", { myParam: 1337, anotherParam: 42 });
+// Wait for checkSettings
 electron.ipcRenderer.on("message-from-page", (event, args) => {
   console.log(args);
-  console.log("NotYourFriend");
 
   let arg = args.data;
   if (args.message == "checkSettings") {
     console.log("correct message");
-
+    //Check the name and replay directory to make sure they are both valid.
     try {
       const rep = arg.Replay_Directory.toString().replace(/\\\\/g, "\\");
-      console.log("we set rep");
 
       // console.log(typeof rep);
       if (fs.existsSync(rep)) {
-        console.log("rep Exists");
-
         // console.log("Settings Are Valid");
         store.delete("Replay_Directory");
         store.set("username", arg.username);
@@ -105,7 +111,13 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
         files.forEach((file) => {
           if (extname(file) === ".slp") slippiFilesToArray.push(file);
         });
-        function truenamecheck() {
+        /**
+         * Specialized Function for checkSettings, Takes a random game and checks the username
+         *
+         *
+         */
+        //! Somthing here hangs when checking settings, so nothing gets returned.
+        function trueNameCheck() {
           let randomint = Math.floor(Math.random() * slippiFilesToArray.length);
           let game = new SlippiGame(
             join(replayDir(), slippiFilesToArray[randomint])
@@ -114,16 +126,13 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
             isAkeniaOrDoubles(slippiFilesToArray[randomint], arg.username) ==
             false
           ) {
-            console.log("passed akenia check");
-            return namecheck(game, arg.username);
+            return nameCheck(game, arg.username);
           } else {
-            console.log("failed somthing idk");
             return false;
           }
         }
 
-        //! fix this when get chance, should re execute when done, too tired rn
-        if (truenamecheck() == true) {
+        if (trueNameCheck() == true) {
           message2UI("resultCheckSettings", true);
         } else {
         }
@@ -138,10 +147,6 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
       console.log(err);
       message2UI("resultCheckSettings", false);
     }
-  } else {
-    console.log(
-      "not checkSettings for some reason fuck this stupid shit i hate it so much like jesus christ"
-    );
   }
 });
 console.log("Sent Message to Main");
@@ -150,6 +155,7 @@ interface MetadataTypePlayers extends MetadataType {
     [playerIndex: number]: {
       names: {
         code: string;
+        netplay: string;
       };
       characters: {
         [internalCharacterId: number]: number;
@@ -157,7 +163,8 @@ interface MetadataTypePlayers extends MetadataType {
     };
   };
 }
-
+// setup electron stores to save data.
+// TODO Move this infront of Settings Check.
 const store = new Store();
 const datastoredata = { name: "Data" };
 const Achstoredata = { name: "Ach" };
@@ -184,6 +191,9 @@ const slippiFilesToArray: string[] = [];
 // let null = new Achivement(null, null, null)
 // General Achievemnts
 // Kill Achievements
+
+// Sets up values to check against when parsing achievements.
+// TODO Move to Json File
 const killCheckArray = [
   1,
   10,
@@ -279,8 +289,7 @@ const GannonSArray = [1, 10, 100];
 const DRMPillsArray = [1, 100, 10000];
 const DRMFairArray = [1, 10, 100];
 // Achievement End
-
-//code
+const RepDirExist = false;
 /**
  * This Function takes in the ach name, an array for values that need to be check, and the integer that should be checked. Not sure if i should return somthing here, i think returning void should work.
  *
@@ -288,7 +297,7 @@ const DRMFairArray = [1, 10, 100];
  * @param ChumpCheck This is an array with the values needed to check against. TODO:Come up with better name lol
  * @param int This is the integer that should be checked against Chump Check. This should be the count like number of games.
  */
-const RepDirExist = false;
+
 function AchievementUnlock(
   AchName: string,
   ChumpCheck: any[],
@@ -307,7 +316,12 @@ function AchievementUnlock(
     } else continue;
   }
 }
-
+/**
+ * This function takes a name and returns an integer depending on what port the name belongs to
+ *
+ * @param gamefile The gamefile to check
+ * @param name The Username To Check
+ */
 function name(gamefile: string, name: string) {
   const rep = replayDir();
   const game = new SlippiGame(join(rep, gamefile));
@@ -334,7 +348,13 @@ function name(gamefile: string, name: string) {
 
   return -1;
 }
-function charintGet(gamefile: string, uname: string) {
+/**
+ * This Function gets what character you are playing based on the username/
+ *
+ * @param gamefile The gamefile to check
+ * @param uname The Username To Check
+ */
+function characterIntegerGet(gamefile: string, uname: string) {
   const rep = replayDir();
   try {
     let game = new SlippiGame(join(rep, gamefile));
@@ -346,7 +366,13 @@ function charintGet(gamefile: string, uname: string) {
     console.log(name(gamefile, uname));
   }
 }
-
+/**
+ * This Function Takes in a gamefile, attack id, and Uname, and tries to determine if the attack id matches the last move that hit the opponent before death.
+ *
+ * @param gamefile The gamefile to check
+ * @param AttackID The Attack ID to use to determine the last hit
+ * @param uname The Username To Check
+ */
 function CheckMoveKill(gamefile: string, AttackID: number, Uname: string) {
   const rep = replayDir();
   const game = new SlippiGame(join(rep, gamefile));
@@ -407,7 +433,15 @@ function CheckActionID(gamefile: string, ActionID: number, Uname: string) {
 
   return count;
 }
-function ItemIDCheck(gamefile: string, itemid: number, Uname: string) {
+
+/**
+ * This Function determines how many items you spawn based on what item id it has.
+ *
+ * @param gamefile The gamefile to check
+ * @param itemId The item id to try and find
+ * @param uname The Username To Check
+ */
+function ItemIDCheck(gamefile: string, itemId: number, Uname: string) {
   const rep = replayDir();
   const game = new SlippiGame(join(rep, gamefile));
   const frames = game.getFrames();
@@ -421,7 +455,7 @@ function ItemIDCheck(gamefile: string, itemid: number, Uname: string) {
             UniqueItemId.push(frames[n].items?.[i].spawnId as number);
             if (
               frames[n].items?.[i].owner === name(gamefile, Uname) &&
-              frames[n].items?.[i].typeId === itemid
+              frames[n].items?.[i].typeId === itemId
             ) {
               Count += 1;
               continue;
@@ -479,7 +513,7 @@ const ObjData = {};
 /**
  * This function checks if the slp file was processed before
  *
- * @param Slippi_File The Splippi File
+ * @param Slippi_File The Slippi File
  * @param Replay_Directory The Replay Directory
  */
 /* Commented out in favor of on demand scans.
@@ -538,12 +572,11 @@ function checkSlippiFiles(gamefile: string, Uname: string) {
     }
     null;
   }
-  //return data inside of an object???
   //console.log("SLP stats Parse Is OK!");
 
   return { stock: murder, dama: dam, comp: game.getStats().gameComplete };
 }
-
+// These are character specific functions that parse based on what kind of achievement is here. Im not documenting every one.
 function foxParse(gamefile, uname) {
   let shine_Spike = 0;
   let shine = 0;
@@ -764,23 +797,23 @@ function CheckFileAch(gamefile, uname): void {
 
   if (store.get("file." + gamefile, false) === false) {
     // console.log(gamefile + " Not in the store");
-    // console.log(charintGet(gamefile, uname));
+    // console.log(characterIntegerGet(gamefile, uname));
     let game = new SlippiGame(join(replayDir(), gamefile));
     datastore.set(
       "stocks",
       (datastore.get("stocks", 0) as number) +
         game.getStats().overall[name(gamefile, store.get("username"))].killCount
     );
-    switch (charintGet(gamefile, uname)) {
+    switch (characterIntegerGet(gamefile, uname)) {
       case 0:
         let Falcon = FalconParse(gamefile, uname);
         AddToStore("Falcon_Punch", Falcon.fp);
         AddToStore("Falcon_Knee", Falcon.kn);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
 
         break;
       case 1:
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         let donkeyK = DonkeyParse(gamefile, uname);
         AddToStore("Donkey_Punch", donkeyK.DP);
         AddToStore("Cargo_Throw", donkeyK.CT);
@@ -789,144 +822,144 @@ function CheckFileAch(gamefile, uname): void {
         let fox = foxParse(gamefile, uname);
         AddToStore("Shine", fox.Shine);
         AddToStore("Shine_Spike", fox.ShineSpike);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 3:
         let GNW = GameAndWatchParse(gamefile, uname);
         AddToStore("GNWK", GNW.GK);
         AddToStore("GNWN", GNW.GN);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 4:
         let Kirby = KirbyParse(gamefile, uname);
         AddToStore("Kirbycide", Kirby.KC);
         AddToStore("Kirby_Nair", Kirby.KN);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 5:
         let Bowser = BowserParse(gamefile, uname);
         AddToStore("Bowser_Nair", Bowser.BN);
         AddToStore("Bowser_Upb", Bowser.BUB);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 6:
         let Link = linkParse(gamefile, uname);
         AddToStore("LinkNair", Link.LinkN);
         AddToStore("LinkBomb", Link.LinkB);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 7:
         let Luigi = LuigiParse(gamefile, uname);
         AddToStore("Luigi_Wavedash", Luigi.wd);
         AddToStore("Misfire", Luigi.Mis);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 8:
         let Mario = marioParse(gamefile, uname);
         AddToStore("Fireball", Mario.fb);
         AddToStore("Mario_Spike", Mario.fs);
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       case 9:
         let Marth = MarthParse(gamefile, uname);
         AddToStore("Marth_Grab", Marth.mg);
         AddToStore("Marth_Spike", Marth.ms);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 10:
         let Mewtwo = MewtwoParse(gamefile, uname);
         AddToStore("Mewtwo_Fair", Mewtwo.MF);
         AddToStore("Mewtwo_ShadowBall", Mewtwo.MB);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 11:
         let Ness = NessParse(gamefile, uname);
         AddToStore("Ness_Dair", Ness.ND);
         AddToStore("Ness_Upb", Ness.NUB);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 12:
         let Peach = PeachParse(gamefile, uname);
         AddToStore("Peach_Fair", Peach.PF);
         AddToStore("Peach_Stich", Peach.PS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 13:
         let Pikachu = PikachuParse(gamefile, uname);
         AddToStore("Pikachu_Tjolt", Pikachu.tj);
         AddToStore("Pikachu.Tailspike", Pikachu.ts);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 14:
         let Ice_Climbers = IceClimbersParse(gamefile, uname);
         AddToStore("ICDS", Ice_Climbers.DS);
         AddToStore("ICFS", Ice_Climbers.FS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 15:
         let Jigglypuff = JigglypuffParse(gamefile, uname);
         AddToStore("Jigglypuff_Rest", Jigglypuff.Rest);
         AddToStore("Jigglypuff_Bair", Jigglypuff.bair);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 16:
         let Samus = SamusParse(gamefile, uname);
         AddToStore("Samus_Chargeshot", Samus.cs);
         AddToStore("Samus_Missile", Samus.ms);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 17:
         let Yoshi = YoshiParse(gamefile, uname);
         AddToStore("Yoshi_Downsmash", Yoshi.YDS);
         AddToStore("Yoshi_Nair", Yoshi.YN);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 18:
         let Zelda = ZeldaParse(gamefile, uname);
         AddToStore("Zelda_Fair", Zelda.ZF);
         AddToStore("Zelda_Fire", Zelda.ZFI);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 19:
         let Shiek = ShiekParse(gamefile, uname);
         AddToStore("Sheik_Needle", Shiek.SNEED);
         AddToStore("Shiek_Nair", Shiek.SN);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 20:
         let Falco = FalcoParse(gamefile, uname);
         AddToStore("Falco_Dair", Falco.FD);
         AddToStore("Falco_Laser", Falco.FL);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 21:
         let Young_Link = YoungLinkParse(gamefile, uname);
         AddToStore("Yink_Arrow", Young_Link.YLA);
         AddToStore("Yink_Downsmash", Young_Link.YLDS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 22:
         let Dr_Mario = DrMParse(gamefile, uname);
         AddToStore("DRMF", Dr_Mario.DRMF);
         AddToStore("DRMP", Dr_Mario.DRMP);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 23:
         let Roy = RoyParse(gamefile, uname);
         AddToStore("Roy_B", Roy.RB);
         AddToStore("Roy_Fsmash", Roy.RS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 24:
         let Pichu = PichuParse(gamefile, uname);
         AddToStore("Pichu_Bair", Pichu.PB);
         AddToStore("Pichu_Tjolt", Pichu.PTJ);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 25:
         let Gannnondorf = GannonParse(gamefile, uname);
         AddToStore("Gannon_Punch", Gannnondorf.GP);
         AddToStore("Gannon_Spike", Gannnondorf.GS);
-        //console.log("Checking This Char..." + charintGet(gamefile, uname));
+        //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
         break;
       case 26:
         break;
@@ -936,7 +969,7 @@ function CheckFileAch(gamefile, uname): void {
 }
 
 function characterConditionalParse(gamefile, uname) {
-  switch (charintGet(gamefile, uname)) {
+  switch (characterIntegerGet(gamefile, uname)) {
     case 0:
       let Falcon = FalconParse(gamefile, uname);
       return {
@@ -947,7 +980,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Hit Knees This Game: ",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
 
       break;
     case 1:
@@ -970,7 +1003,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Shine(s) This Game: ",
         Stat2Text: "Shine Spikes(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 3:
       let GNW = GameAndWatchParse(gamefile, uname);
@@ -981,7 +1014,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Nair Kill(s) This Game: ",
         Stat2Text: "Dair Kill(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 4:
       let Kirby = KirbyParse(gamefile, uname);
@@ -992,7 +1025,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Kirbycide Kill(s) This Game: ",
         Stat2Text: "Nair Hit(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 5:
       let Bowser = BowserParse(gamefile, uname);
@@ -1004,7 +1037,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Bowser UpB Hit(s) This Game: ",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 6:
       let Link = linkParse(gamefile, uname);
@@ -1016,7 +1049,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Link Bomb(s) This Game:",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 7:
       let Luigi = LuigiParse(gamefile, uname);
@@ -1027,7 +1060,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Luigi Wavedash's This Game: ",
         Stat2Text: "Luigi Misfire(s) This Game",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 8:
       let Mario = marioParse(gamefile, uname);
@@ -1038,7 +1071,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Fireball(s) This Game: ",
         Stat2Text: "Fair Spike(s) This Game: ",
       };
-    //console.log("Checking This Char..." + charintGet(gamefile, uname));
+    //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
     case 9:
       let Marth = MarthParse(gamefile, uname);
       return {
@@ -1049,7 +1082,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Spike Kill(s) This Game: ",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 10:
       let Mewtwo = MewtwoParse(gamefile, uname);
@@ -1060,7 +1093,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Fair Kill(s) This Game: ",
         Stat2Text: "Shadow Ball(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 11:
       let Ness = NessParse(gamefile, uname);
@@ -1082,7 +1115,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Peach Stich Face(s) This Game: ",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 13:
       let Pikachu = PikachuParse(gamefile, uname);
@@ -1093,7 +1126,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Pikachu Tailspike Kill(s) This Game: ",
         Stat2Text: "Pikachu Thunderjolt(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 14:
       let Ice_Climbers = IceClimbersParse(gamefile, uname);
@@ -1105,7 +1138,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Forward Smash Kill(s) This Game",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 15:
       let Jigglypuff = JigglypuffParse(gamefile, uname);
@@ -1116,7 +1149,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Jigglypuff Bair Hit(s) This Game: ",
         Stat2Text: "Jigglypuff Rest Kill(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 16:
       let Samus = SamusParse(gamefile, uname);
@@ -1128,7 +1161,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Samus Missile(s) This Game: ",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 17:
       let Yoshi = YoshiParse(gamefile, uname);
@@ -1140,7 +1173,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Yoshi Downsmash Kill(s) This Game: ",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 18:
       let Zelda = ZeldaParse(gamefile, uname);
@@ -1152,7 +1185,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Zelda Fair Kill(s) This Game",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 19:
       let Shiek = ShiekParse(gamefile, uname);
@@ -1163,7 +1196,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Sheik Nair Kill(s) This Game: ",
         Stat2Text: "Sheik Needle(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 20:
       let Falco = FalcoParse(gamefile, uname);
@@ -1175,7 +1208,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat2Text: "Falco Dair(s) This Game",
       };
 
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 21:
       let Young_Link = YoungLinkParse(gamefile, uname);
@@ -1186,7 +1219,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Young Link Arrow(s) This Game: ",
         Stat2Text: "Young Link Downsmash Kill(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 22:
       let Dr_Mario = DrMParse(gamefile, uname);
@@ -1197,11 +1230,11 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Doctor Mario Fair Kill(s) This Game: ",
         Stat2Text: "Dr Mario Pill(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 23:
       let Roy = RoyParse(gamefile, uname);
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       return {
         char: 23,
         Stat1: Roy.RB,
@@ -1218,7 +1251,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Pichu Bair Kill(s) This Game: ",
         Stat2Text: "Pichu Thunderjolt(s) This Game: ",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 25:
       let Gannnondorf = GannonParse(gamefile, uname);
@@ -1229,7 +1262,7 @@ function characterConditionalParse(gamefile, uname) {
         Stat1Text: "Gannondorf Warlock Punch Hit(s) This Game: ",
         Stat2Text: "Gannondorf Spike Kill(s) This Game:",
       };
-      //console.log("Checking This Char..." + charintGet(gamefile, uname));
+      //console.log("Checking This Char..." + characterIntegerGet(gamefile, uname));
       break;
     case 26:
       break;
@@ -2096,7 +2129,7 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
                 }
                 AddToStoreStats(
                   info.CharacterNames[
-                    charintGet(
+                    characterIntegerGet(
                       slippiFilesToArray[i],
                       store.get("username") as string
                     )
@@ -2291,7 +2324,7 @@ electron.ipcRenderer.on("message-from-page", (event, data) => {
       });
       if (!isAkeniaOrDoubles(gamefile, uname)) {
         if (
-          info.CharacterNames[charintGet(gamefile, uname)] ==
+          info.CharacterNames[characterIntegerGet(gamefile, uname)] ==
             data.data.PlayerChar &&
           info.CharacterNames[
             game.getSettings().players[nameflip(name(gamefile, uname))]
@@ -2333,7 +2366,7 @@ electron.ipcRenderer.on("message-from-page", (event, data) => {
         } else {
           // console.log(
           //   "Characters: " +
-          //     info.CharacterNames[charintGet(gamefile, uname)] +
+          //     info.CharacterNames[characterIntegerGet(gamefile, uname)] +
           //     " and " +
           //     info.CharacterNames[
           //       game.getSettings().players[nameflip(name(gamefile, uname))]
