@@ -90,6 +90,8 @@
 <script>
 const fs = require("fs");
 const electron = require("electron");
+const Store = require("electron-store");
+const store = new Store();
 export default {
   data() {
     return {
@@ -107,7 +109,6 @@ export default {
       const mydata = JSON.parse(
         fs.readFileSync(__resources + "/worker/info.Json")
       );
-      console.log(mydata.CharacterNames);
       return mydata.CharacterNames;
     },
   },
@@ -120,7 +121,6 @@ export default {
     },
     async submit() {
       if (this.PCharacter !== null || this.ECharacter !== null) {
-        console.log("yo");
         this.loaded = false;
         this.loading = true;
         this.ReturnedData = null;
@@ -137,8 +137,7 @@ export default {
         });
         await electron.ipcRenderer.on("message-from-worker", (event, args) => {
           if (args.command === "CharacterMUSpreadResult") {
-            if (store.get(this.shineaudio, false) === false)
-              this.shineaudio.play();
+            if (store.get("ShineSound", false) === true) this.shineaudio.play();
             this.loaded = true;
             this.loading = false;
             this.value = 0;

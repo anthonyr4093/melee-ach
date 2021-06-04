@@ -17,9 +17,9 @@ function isAkeniaOrDoubles(gamefile, uname) {
     }
     else {
         if (game.getSettings().isTeams == true ||
-            charintGet(gamefile, uname) == 26 ||
+            characterIntegerGet(gamefile, uname) == 26 ||
             game.getSettings().stageId == 294 ||
-            charintGet(gamefile, uname) == 27) {
+            characterIntegerGet(gamefile, uname) == 27) {
             return true;
         }
         else {
@@ -37,7 +37,7 @@ let message2UI = (command, payload) => {
 function getPercentage(array, int) {
     return Math.round(100 * (int / array.length));
 }
-function namecheck(game, uname) {
+function nameCheck(game, uname) {
     if (game.getMetadata().players[0].names.code.toLowerCase() ==
         uname.toLowerCase()) {
         console.log("Returning True");
@@ -57,15 +57,12 @@ function namecheck(game, uname) {
 }
 electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
     console.log(args);
-    console.log("NotYourFriend");
     let arg = args.data;
     if (args.message == "checkSettings") {
         console.log("correct message");
         try {
             const rep = arg.Replay_Directory.toString().replace(/\\\\/g, "\\");
-            console.log("we set rep");
             if (fs_1.default.existsSync(rep)) {
-                console.log("rep Exists");
                 store.delete("Replay_Directory");
                 store.set("username", arg.username);
                 store.set("Replay_Directory", rep.replace(/\\\\/g, "\\"));
@@ -76,20 +73,18 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                     if (path_1.extname(file) === ".slp")
                         slippiFilesToArray.push(file);
                 });
-                function truenamecheck() {
+                function trueNameCheck() {
                     let randomint = Math.floor(Math.random() * slippiFilesToArray.length);
                     let game = new slippi_js_1.default(path_1.join(replayDir(), slippiFilesToArray[randomint]));
                     if (isAkeniaOrDoubles(slippiFilesToArray[randomint], arg.username) ==
                         false) {
-                        console.log("passed akenia check");
-                        return namecheck(game, arg.username);
+                        return nameCheck(game, arg.username);
                     }
                     else {
-                        console.log("failed somthing idk");
                         return false;
                     }
                 }
-                if (truenamecheck() == true) {
+                if (trueNameCheck() == true) {
                     message2UI("resultCheckSettings", true);
                 }
                 else {
@@ -105,9 +100,6 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
             console.log(err);
             message2UI("resultCheckSettings", false);
         }
-    }
-    else {
-        console.log("not checkSettings for some reason fuck this stupid shit i hate it so much like jesus christ");
     }
 });
 console.log("Sent Message to Main");
@@ -224,7 +216,7 @@ function name(gamefile, name) {
     }
     return -1;
 }
-function charintGet(gamefile, uname) {
+function characterIntegerGet(gamefile, uname) {
     const rep = replayDir();
     try {
         let game = new slippi_js_1.default(path_1.join(rep, gamefile));
@@ -280,7 +272,7 @@ function CheckActionID(gamefile, ActionID, Uname) {
     }
     return count;
 }
-function ItemIDCheck(gamefile, itemid, Uname) {
+function ItemIDCheck(gamefile, itemId, Uname) {
     var _a, _b, _c, _d;
     const rep = replayDir();
     const game = new slippi_js_1.default(path_1.join(rep, gamefile));
@@ -294,7 +286,7 @@ function ItemIDCheck(gamefile, itemid, Uname) {
                     if (!UniqueItemId.includes((_a = frames[n].items) === null || _a === void 0 ? void 0 : _a[i].spawnId)) {
                         UniqueItemId.push((_b = frames[n].items) === null || _b === void 0 ? void 0 : _b[i].spawnId);
                         if (((_c = frames[n].items) === null || _c === void 0 ? void 0 : _c[i].owner) === name(gamefile, Uname) &&
-                            ((_d = frames[n].items) === null || _d === void 0 ? void 0 : _d[i].typeId) === itemid) {
+                            ((_d = frames[n].items) === null || _d === void 0 ? void 0 : _d[i].typeId) === itemId) {
                             Count += 1;
                             continue;
                         }
@@ -579,7 +571,7 @@ function CheckFileAch(gamefile, uname) {
         let game = new slippi_js_1.default(path_1.join(replayDir(), gamefile));
         datastore.set("stocks", datastore.get("stocks", 0) +
             game.getStats().overall[name(gamefile, store.get("username"))].killCount);
-        switch (charintGet(gamefile, uname)) {
+        switch (characterIntegerGet(gamefile, uname)) {
             case 0:
                 let Falcon = FalconParse(gamefile, uname);
                 AddToStore("Falcon_Punch", Falcon.fp);
@@ -716,7 +708,7 @@ function CheckFileAch(gamefile, uname) {
     }
 }
 function characterConditionalParse(gamefile, uname) {
-    switch (charintGet(gamefile, uname)) {
+    switch (characterIntegerGet(gamefile, uname)) {
         case 0:
             let Falcon = FalconParse(gamefile, uname);
             return {
@@ -1396,7 +1388,7 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, args) => {
                                 else {
                                     AddToStoreStats(opponentname + ".loss", 1);
                                 }
-                                AddToStoreStats(info_json_1.default.CharacterNames[charintGet(slippiFilesToArray[i], store.get("username"))] + ".played", 1);
+                                AddToStoreStats(info_json_1.default.CharacterNames[characterIntegerGet(slippiFilesToArray[i], store.get("username"))] + ".played", 1);
                             }
                         }
                         console.log(statstore.get("TotalStocks"));
@@ -1558,7 +1550,7 @@ electron_1.default.ipcRenderer.on("message-from-page", (event, data) => {
                 Value: getPercentage(slippiFilesToArray, i),
             });
             if (!isAkeniaOrDoubles(gamefile, uname)) {
-                if (info_json_1.default.CharacterNames[charintGet(gamefile, uname)] ==
+                if (info_json_1.default.CharacterNames[characterIntegerGet(gamefile, uname)] ==
                     data.data.PlayerChar &&
                     info_json_1.default.CharacterNames[game.getSettings().players[nameflip(name(gamefile, uname))]
                         .characterId] == data.data.EnemyChar) {
