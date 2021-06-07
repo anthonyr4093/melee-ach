@@ -4,6 +4,8 @@ It seems like keeping all frame data for slippi files takes up alot of memory wh
 TODO: Test storing only individual player frame data, and only post frames, this should save a fourth of the memory usage. Hopefully. Worried about this running on lower-end pcs.
 TODO: Setup inputs for user data like usernames.
 TODO: put todos in more relevant places.
+TODO: Remove Uname from almost every function input. its unneeded and could be replaced with a funciton akin to replayDir()
+TODO: Solve the 800+ errors that return when building from typescript.
 */
 import fs, { stat } from "fs";
 import { basename, extname, join, parse } from "path";
@@ -116,7 +118,7 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
          *
          *
          */
-        //! Somthing here hangs when checking settings, so nothing gets returned.
+        //! Somthing here hangs when checking settings, so nothing gets returned. Seems completely random, but that can't be true
         function trueNameCheck() {
           let randomint = Math.floor(Math.random() * slippiFilesToArray.length);
           let game = new SlippiGame(
@@ -177,9 +179,7 @@ const charstore = new Store(CharacterStoreData);
 
 const replayDir = () =>
   (store.get("Replay_Directory") as string).replace(/\\\\/g, "\\");
-
-// Initialize Variables For Later use, Later figure out how to load values from json.
-// This is probably when we figure out ui.
+const SlpName = () => store.get("username")
 //= store.get("Replay_Directory", ).replace(/\\\\/g, "\\");
 // let username = store.get("Username");
 
@@ -291,25 +291,22 @@ const DRMFairArray = [1, 10, 100];
 // Achievement End
 const RepDirExist = false;
 /**
- * This Function takes in the ach name, an array for values that need to be check, and the integer that should be checked. Not sure if i should return somthing here, i think returning void should work.
+ * This Function takes in the ach name, an array for values that need to be check, and the integer that should be checked. Not sure if i should return somthing here, i think returning void should work. 
  *
  * @param AchName The Achievements name. This is for unlocking the achivement with the eval statement. I he
  * @param ChumpCheck This is an array with the values needed to check against. TODO:Come up with better name lol
  * @param int This is the integer that should be checked against Chump Check. This should be the count like number of games.
  */
-
 function AchievementUnlock(
   AchName: string,
   ChumpCheck: any[],
   int: number
 ): void {
   for (let i = 0; i in ChumpCheck; i++) {
-    //console.log("Checking Ach: " + AchName + " Against: " + int);
 
     if (int > ChumpCheck[i]) {
       const key = `${AchName}${i + 1}`;
 
-      //achievements[key].unlocked = true;
       achstore.set(key, true);
 
       continue;
@@ -576,7 +573,8 @@ function checkSlippiFiles(gamefile: string, Uname: string) {
 
   return { stock: murder, dama: dam, comp: game.getStats().gameComplete };
 }
-// These are character specific functions that parse based on what kind of achievement is here. Im not documenting every one.
+// These are character specific functions that parse based on what kind of achievement is here. Im not documenting every one. 
+// TODO: Move these to another file, they take up uneeded space here.
 function foxParse(gamefile, uname) {
   let shine_Spike = 0;
   let shine = 0;
@@ -788,22 +786,35 @@ function IceClimbersParse(gamefile, uname) {
   ICFS += CheckMoveKill(gamefile, 10, uname);
   return { DS: ICDS, FS: ICFS };
 }
-
-function AddToStore(storename: string, addint: number) {
+/**
+ * This funciton takes in a store name and adds a value to this store.
+ *
+ * @param Storename The Stores Name
+ * @param Addint The integer that should be added.
+ */
+function AddToStore(storename: string, addint: number): void {
   datastore.set(storename, datastore.get(storename, 0) + addint);
 }
+/**
+ * This function Takes in a gamefile and moves the saved stats to the store. Returns Void
+ *
+ * @param gamefile The File That should be Checked
+ * @param AttackID The move that should be checked.
+ * @param ActionStateID This is the action state id of the move
+ */
 function CheckFileAch(gamefile, uname): void {
-  //console.log("Got Request For: " + gamefile);
 
   if (store.get("file." + gamefile, false) === false) {
-    // console.log(gamefile + " Not in the store");
-    // console.log(characterIntegerGet(gamefile, uname));
+    //Checks if we already processed this file. If not, initialize a new Slippigame
     let game = new SlippiGame(join(replayDir(), gamefile));
+    //Store stocks taken in the store.
+    //TODO: use addtostore.
     datastore.set(
       "stocks",
       (datastore.get("stocks", 0) as number) +
         game.getStats().overall[name(gamefile, store.get("username"))].killCount
     );
+     // Determine which character we need to check stats for and use the correct function.
     switch (characterIntegerGet(gamefile, uname)) {
       case 0:
         let Falcon = FalconParse(gamefile, uname);
@@ -964,11 +975,18 @@ function CheckFileAch(gamefile, uname): void {
       case 26:
         break;
     }
+    //add a game to the store.
     AddToStore("Game_Total", 1);
   }
 }
-
+/**
+ * This function takes in a gamefile and a username and gives back what we would have gotten from the achievements had we parsed it through there.
+ *
+ * @param gamefile The File That should be Checked
+ * @param Uname Your username to apply the right character.
+ */
 function characterConditionalParse(gamefile, uname) {
+  //switch function to apply the right character to the right situation.
   switch (characterIntegerGet(gamefile, uname)) {
     case 0:
       let Falcon = FalconParse(gamefile, uname);
@@ -1268,6 +1286,14 @@ function characterConditionalParse(gamefile, uname) {
       break;
   }
 }
+/**
+ * This function Checks an array of gamefiles for achievements using the CheckFileAch Function and then unlockes the correct acheivements for it.
+ *
+ * @param GamefileArray The gamefiles to check for achievement data.
+ * @param uname username to correctly check achievemnts.
+ */
+
+//TODO: Figure out a way to removes chump checks. Also figure out why i named this chump checks.
 function CheckAch(GamefileArray, uname): void {
   for (let i = 0; i in GamefileArray; i++) {
     let gamefile = GamefileArray[i];
@@ -1790,6 +1816,7 @@ electron.ipcRenderer.on("message-from-page", async (event, args) => {
         );
         AchievementUnlock("DRMPills", DRMPillsArray, datastore.get("DRMP", 0));
         AchievementUnlock("DRMFair", DRMFairArray, datastore.get("DRMF", 0));
+        //TODO: Check this code, unsure if it works correctly
         for (let i = 0; i in info.CharacterNames; i++) {
           if (statstore.get(info.CharacterNames[i], false)) {
             charcount += 1;
@@ -1825,10 +1852,16 @@ electron.ipcRenderer.on("message-from-page", async (event, args) => {
     }
   }
 });
+/**
+ * This function checks if you won the game, used in the file browser to filter by wins.
+ *
+ * @param gamefile The file that should be checked
+ */
 function didiwin(gamefile) {
   let rep = replayDir();
   let game = new SlippiGame(join(rep, gamefile));
   try {
+    //This is more of an educated guess than truly determining that you won/loss. Unsure of a better way to do this.
     if (
       game.getLatestFrame().players[
         name(gamefile, store.get("username") as string)
@@ -1840,6 +1873,11 @@ function didiwin(gamefile) {
     return false;
   }
 }
+/**
+ * This function is kinda unnessesary, it stores if you have won the game or not in the store
+ *
+ * @param gamefile The File That should be Checked
+ */
 function didIWinStore(gamefile) {
   if (!store.has("file." + parse(gamefile).name + ".win")) {
     store.set("file." + parse(gamefile).name + ".win", didiwin(gamefile));
@@ -1848,7 +1886,7 @@ function didIWinStore(gamefile) {
     return store.get("file." + parse(gamefile).name + ".win");
   }
 }
-
+//This is called when a file is clicked on from the file browser.
 electron.ipcRenderer.on("message-from-page", (event, args) => {
   if (args.message == "checkThisFile") {
     let gamefile = args.data;
@@ -1876,6 +1914,7 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
     message2UI("checkThisFileResult", { slpparse: slpcheck, alt: altobj });
   }
 });
+//This is called when processing files for the file browser.
 electron.ipcRenderer.on("message-from-page", (event, args) => {
   if (args.message == "getFileArray") {
     try {
@@ -1949,6 +1988,10 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
     }
   }
 });
+/**
+ * This function just turns 1 into 0 or 0 into 1
+ * @param int The number.
+ */
 function nameflip(int) {
   if (int == 1) {
     return 0;
@@ -1958,13 +2001,16 @@ function nameflip(int) {
     console.log("Nameflip returned 1");
   }
 }
-// TODO Configue AddToStore to support diffrent store names
+// TODO Configue AddToStore to support diffrent store names !DONE REPLACE CODE.
+
 function AddToStoreStats(storename: string, addint: number) {
   statstore.set(storename, statstore.get(storename, 0) + addint);
 }
+// called when processing files from the stats page.
 electron.ipcRenderer.on("message-from-page", (event, args) => {
   if (args.message == "getGeneralStats") {
     const rep = replayDir();
+    //initilizes variables. Some of these probably dont need to be a thing.
     if (fs.existsSync(rep)) {
       let slippiFilesToArray = [];
       const files = fs.readdirSync(rep, "utf-8");
@@ -1989,7 +2035,7 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
       let damage = statstore.get("TotalDamage", 0) as number;
       console.log(damage);
       console.log(murder);
-
+      //creates an array of slippi files.
       files.forEach((file) => {
         if (extname(file) === ".slp") slippiFilesToArray.push(file);
       });
@@ -2290,7 +2336,7 @@ electron.ipcRenderer.on("message-from-page", (event, args) => {
     }
   }
 });
-
+// Called when CharacterMU is started.
 electron.ipcRenderer.on("message-from-page", (event, data) => {
   if (data.message == "CharacterMUSpread") {
     charstore.clear();
