@@ -2,15 +2,13 @@
 
 > An electron-nuxt project
 
-Hello! Welcome to Melee Achievements, this is a project i have been working on for a little while to try and add fun achievements to Slippi netplay and an attempt to try and learn javascript and learn more about melee! This program takes stats from all of your past and future games and puts them into character specific catagories for you to try and go for. There is also a file browser so you can see the stats that we can see from each game, and a stats page for some overall general stats. If you run into any bugs, please open a github issue, and if you have a suggestion for an achievement, add the enhancement label to the issue. Huge thank you to the Slippi team for making all of this possible, and another huge thank you to lemueldls for helping make the app look as good as it does now.
+Hello! Welcome to Melee Achievements, this is a project i have been working on for a little while to try and add fun achievements to Slippi netplay and an attempt to try and learn javascript and learn more about melee! This program takes stats from all of your past and future games and puts them into character specific catagories for you to try and go for. There is also a file browser so you can see the stats that we can see from each game, and a stats page for some overall general stats. If you run into any bugs, please open a github issue, and if you have a suggestion for an achievement, add the enhancement label to the issue. Huge thank you to the Slippi team for making all of this possible.
 
 > Known Issues
 
 ---
 
 Achievement parser is laughably slow for some characters, this is because I have to check each individual frame for some achievements and this takes awhile. I recommend choosing a subset of all your files if you think its taking to long
-
-Also, the app seems empty. I can't figure out whats missing.
 
 #### Build Setup
 
